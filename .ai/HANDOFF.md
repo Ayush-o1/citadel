@@ -27,8 +27,9 @@ any AI tool, zero chat history — can pick this up correctly.
   extended `GIT-WORKFLOW.md` / `PLAYBOOK.md`.
 - Added GitHub labels for MoSCoW prioritization and issue typing (see
   `PLAYBOOK.md` → "GitHub as project management").
-- Ran the cross-agent handoff simulation described in `QUALITY.md` /
-  Phase 00's verification section — passed.
+- Ran a cross-agent handoff simulation (fresh clone, following only
+  `AGENTS.md`'s boot sequence with no chat context) per Phase 00's
+  acceptance criteria — passed.
 
 **What was verified:** backend boots and connects to the `citadel`
 Postgres DB; migration + seed re-run cleanly (idempotent); `npm test`

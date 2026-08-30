@@ -67,4 +67,5 @@ Do:
 | `QUALITY.md` | Phase gates, verification loop, quality review, MVP rules |
 | `GIT-WORKFLOW.md` | Branching, commits, checkpoints, conflict handling |
 | `PLAYBOOK.md` | The step-by-step protocol for when the hackathon actually starts |
+| `PRE-HACKATHON-CHECKLIST.md` | The team's literal Sept 1 morning-of checklist — clone through first commit |
 | `problem-statement/ANALYSIS-TEMPLATE.md` | Template for analyzing the real problem statement |

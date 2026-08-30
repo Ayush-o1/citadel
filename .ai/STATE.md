@@ -14,8 +14,9 @@ these; see `ROADMAP.md`.
 ## Next recommended action
 
 If `PROBLEM-STATEMENT.md` still says "not yet released": nothing product-
-related to do. Optional: idle-time improvements (see Phase 00 doc's
-"Deferred / optional" section) — but don't invent scope.
+related to do. Optional idle-time work: resolve `RISK-001`/`RISK-002` in
+`ISSUES.md` (run Docker Compose once end-to-end; confirm pending GitHub
+invites are accepted) — but don't invent scope beyond that.
 
 If `PROBLEM-STATEMENT.md` now contains the real problem: **stop, don't
 code.** Follow `PLAYBOOK.md`'s Problem-Statement Mode end to end (analysis
@@ -47,7 +48,7 @@ None open. See `ISSUES.md` for the full register.
 
 | Checkpoint | Date | Phase | Commit | Verified |
 |---|---|---|---|---|
-| `checkpoint/phase-00-foundation` | 2026-08-30 | Phase 00 | `2dfc243` | Yes — see Phase 00 doc's verification section |
+| `checkpoint/phase-00-foundation` | 2026-08-30 | Phase 00 | `2dfc243` | Yes — see Phase 00 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 
