@@ -1,0 +1,53 @@
+# Optional: spins up the whole stack (Postgres + API + client) with one
+# command for a teammate who doesn't have Postgres installed locally.
+# During the hackathon, running `npm run dev` in server/ and client/
+# directly (against your local Postgres) is usually faster to iterate on.
+#
+# Usage: docker compose up
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-citadel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-citadel_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-citadel}
+    ports:
+      - '5433:5432'
+    volumes:
+      - citadel_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-citadel}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build: ./server
+    ports:
+      - '4000:4000'
+    environment:
+      PORT: 4000
+      CLIENT_ORIGIN: http://localhost:5173
+      DATABASE_URL: postgresql://${POSTGRES_USER:-citadel}:${POSTGRES_PASSWORD:-citadel_dev_password}@postgres:5432/${POSTGRES_DB:-citadel}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+  client:
+    build: ./client
+    ports:
+      - '5173:5173'
+    environment:
+      VITE_PROXY_TARGET: http://server:4000
+    depends_on:
+      - server
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+volumes:
+  citadel_postgres_data:
