@@ -1,9 +1,14 @@
 # Citadel
 
-Domain-agnostic hackathon starter for the Caterpillar hackathon (Sept 1–3, 2026).
-No fake domain logic — this is a clean foundation to adapt once the real
-problem statement is revealed. See [`docs/HACKATHON.md`](docs/HACKATHON.md)
-for the exact playbook to follow when that happens.
+Domain-agnostic hackathon starter and command center for a 4-person team's
+Caterpillar campus hackathon (Sept 1–3, 2026). No fake domain logic — this
+is a clean foundation to adapt once the real problem statement is
+revealed.
+
+**Picking this project up — human or AI agent?** Start at
+[`.ai/AGENTS.md`](.ai/AGENTS.md). It's the entrypoint for current project
+state, phase, decisions, and what to do next — this README only covers
+running the code.
 
 ## Stack
 
@@ -15,7 +20,7 @@ for the exact playbook to follow when that happens.
 - **Docker**: optional, for teammates without local Postgres
 
 Chosen because it's the stack the whole team already knows — see
-[`docs/DECISIONS.md`](docs/DECISIONS.md) for the reasoning.
+[`.ai/DECISIONS.md`](.ai/DECISIONS.md) for the reasoning.
 
 ## Repository structure
 
@@ -25,9 +30,10 @@ server/     Express API
   src/      app code (config, middleware, routes, modules, utils)
   db/       migrations + migration runner + seed script
   tests/    backend tests
-docs/       architecture notes, decisions, hackathon playbook
+.ai/        project state, decisions, architecture, phases — start here
 scripts/    setup.sh — one-shot local bootstrap
 docker-compose.yml   optional full-stack spin-up
+PROBLEM-STATEMENT.md  the real Caterpillar problem statement goes here
 ```
 
 ## Local setup
@@ -78,20 +84,20 @@ dev — safe to delete once real data exists.
 ## Git workflow
 
 Branch off `main`, open a PR, get one review, merge. Full details —
-naming, commit style, conflict handling — in
-[`docs/GIT-WORKFLOW.md`](docs/GIT-WORKFLOW.md).
+naming, commit style, checkpoints, conflict handling — in
+[`.ai/GIT-WORKFLOW.md`](.ai/GIT-WORKFLOW.md).
 
 ## Replacing the starter with the real solution
 
 The `items` module (`server/src/modules/items/`, `client/src/pages/Items.jsx`,
 `client/src/api/items.js`) is a working end-to-end reference — not a real
 feature. Once the problem statement lands, follow
-[`docs/HACKATHON.md`](docs/HACKATHON.md) to scope the MVP, then copy or
+[`.ai/PLAYBOOK.md`](.ai/PLAYBOOK.md) to scope the MVP, then copy or
 delete that module as your starting point.
 
 ## What's intentionally not included
 
 No auth, no AI integration, no dashboards, no ORM, no state-management
 library, no CI pipeline. Adding any of these later is meant to be
-straightforward — see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for how
+straightforward — see [`.ai/ARCHITECTURE.md`](.ai/ARCHITECTURE.md) for how
 each one plugs in without restructuring the app.

@@ -47,7 +47,7 @@ now risks wasted work or fighting the wrong shape of auth/AI once
 requirements are known.
 
 **Decision:** Ship the starter with neither, but document the exact
-integration point for both in `docs/ARCHITECTURE.md`.
+integration point for both in `ARCHITECTURE.md`.
 
 **Alternatives considered:** Pre-wiring a generic JWT auth flow "just in
 case" — rejected, since roughly half of hackathon problem statements don't
@@ -57,3 +57,43 @@ adding it fresh would.
 **Tradeoff:** If the problem statement requires auth, there's a small
 amount of setup time on day one instead of zero. Judged worth it to avoid
 carrying unused complexity into every other decision until then.
+
+## 2026-08-30 — Consolidated `docs/` into `.ai/` as one AI-agent operating system
+
+**Context:** The team needs the repository to work as a complete,
+self-contained source of truth: any future agent (different machine,
+different AI account or model, zero chat history) must be able to clone it
+and understand full project state without asking anyone. A separate
+`docs/` (human narrative) and a hypothetical second state-tracking tree
+would risk drift between the two.
+
+**Decision:** One canonical location, `.ai/`, holding both the
+process/state machinery (`AGENTS.md`, `STATE.md`, `HANDOFF.md`,
+`ROADMAP.md`, `phases/`, `ISSUES.md`, `QUALITY.md`) and the narrative docs
+that used to live in `docs/` (`ARCHITECTURE.md`, this file,
+`GIT-WORKFLOW.md`, `PLAYBOOK.md`, the problem-statement template). `README.md`
+points here as the required entrypoint for anyone — human or agent —
+picking the project back up.
+
+**Alternatives considered:** Keeping `docs/` for humans and adding a
+separate `.ai/` just for agent state — rejected, since a dot-folder is
+just as readable by a human on GitHub, and two locations for the same kind
+of information is exactly the drift risk this system exists to prevent.
+
+**Tradeoff:** None significant — a directory rename/consolidation, not a
+scope change.
+
+## 2026-08-30 — Corrected GitHub account: `Ayush-o1`, not `Ayush-01`
+
+**Context:** A setup instruction referenced the repository owner's account
+as `Ayush-01` (digit zero). Verified via the GitHub API that this is a
+real but entirely unrelated account (`ayush-01`, id `72971850`, no
+display name) — not the team's account.
+
+**Decision:** The correct, verified account is `Ayush-o1` (letter "o", id
+`243273707`, display name "Ayush kumar"), which is where this repository
+actually lives and which the local `git remote` and `gh auth` both
+confirm. Recorded here so no future agent "corrects" it back to the wrong
+one from a stale instruction.
+
+**Tradeoff:** None — this is a factual correction, not a design choice.

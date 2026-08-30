@@ -96,4 +96,11 @@ before.
 TypeScript, ESLint/Prettier config, CI pipeline, a component library,
 global state management, microservices, an event bus. Each is a real
 option later if the problem statement and remaining time justify it — see
-`docs/DECISIONS.md` for how to record that choice when it's made.
+`DECISIONS.md` for how to record that choice when it's made.
+
+## Agent operating system
+
+The `.ai/` directory (this file's parent) is the project's institutional
+memory — current state, phase history, decisions, known issues — kept
+separate from this file's job of describing the *software* architecture.
+Start at `.ai/AGENTS.md`, not here, when picking up the project cold.

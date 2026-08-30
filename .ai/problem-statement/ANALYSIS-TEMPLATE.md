@@ -1,8 +1,9 @@
 # Problem statement analysis
 
 Copy this into a new doc (or fill it in directly) as soon as the real
-problem statement is pasted into `PROBLEM-STATEMENT.md`. Fill it in as a
-team before writing code — see `docs/HACKATHON.md` for why.
+problem statement is pasted into `../../PROBLEM-STATEMENT.md`. Fill it in
+as a team before writing code — see `../PLAYBOOK.md` for the full sequence
+this fits into, and `../QUALITY.md`'s MVP-control rules.
 
 ## 1. Problem interpretation
 
@@ -16,7 +17,8 @@ system.
 
 ## 3. Functional requirements
 
-What must the system *do*. One bullet per capability.
+What must the system *do*. One bullet per capability. Transfer each into
+`../REQUIREMENTS.md` as a `REQ-XXX` row once this list is stable.
 
 ## 4. Non-functional requirements
 
@@ -37,7 +39,8 @@ Everything real but not essential. Rank by demo impact vs. effort.
 
 Does the existing Citadel starter fit as-is, or does anything need to
 change (e.g. a second datastore, a real-time layer, an external API)? See
-`docs/ARCHITECTURE.md` for how to extend it.
+`../ARCHITECTURE.md` for how to extend it. Note any domain research that
+influenced this in `../RESEARCH.md`.
 
 ## 8. Data model
 
@@ -62,8 +65,9 @@ One row per page/route and what it shows.
 
 ## 11. Team task division
 
-Fill in `docs/HACKATHON.md`'s team responsibility template with the actual
-split once this section is done.
+Fill in `../PLAYBOOK.md`'s team responsibility template with the actual
+split once this section is done. Create the phase files in `../phases/`
+(from `../phases/_TEMPLATE.md`) and update `../ROADMAP.md`'s index.
 
 ## 12. Estimated difficulty / risk
 
