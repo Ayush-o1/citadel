@@ -47,7 +47,7 @@ None open. See `ISSUES.md` for the full register.
 
 | Checkpoint | Date | Phase | Commit | Verified |
 |---|---|---|---|---|
-| `checkpoint/phase-00-foundation` | 2026-08-30 | Phase 00 | (tagged at commit time — see `git log`) | Yes — see Phase 00 doc's verification section |
+| `checkpoint/phase-00-foundation` | 2026-08-30 | Phase 00 | `2dfc243` | Yes — see Phase 00 doc's verification section |
 
 ## What must not be changed without a documented reason
 
