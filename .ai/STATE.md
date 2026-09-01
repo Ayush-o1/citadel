@@ -1,9 +1,62 @@
 # Project state
 
-**Last updated:** 2026-09-01, AI agent, Phase 11 (final) — end of the
-autonomous Phase 03→11 run, authorized after the `TEAM-EXECUTION-PLAN.md`
-planning checkpoint. All 11 phases are now `VERIFIED`.
+**Last updated:** 2026-09-01, AI agent — frontend rebuild (role experiences
++ capacity-aware optimization), phases RB-1..RB-5 in progress. See below;
+the Phase 00-11 history that follows is unchanged/historical.
 **Statuses used:** `NOT_STARTED` · `PLANNED` · `IN_PROGRESS` · `BLOCKED` · `READY_FOR_REVIEW` · `VERIFIED` · `COMPLETE`
+
+## Frontend rebuild status (current work, see `.ai/FRONTEND-REBUILD-PLAN.md`)
+
+The Phase 00-11 build below is `COMPLETE` and remains the verified backend.
+New direction (2026-09-01) reverses the earlier "no roles" decision — see
+`.ai/DECISIONS.md`'s "Reversed 'no auth/multi-user roles'" entry — and adds
+three role experiences plus a capacity-aware rental optimization feature.
+
+- **RB-1 (planning docs):** `DONE`. `.ai/FRONTEND-REBUILD-PLAN.md`,
+  `.ai/FRONTEND-ROLE-MATRIX.md`, `.ai/FRONTEND-UX-PLAN.md` written.
+- **RB-2 (design tokens + AppShell + Entry + routing skeleton):** `DONE`.
+  `client/src/styles/tokens.css`, `client/src/app/{RoleContext,RoleGate}.jsx`,
+  `client/src/components/layout/AppShell.jsx`, `client/src/pages/Entry.jsx`,
+  rewritten `client/src/App.jsx`. Client build verified passing
+  (`npm run build`, 56 modules, no errors).
+- **RB-3 (Dealer restyle):** `DONE` (structural). `ControlTower.jsx`/
+  `AssetDashboard.jsx` moved to `client/src/pages/dealer/`, now served at
+  `/dealer` and `/dealer/assets`, no functional change. Backend 26/26
+  tests reconfirmed passing after the move (`npm test` in `server/`).
+  Still needs a deeper visual restyle pass against the new tokens (colors
+  work today via inherited CSS vars, but Dealer-specific polish is
+  deferred).
+- **RB-4 (Customer experience):** `DONE`. Migration `008_add_customer_name.sql`
+  applied and verified against a real Postgres instance (via
+  `docker compose up postgres`); `checkouts.customer_name` wired through
+  schema/repository/service/controller and a new
+  `GET /checkouts?customer_name=` filter. `Discover.jsx`,
+  `EquipmentDetail.jsx`, `MyRentals.jsx` built and manually verified via
+  live `curl` against the running API (checkout-with-customer-name →
+  filtered list → check-in, full cycle, real DB rows, not mocked).
+- **RB-5 (Admin experience):** `DONE`. `FleetOverview.jsx`,
+  `Utilization.jsx`, `Anomalies.jsx`, `Forecasts.jsx`,
+  `Recommendations.jsx` built under `/admin/*`, reusing existing
+  `utilization`/`anomalies`/`forecasts`/`recommendations` endpoints (new
+  dedicated `alerts.js`/`anomalies.js` frontend API clients added — those
+  backend endpoints existed but had no frontend consumer before).
+- **RB-6 (capacity-aware optimization):** `NOT_STARTED`. Design is written
+  (`FRONTEND-REBUILD-PLAN.md` section 4) — new `capacity` backend module,
+  migration extending `recommendations.source_type`, surfaced across all
+  three roles. Not yet implemented.
+- **RB-7 (QA pass, doc sync):** `NOT_STARTED`. No live-browser manual QA
+  done yet on the new role UIs (verification so far: client build passes,
+  backend tests pass, and the Customer checkout/filter/check-in cycle was
+  verified live via `curl`, not through the actual browser UI). Don't
+  claim RB-2..RB-5 "browser-verified" until that's actually done.
+
+**Verification honesty note:** this session did not open the app in a
+browser. Build success and API-level `curl` verification are real but are
+not a substitute for the live-browser walkthroughs the original Phase
+08-11 work did — that's outstanding before calling any of RB-2..RB-5
+`VERIFIED` rather than `DONE`.
+
+---
 
 ## Current phase
 
