@@ -7,3 +7,8 @@ export function checkOut(payload) {
 export function checkIn(checkoutId, payload = {}) {
   return apiRequest(`/checkouts/${checkoutId}/check-in`, { method: 'PATCH', body: JSON.stringify(payload) });
 }
+
+export function listCheckouts({ customerName } = {}) {
+  const qs = customerName ? `?customer_name=${encodeURIComponent(customerName)}` : '';
+  return apiRequest(`/checkouts${qs}`);
+}

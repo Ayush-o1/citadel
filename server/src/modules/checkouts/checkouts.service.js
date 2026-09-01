@@ -26,6 +26,7 @@ export async function createCheckout(input) {
         siteId: input.site_id,
         expectedReturnAt: input.expected_return_at,
         conditionOut: input.condition_out,
+        customerName: input.customer_name,
       });
     } catch (err) {
       if (err.code === '23505') throw new ApiError(409, 'Equipment is already checked out');

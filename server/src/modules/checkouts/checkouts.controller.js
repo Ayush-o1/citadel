@@ -12,7 +12,10 @@ export async function checkIn(req, res) {
 }
 
 export async function list(req, res) {
-  const checkouts = await service.listCheckouts({ status: req.query.status });
+  const checkouts = await service.listCheckouts({
+    status: req.query.status,
+    customerName: req.query.customer_name,
+  });
   ok(res, checkouts);
 }
 

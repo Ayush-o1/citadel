@@ -13,12 +13,15 @@ export async function findActiveByEquipment(client, equipmentId) {
   return rows[0] ?? null;
 }
 
-export async function insertCheckout(client, { equipmentId, operatorId, siteId, expectedReturnAt, conditionOut }) {
+export async function insertCheckout(
+  client,
+  { equipmentId, operatorId, siteId, expectedReturnAt, conditionOut, customerName }
+) {
   const { rows } = await client.query(
-    `INSERT INTO checkouts (equipment_id, operator_id, site_id, checked_out_at, expected_return_at, status, condition_out)
-     VALUES ($1, $2, $3, now(), $4, 'active', $5)
+    `INSERT INTO checkouts (equipment_id, operator_id, site_id, checked_out_at, expected_return_at, status, condition_out, customer_name)
+     VALUES ($1, $2, $3, now(), $4, 'active', $5, $6)
      RETURNING *`,
-    [equipmentId, operatorId ?? null, siteId ?? null, expectedReturnAt ?? null, conditionOut ?? null]
+    [equipmentId, operatorId ?? null, siteId ?? null, expectedReturnAt ?? null, conditionOut ?? null, customerName ?? null]
   );
   return rows[0];
 }
@@ -55,14 +58,24 @@ export async function findById(id) {
   return rows[0] ?? null;
 }
 
-export async function findAll({ status } = {}) {
+const LIST_SELECT = `
+  SELECT c.*, e.equipment_code, e.type AS equipment_type
+  FROM checkouts c
+  JOIN equipment e ON e.id = c.equipment_id
+`;
+
+export async function findAll({ status, customerName } = {}) {
+  const clauses = [];
+  const params = [];
   if (status) {
-    const { rows } = await query(
-      'SELECT * FROM checkouts WHERE status = $1 ORDER BY checked_out_at DESC',
-      [status]
-    );
-    return rows;
+    params.push(status);
+    clauses.push(`c.status = $${params.length}`);
   }
-  const { rows } = await query('SELECT * FROM checkouts ORDER BY checked_out_at DESC');
+  if (customerName) {
+    params.push(customerName);
+    clauses.push(`c.customer_name = $${params.length}`);
+  }
+  const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+  const { rows } = await query(`${LIST_SELECT} ${where} ORDER BY c.checked_out_at DESC`, params);
   return rows;
 }
