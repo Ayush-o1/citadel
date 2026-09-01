@@ -184,7 +184,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-08-asset-dashboard-ui` | 2026-09-01 | Phase 08 | `2b298bb` | Yes — see Phase 08 doc's "Tests" section |
 | `checkpoint/phase-09-control-tower-ui` | 2026-09-01 | Phase 09 | `32ed4e3` | Yes — see Phase 09 doc's "Tests" section |
 | `checkpoint/phase-10-integration-and-polish` | 2026-09-01 | Phase 10 | `81ff470` | Yes — see Phase 10 doc's "Tests" section |
-| `checkpoint/phase-11-demo-and-defense` | 2026-09-01 | Phase 11 | *(recorded after commit)* | Yes — see Phase 11 doc's "Tests" section |
+| `checkpoint/phase-11-demo-and-defense` | 2026-09-01 | Phase 11 | `017dfce` | Yes — see Phase 11 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 
