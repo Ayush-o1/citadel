@@ -7,6 +7,15 @@ node_modules/
 .env.*.local
 !.env.example
 
+# Downloaded credential files (Google/Firebase service accounts, OAuth
+# client secrets) -- these get saved straight into the repo root by
+# browser downloads if you're not careful. Never committed, regardless
+# of where they land.
+*firebase-adminsdk*.json
+*service-account*.json
+client_secret_*.json
+serviceAccountKey.json
+
 # Build output
 dist/
 build/

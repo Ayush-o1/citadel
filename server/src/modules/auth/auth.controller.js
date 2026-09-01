@@ -1,5 +1,4 @@
-import crypto from 'node:crypto';
-import { env, isProduction } from '../../config/env.js';
+import { isProduction } from '../../config/env.js';
 import { ok } from '../../utils/apiResponse.js';
 import { ApiError } from '../../utils/apiResponse.js';
 import * as service from './auth.service.js';
@@ -10,13 +9,9 @@ import * as repository from './auth.repository.js';
 // Render-would-be (API) are both `localhost`, so they're same-site and
 // Lax works. In the real hosted deployment they're genuinely different
 // domains (e.g. citadel.vercel.app calling citadel-api.onrender.com) —
-// cross-site. Without this, the Google OAuth redirect (a real top-level
-// navigation) would still set the cookie fine, but every subsequent
-// `fetch(..., {credentials:'include'})` call from the SPA would silently
-// drop it, making the app look permanently signed-out right after a
-// successful sign-in. SameSite=None requires Secure, which requires
-// HTTPS — true for both Vercel and Render, never true for local HTTP dev,
-// so this must stay conditional on isProduction, not hardcoded either way.
+// cross-site, so this must stay conditional on isProduction, not
+// hardcoded either way (SameSite=None requires Secure, which requires
+// HTTPS — true for both Vercel and Render, never true for local HTTP dev).
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: isProduction,
@@ -30,53 +25,25 @@ function toPublicUser(user) {
 }
 
 export function status(req, res) {
-  ok(res, { googleConfigured: service.isGoogleConfigured() });
+  ok(res, { googleConfigured: service.isFirebaseConfigured() });
 }
 
-export function googleStart(req, res) {
-  const state = crypto.randomBytes(16).toString('hex');
-  const url = service.buildGoogleAuthUrl(state);
-  res.redirect(url);
-}
-
-export async function googleCallback(req, res) {
-  const { code, error } = req.query;
-  if (error) {
-    return res.redirect(`${env.clientOrigin}/auth/error?reason=${encodeURIComponent(String(error))}`);
-  }
-  if (!code) {
-    return res.redirect(`${env.clientOrigin}/auth/error?reason=${encodeURIComponent('Missing authorization code from Google')}`);
-  }
-
-  // This whole route is reached by a top-level browser navigation (Google
-  // redirects here directly), not a fetch() call from the SPA — so any
-  // uncaught error here would previously render as a raw
-  // {"success":false,...} JSON page instead of a real screen, and in
-  // production its message would additionally be masked to a useless
-  // generic "Internal server error" with no way to tell what failed
-  // without server log access. Catching here and redirecting to the same
-  // client-side error page as every other sign-in failure fixes both: a
-  // real page instead of a JSON blob, and (since completeGoogleSignIn's
-  // errors are already safe, stage-labeled ApiErrors, never secrets) the
-  // actual failing stage is now visible on-screen.
-  let user;
-  try {
-    user = await service.completeGoogleSignIn(String(code));
-  } catch (err) {
-    console.error('Google sign-in callback failed:', err);
-    const reason = err instanceof ApiError ? err.message : 'Sign-in failed unexpectedly';
-    return res.redirect(`${env.clientOrigin}/auth/error?reason=${encodeURIComponent(reason)}`);
-  }
+// Called by the SPA via fetch() (credentials: 'include') after
+// signInWithPopup(GoogleAuthProvider) succeeds client-side — not a
+// server-side redirect flow. Returns JSON like every other endpoint,
+// since there's no top-level navigation involved here to redirect from.
+export async function firebaseSignIn(req, res) {
+  const user = await service.completeFirebaseSignIn(req.body.idToken);
 
   try {
     const token = service.signSession(user);
     res.cookie(service.SESSION_COOKIE, token, COOKIE_OPTIONS);
   } catch (err) {
     console.error('Google sign-in [stage: session creation] — real cause:', err);
-    return res.redirect(`${env.clientOrigin}/auth/error?reason=${encodeURIComponent('Signed in with Google, but could not create your session')}`);
+    throw new ApiError(502, 'Signed in with Google, but could not create your session');
   }
 
-  res.redirect(`${env.clientOrigin}/auth/complete`);
+  ok(res, toPublicUser(user));
 }
 
 export function me(req, res) {

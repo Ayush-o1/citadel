@@ -1,10 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
 import { API_ORIGIN } from '../api/client.js';
+import { auth, googleProvider, firebaseConfigured } from '../firebase.js';
 
-// Same origin as every other API call (see client.js) — Google sign-in
-// is a full navigation, not a fetch(), so it's easy for this to drift
-// out of sync with the rest of the app if it isn't sourced from the
-// same place. It now is, on purpose.
+// Same origin as every other API call (see client.js).
 const API_BASE = `${API_ORIGIN}/api`;
 
 export const ROLES = {
@@ -43,12 +42,35 @@ export function RoleProvider({ children }) {
     refresh();
   }, [refresh]);
 
-  const signIn = useCallback(() => {
-    window.location.href = `${API_BASE}/auth/google`;
+  // Firebase's client SDK handles the entire Google OAuth popup flow
+  // itself (no server-side redirect URI to configure or get wrong); this
+  // only needs the resulting ID token, verified server-side in
+  // auth.service.js's completeFirebaseSignIn. Throws on failure (popup
+  // closed, network error, server rejected the token) so the caller
+  // (Entry.jsx) can show it inline, same pattern as role selection below.
+  const signIn = useCallback(async () => {
+    if (!firebaseConfigured) {
+      throw new Error('Sign-in is unavailable: this deployment is missing its Firebase configuration (VITE_FIREBASE_*).');
+    }
+    const result = await signInWithPopup(auth, googleProvider);
+    const idToken = await result.user.getIdToken();
+    const res = await fetch(`${API_BASE}/auth/firebase`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+    const body = await res.json();
+    if (!res.ok) throw new Error(body?.error?.message || 'Could not sign in');
+    setUser(body.data);
   }, []);
 
   const signOut = useCallback(async () => {
     await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' });
+    // Best-effort: also sign the Firebase client SDK out of the Google
+    // session it's tracking, so a later signInWithPopup doesn't silently
+    // reuse a stale client-side session. Never blocks sign-out on this.
+    if (auth) await firebaseSignOut(auth).catch(() => {});
     setUser(null);
   }, []);
 

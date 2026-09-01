@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { ROLES, ROLE_LABELS, useRole } from '../app/RoleContext.jsx';
 import { API_ORIGIN } from '../api/client.js';
+import { firebaseConfigured } from '../firebase.js';
 import LoadingState from '../components/LoadingState.jsx';
 
-// A missing VITE_API_URL in a production build (see api/client.js) would
-// otherwise show up as a mysterious 404 the moment someone clicks
-// "Sign in with Google" — this is the same misconfiguration, made
-// visible on-screen instead of only in the console, so it's diagnosable
-// by anyone testing the deployed app, not just someone with devtools open.
-const MISCONFIGURED = import.meta.env.PROD && !API_ORIGIN;
+// A missing VITE_API_URL or Firebase config in a production build would
+// otherwise show up as a mysterious failure the moment someone clicks
+// "Sign in with Google" — made visible on-screen instead of only in the
+// console, so it's diagnosable by anyone testing the deployed app, not
+// just someone with devtools open.
+const MISCONFIGURED = import.meta.env.PROD && (!API_ORIGIN || !firebaseConfigured);
 
 const ROLE_CARDS = [
   {
@@ -50,12 +51,30 @@ export default function Entry() {
   const { loading, user, role, signIn, setRole } = useRole();
   const [pendingRole, setPendingRole] = useState(null);
   const [error, setError] = useState(null);
+  const [signingIn, setSigningIn] = useState(false);
 
   if (loading) return <LoadingState label="Loading…" />;
 
   if (role) {
     const home = ROLE_CARDS.find((c) => c.role === role)?.home ?? '/';
     return <Navigate to={home} replace />;
+  }
+
+  async function handleSignIn() {
+    setError(null);
+    setSigningIn(true);
+    try {
+      await signIn();
+    } catch (err) {
+      // The popup being closed by the person themselves isn't a real
+      // error worth alarming them with — every other failure (network,
+      // server rejected the token, misconfiguration) is.
+      if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
+        setError(err.message);
+      }
+    } finally {
+      setSigningIn(false);
+    }
   }
 
   async function choose(targetRole) {
@@ -89,16 +108,17 @@ export default function Entry() {
         <section className="entry-signin" aria-label="Sign in">
           {MISCONFIGURED ? (
             <p className="form-error" style={{ maxWidth: 480, textAlign: 'center' }}>
-              Sign-in is unavailable: this deployment is missing its API URL configuration
-              (<code>VITE_API_URL</code>). This is a deployment setup issue, not something you can fix here — see{' '}
+              Sign-in is unavailable: this deployment is missing its {!API_ORIGIN ? <code>VITE_API_URL</code> : <code>VITE_FIREBASE_*</code>}{' '}
+              configuration. This is a deployment setup issue, not something you can fix here — see{' '}
               <code>.ai/DEPLOYMENT.md</code> if you're setting this up.
             </p>
           ) : (
             <>
-              <button type="button" className="google-signin-button" onClick={signIn}>
+              <button type="button" className="google-signin-button" onClick={handleSignIn} disabled={signingIn}>
                 <GoogleIcon />
-                Sign in with Google
+                {signingIn ? 'Signing in…' : 'Sign in with Google'}
               </button>
+              {error && <p className="form-error">{error}</p>}
               <p className="entry-signin-note">
                 Real Google Sign-In. Your name, email, and photo come from your Google account; Citadel never sees
                 your Google password.
