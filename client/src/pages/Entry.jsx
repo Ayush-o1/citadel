@@ -86,15 +86,7 @@ export default function Entry() {
   return (
     <div className="entry">
       <header className="entry-nav">
-        <span className="entry-wordmark">CITADEL</span>
-        <a
-          className="entry-nav-link"
-          href="https://github.com/Ayush-o1/citadel"
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          View source
-        </a>
+        <span className="entry-wordmark entry-wordmark-hero">CITADEL</span>
       </header>
 
       <section className="entry-hero">

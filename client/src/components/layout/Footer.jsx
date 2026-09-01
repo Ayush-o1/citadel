@@ -29,11 +29,6 @@ export default function Footer() {
           <div className="site-footer-col">
             <h4>Project</h4>
             <ul>
-              <li>
-                <a href="https://github.com/Ayush-o1/citadel" target="_blank" rel="noreferrer noopener">
-                  Source on GitHub
-                </a>
-              </li>
               <li>Built for the Caterpillar campus hackathon</li>
             </ul>
           </div>
