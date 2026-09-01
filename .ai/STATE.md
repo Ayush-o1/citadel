@@ -93,7 +93,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-02-synthetic-data` | 2026-09-01 | Phase 02 | `a61aa90` | Yes — see Phase 02 doc's "Tests" section |
 | `checkpoint/phase-03-core-apis` | 2026-09-01 | Phase 03 | `92d71b5` | Yes — see Phase 03 doc's "Tests" section |
 | `checkpoint/phase-04-alerts` | 2026-09-01 | Phase 04 | `2052ec1` | Yes — see Phase 04 doc's "Tests" section |
-| `checkpoint/phase-05-anomaly-detection` | 2026-09-01 | Phase 05 | *(recorded after commit)* | Yes — see Phase 05 doc's "Tests" section |
+| `checkpoint/phase-05-anomaly-detection` | 2026-09-01 | Phase 05 | `3f59f3d` | Yes — see Phase 05 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 
