@@ -146,6 +146,11 @@ straight through to the screen that exercises it. Update this table with
 real task/status as work starts — this is a starting proposal, not a
 lock-in.
 
+**Detailed version:** `TEAM-EXECUTION-PLAN.md` expands this table into
+per-phase task ownership, file ownership (merge-conflict avoidance), a
+cross-training assignment per person, and the presentation/panel-defense
+split, once all of Phase 03-11's phase files existed to map against.
+
 Before claiming a task, identify the specific files/components it touches
 (each phase file's "Files / systems affected" section) — avoid four
 people editing the same files.

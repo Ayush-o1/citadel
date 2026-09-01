@@ -7,6 +7,41 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Planning checkpoint: TEAM-EXECUTION-PLAN.md + architecture PDF, before Phase 03-11 autonomous execution
+
+**Where we are:** Phases 00-02 `VERIFIED` (unchanged this session). Before
+starting the authorized Phase 03→11 autonomous run, produced the planning
+artifact the team asked for: `.ai/TEAM-EXECUTION-PLAN.md` (source of
+truth) and `.ai/CITADEL-ARCHITECTURE-TEAM-PLAN.pdf` (13-page print copy,
+generated via headless Chrome from a standalone HTML file — no new
+dependency added to the app itself).
+
+**What it contains:** the existing architecture restated with concrete
+diagrams (system architecture, data flow, asset lifecycle, ERD, analytics
+pipeline, frontend IA, phase/dependency map), an API-contract table for
+Phases 03/04/05/06/07 so 08/09 can be built against an agreed shape before
+their real dependency lands, an expansion of `PLAYBOOK.md`'s existing
+4-person team table into per-phase task ownership + file ownership (for
+merge-conflict avoidance) + one cross-training task per person + a
+4-section presentation division + a panel-defense cheat sheet skeleton.
+
+**What did NOT change:** no new architecture, no new tech choice, no
+change to the Phase 01 schema or Phase 02 seed data. `PLAYBOOK.md`'s team
+table and `ROADMAP.md`'s dependency graph were extended, not replaced —
+both are referenced from the new file rather than duplicated.
+
+**Not verified (by nature — this is a planning doc, not code):** the file
+ownership / parallel-work claims are correct on paper (no two owners touch
+the same module folder) but untested by actual simultaneous multi-person
+work, since only Ayush's GitHub invite has been accepted so far
+(`RISK-002` — Astik/Souharda still pending). Treat the team assignments as
+the plan for when they join, not evidence they've been followed.
+
+**Next:** proceeding directly into Phase 03 (core backend APIs) per the
+already-authorized autonomous Phase 03→11 execution — see `STATE.md`.
+
+---
+
 ## 2026-09-01 — Phase 02 implemented and verified: synthetic operational data
 
 **Where we are:** Phase 02 `VERIFIED`. Database now has real, believable

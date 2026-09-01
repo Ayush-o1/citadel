@@ -69,5 +69,7 @@ Do:
 | `GIT-WORKFLOW.md` | Branching, commits, checkpoints, conflict handling |
 | `PLAYBOOK.md` | The step-by-step protocol for when the hackathon actually starts |
 | `PRE-HACKATHON-CHECKLIST.md` | The team's literal Sept 1 morning-of checklist — clone through first commit |
+| `TEAM-EXECUTION-PLAN.md` | Final architecture, 4-person work division, phase/dependency map, presentation split, panel-defense prep for Phases 03-11 — read this before starting any of Phases 03-11 |
+| `CITADEL-ARCHITECTURE-TEAM-PLAN.pdf` | Print/study copy of `TEAM-EXECUTION-PLAN.md` — if they disagree, the markdown file wins |
 | `problem-statement/ANALYSIS-TEMPLATE.md` | Template for analyzing the real problem statement |
 | `problem-statement/ANALYSIS.md` | The filled analysis of the actual Smart Rental Tracking System problem statement |
