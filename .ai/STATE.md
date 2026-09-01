@@ -33,15 +33,23 @@ recomputes and syncs `overdue`/`upcoming_return`/`missing_info` from live
 Seeded `EQX3001`/`EQX3002`/`EQX3003` each produce exactly the expected
 alert. See [`phases/PHASE-04-alerts.md`](phases/PHASE-04-alerts.md).
 
-**Phases 05-11:** `NOT_STARTED`. 05 (anomalies), 06 (forecasting), and 08
-(Asset Dashboard UI) are all unblocked now — see `ROADMAP.md`'s
-dependency graph.
+**Phase 05 — Anomaly detection.** Status: `VERIFIED`. `GET /api/anomalies`
+implements `excessive_idle`/`zero_runtime`/`missing_assignment`/
+`unusual_movement` against real seeded data (17/17 tests pass). The
+0.40 idle threshold, already calibrated in Phase 02, is now confirmed in
+production code: `EQX1002`/`EQX1007` flagged exactly as Caterpillar's own
+worked example intends, `EQX1003`/`EQX1005` correctly clean. See
+[`phases/PHASE-05-anomaly-detection.md`](phases/PHASE-05-anomaly-detection.md).
+
+**Phases 06-11:** `NOT_STARTED`. 06 (forecasting) and 08 (Asset Dashboard
+UI) are unblocked now — see `ROADMAP.md`'s dependency graph. 07
+(recommendations) can start once 06 lands too.
 
 ## Next recommended action
 
-Continuing the authorized autonomous Phase 03→11 run: **Phase 05
-(anomaly detection)** next — `phases/PHASE-05-anomaly-detection.md`, one
-of the two highest-judging-weight modules.
+Continuing the authorized autonomous Phase 03→11 run: **Phase 06
+(demand forecasting)** next — `phases/PHASE-06-forecasting.md`, the
+highest-risk phase (must stay honest/explainable on small-sample data).
 
 ## Overall progress
 
@@ -60,7 +68,8 @@ of the two highest-judging-weight modules.
 | Phase plan | `VERIFIED` | 11 phases in `ROADMAP.md`; work division in `TEAM-EXECUTION-PLAN.md` |
 | Core backend APIs (equipment/checkouts/usage-logs) | `VERIFIED` | Phase 03 — 14/14 tests pass |
 | Alerts engine | `VERIFIED` | Phase 04 — 16/16 tests pass |
-| Product implementation | `IN_PROGRESS` | Phases 00-04 done; Phases 05-11 not started |
+| Anomaly detection | `VERIFIED` | Phase 05 — 17/17 tests pass, threshold reconfirmed in production code |
+| Product implementation | `IN_PROGRESS` | Phases 00-05 done; Phases 06-11 not started |
 
 ## Known bugs
 
@@ -84,6 +93,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-02-synthetic-data` | 2026-09-01 | Phase 02 | `a61aa90` | Yes — see Phase 02 doc's "Tests" section |
 | `checkpoint/phase-03-core-apis` | 2026-09-01 | Phase 03 | `92d71b5` | Yes — see Phase 03 doc's "Tests" section |
 | `checkpoint/phase-04-alerts` | 2026-09-01 | Phase 04 | `2052ec1` | Yes — see Phase 04 doc's "Tests" section |
+| `checkpoint/phase-05-anomaly-detection` | 2026-09-01 | Phase 05 | *(recorded after commit)* | Yes — see Phase 05 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 

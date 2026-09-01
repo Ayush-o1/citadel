@@ -7,6 +7,46 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Phase 05 implemented and verified: anomaly detection
+
+**Where we are:** Phase 05 `VERIFIED`. `server/src/modules/anomalies/`
+built with the same sync-on-read pattern as Phase 04. This is one of the
+two highest-judging-weight modules (AI & Analytics), so before writing
+any code, ran a direct SQL query against the 7 official rows' aggregated
+engine/idle hours (see the Phase 05 doc's Rules table) to confirm the
+0.40 threshold's predicted split *before* implementing the rule, not
+after — avoids fitting a rule to a wrong assumption.
+
+**What we built:**
+- `excessive_idle`: `idle_hours / (engine_hours + idle_hours) > 0.40`, aggregated per checkout.
+- `zero_runtime`: any logged day with `engine_hours = 0` (covers both a single bad day and the official summary rows where every day is zero).
+- `missing_assignment`: reuses `hasMissingAssignment` from Phase 04's shared `checkoutRules.js` — generalized to drop the `status === 'active'` gate, since this anomaly must also catch it on a **returned** historical checkout (`EQX1002`/`EQX1007` are both returned). Phase 04's `missing_info` alert is unaffected since its query only ever looks at active checkouts.
+- `unusual_movement` (should-have): a checkout has an assigned site but a logged `usage_logs.location` doesn't contain that site's code. Caught a real bug before it shipped: `usage_logs.location` is free text ("Site S002 yard"), not a bare site code, so a strict-equality comparison would have flagged *every* logged location including the correct one — fixed to a substring check before writing the test, confirmed against the actual seeded values via `psql`.
+
+**What we verified:**
+- `npm test` — 17/17 pass. `EQX1002`/`EQX1007` flagged `zero_runtime` +
+  `missing_assignment` (and, correctly, `excessive_idle` too, since 0
+  engine hours makes idle ratio 100% by definition — a true additional
+  signal, not a double-counted bug). `EQX1003`/`EQX1005` flagged nothing.
+  `EQX3004` flagged `unusual_movement` with the right reason string.
+  `EQX3005` (healthy baseline) flagged nothing.
+- Post-test DB check: seeded counts unchanged (17/22/192, 0 test
+  fixtures); `anomalies` table holds exactly 17 open rows matching the
+  full expected set across all seeded equipment, not just the official 7.
+- `npm run build` (client) — clean, unaffected.
+
+**RISK-003 note:** the idle-threshold half of this risk was already
+marked resolved after Phase 02's calibration; this phase is the second,
+independent confirmation — the threshold now works correctly in the
+actual production code path, not just in a one-off calibration query.
+`ISSUES.md` updated to reflect that.
+
+**Next:** Phase 06 (demand forecasting) — the highest-risk remaining
+phase (must stay honest on small-sample data, per `ANALYSIS.md` §24).
+Continuing the authorized Phase 03→11 run without stopping for approval.
+
+---
+
 ## 2026-09-01 — Phase 04 implemented and verified: alerts engine
 
 **Where we are:** Phase 04 `VERIFIED`. `server/src/modules/alerts/` built;

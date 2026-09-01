@@ -19,6 +19,11 @@ export function isUpcomingReturn(checkout, now = new Date(), windowHours = 48) {
   return hoursUntil <= windowHours;
 }
 
+// Deliberately not status-gated: Phase 04's missing_info alert only ever
+// calls this against active checkouts (its query pre-filters), but Phase
+// 05's missing_assignment anomaly must also catch it on a completed
+// historical checkout — the official EQX1002/EQX1007 sample rows are
+// exactly this case (both returned, both with NULL operator/site).
 export function hasMissingAssignment(checkout) {
-  return checkout.status === 'active' && (checkout.operator_id == null || checkout.site_id == null);
+  return checkout.operator_id == null || checkout.site_id == null;
 }

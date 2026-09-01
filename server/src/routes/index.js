@@ -4,6 +4,7 @@ import { equipmentRouter } from '../modules/equipment/equipment.routes.js';
 import { checkoutsRouter } from '../modules/checkouts/checkouts.routes.js';
 import { usageLogsRouter } from '../modules/usage-logs/usage-logs.routes.js';
 import { alertsRouter } from '../modules/alerts/alerts.routes.js';
+import { anomaliesRouter } from '../modules/anomalies/anomalies.routes.js';
 
 // Add new feature modules by mounting them here, one line each.
 // Deleting a feature is the same in reverse: remove the module folder + line.
@@ -14,3 +15,4 @@ apiRouter.use('/equipment', equipmentRouter);
 apiRouter.use('/checkouts', checkoutsRouter);
 apiRouter.use('/usage-logs', usageLogsRouter);
 apiRouter.use('/alerts', alertsRouter);
+apiRouter.use('/anomalies', anomaliesRouter);
