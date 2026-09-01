@@ -1,10 +1,14 @@
 import pg from 'pg';
-import { env } from './env.js';
+import { env, isProduction } from './env.js';
 
 const { Pool } = pg;
 
+// Hosted Postgres (Neon, Render) requires SSL and presents a cert not in
+// Node's default trust store; local dev Postgres has no SSL listener at
+// all, so this can't be a single fixed setting.
 export const pool = new Pool({
   connectionString: env.databaseUrl,
+  ssl: isProduction ? { rejectUnauthorized: false } : false,
 });
 
 pool.on('error', (err) => {
