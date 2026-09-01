@@ -7,6 +7,75 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Documentation audit + deployment prep (no application logic changed)
+
+**What this session was:** two things, back to back. (1) Prepared
+deployment configuration (Vercel + Render + Neon, chosen and researched
+against current 2026-09 free-tier terms — see `DECISIONS.md`) but did
+**not** create any hosting accounts (that's a manual, human-only OAuth
+step — see `DEPLOYMENT.md`). (2) A full documentation audit against
+actual current repository/runtime state, per an explicit "audit and
+update docs only, don't build features" instruction.
+
+**Real findings from re-running verification, not assumed:**
+- `npm test` in `server/` is currently **22/26 passing**, not the 26/26
+  every phase doc claims. Root-caused via direct `psql` inspection (not
+  guessed): `EQX3001`/`EQX3002`'s seeded active checkouts got checked in
+  during an earlier manual-QA/browser-testing session and were never
+  reset, and 3 recommendations moved out of `pending`. `equipment`/
+  `checkouts`/`usage_logs` row counts are still exactly 17/22/192 — this
+  is seeded-data drift, not a code defect. Logged as `ISSUES.md` `BUG-001`,
+  not silently fixed (fixing it would mean writing SQL to restore
+  production-shaped demo data by hand, which is a data-hygiene action
+  outside a docs-only session's scope — flagged for the next session
+  instead).
+- `git log --format=%an` confirms all 29 commits are authored solely by
+  `Ayush-o1` — `ROADMAP.md`'s phase-owner table (Astik/Eklavya/Souharda
+  per phase) is `TEAM-EXECUTION-PLAN.md`'s *intended* assignment, not an
+  execution record. Added a footnote to `ROADMAP.md` rather than rewrite
+  the table — it's still valid as a plan.
+- `README.md` still described the deleted `items/` reference module and
+  told a future agent to "copy or delete it" — that already happened.
+  Rewrote the relevant section to describe the actual implemented modules
+  and pages, and corrected a stale "no dashboards" claim (Control Tower
+  *is* a dashboard).
+- Manual QA: `.ai/MANUAL-QA.md` has 0 of 66 tests actually marked PASS by
+  a human — only automated + AI-scripted browser verification has
+  happened so far. `STATE.md` didn't previously distinguish these; now
+  does, explicitly.
+- `client/npm run build` reconfirmed clean (42 modules, no errors).
+
+**Deployment prep (code changes, kept minimal and justified):**
+`server/src/config/db.js` now enables SSL only when `NODE_ENV=production`
+(hosted Postgres requires it, local dev Postgres doesn't have an SSL
+listener at all — confirmed the full backend suite still behaves
+identically locally after this change, modulo the pre-existing `BUG-001`
+drift above). `server/src/server.js`'s startup log no longer hardcodes
+"localhost". Added `render.yaml` (Blueprint) and `client/vercel.json`
+(SPA rewrite, needed because the app uses `react-router-dom`'s
+`BrowserRouter`). New `.ai/DEPLOYMENT.md` is the source of truth for
+deployment status — as of this entry, **not live**, config only.
+
+**Files touched this session:** `.ai/DEPLOYMENT.md` (new), `.ai/DECISIONS.md`,
+`.ai/ISSUES.md`, `.ai/STATE.md`, `.ai/ROADMAP.md`, `.ai/AGENTS.md`,
+`.ai/GIT-WORKFLOW.md`, `.ai/MANUAL-QA.md`, `README.md`,
+`server/src/config/db.js`, `server/src/server.js`, `server/.env.example`,
+`render.yaml` (new), `client/vercel.json` (new). No phase files,
+`ARCHITECTURE.md`, `DESIGN.md`, `QUALITY.md`, `REQUIREMENTS.md`,
+`RESEARCH.md`, `TEAM-EXECUTION-PLAN.md`, `DEMO-SCRIPT.md`, or
+`PANEL-DEFENSE.md` needed changes — each was checked against actual code/
+data and found accurate (or, for phase files, correctly describing that
+phase's state *at the time*, which historical entries shouldn't be
+rewritten to match today).
+
+**What a future agent picking this up should do:** resolve `BUG-001`
+(restore the demo baseline) before the next full test run or demo
+rehearsal; complete the manual Vercel/Render/Neon account setup in
+`DEPLOYMENT.md` if a live public URL is actually needed; keep treating
+`.ai/MANUAL-QA.md` PASS marks as something only a human can grant.
+
+---
+
 ## 2026-09-01 — Phase 11 implemented and verified: demo and panel-defense prep (all 11 phases now VERIFIED — autonomous Phase 03→11 run complete)
 
 **Where we are:** Phase 11 `VERIFIED` — the last phase. **All 11 phases

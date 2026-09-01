@@ -1,8 +1,14 @@
 # Manual QA checklist
 
 For manual testing only — automated coverage already exists in
-`server/tests/` (26/26 passing as of this session; see `STATE.md`). This
-checklist is for a human clicking through the real app.
+`server/tests/`. **Automated status is currently 22/26 passing, not
+26/26** — see `ISSUES.md` `BUG-001` before you start (it's a seeded-data
+drift issue, not an application defect, but it means `EQX3001`/`EQX3002`
+aren't in their originally-documented state right now; the exact current
+values are in `ISSUES.md`). See `STATE.md` for the live status. This
+checklist itself is separate from automated tests: everything below is
+for a human clicking through the real app — no automated result counts
+as a PASS here.
 
 **Mark each test `[x] PASS` or `[ ] FAIL` yourself as you go** — nothing
 here is pre-checked. If something fails, note what you saw, then report
@@ -16,9 +22,15 @@ re-verify the full flow, update `STATE.md`/`ISSUES.md`, commit, push).
 - Backend/API: **http://localhost:4000/api/...**
 - Both are already running — don't restart them mid-session unless a test
   says to.
-- Current seeded baseline (for reference, so you know what "normal"
-  looks like): **17 equipment, 22 checkouts, 192 usage_logs, 19 pending
-  recommendations**.
+- Documented seeded baseline (Phase 02/07's original intent): **17
+  equipment, 22 checkouts, 192 usage_logs, 19 pending recommendations**,
+  with `EQX3001` overdue and `EQX3002` upcoming-return.
+- **This has already drifted once** (`ISSUES.md` `BUG-001`, found
+  2026-09-01): `EQX3001`/`EQX3002` are currently checked in, not active,
+  and only 16 recommendations are pending. Row counts (17/22/192) are
+  still correct. Check `ISSUES.md` for the current exact state before
+  relying on sections F/G/N (alerts) or section I (EQX1002/EQX1007 is
+  unaffected — that pair was never touched).
 - **Real actions leave real residue.** Checking out a real seeded asset
   (not a throwaway one) and never checking it back in changes the demo
   state permanently. If you want to undo an action:
@@ -26,9 +38,11 @@ re-verify the full flow, update `STATE.md`/`ISSUES.md`, commit, push).
   - Marked a recommendation actioned/dismissed by mistake → this SQL
     restores every recommendation to pending:
     `UPDATE recommendations SET status='pending', actioned_at=NULL WHERE status != 'pending';`
-  - There is no one-command "full reset" script — that's a real gap if
-    you need to reset the seeded data itself (equipment/checkouts/usage_logs),
-    not a bug to silently patch around during this QA pass.
+  - There is no one-command "full reset" script — that's a real gap, now
+    confirmed by `BUG-001` actually happening, not just a hypothetical
+    risk. Restoring `EQX3001`/`EQX3002` to active checkouts currently
+    needs manual SQL matching Phase 02's original seeded values, not a
+    single documented command.
 
 ---
 

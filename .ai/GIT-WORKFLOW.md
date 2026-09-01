@@ -3,6 +3,16 @@
 Simple enough to run under hackathon time pressure. Four people, two days —
 the goal is avoiding lost work and merge conflicts, not process purity.
 
+**Current practice, honestly stated:** as of 2026-09-01, only one
+teammate (`Ayush-o1`) has accepted GitHub access (`ISSUES.md` `RISK-002`),
+and all 29 commits so far were made directly to `main` in autonomous
+AI-agent sessions — one commit + checkpoint tag per verified phase, no
+feature branches or PRs, because there was no second reviewer available
+yet. The branch/PR policy below is the intended process once more than
+one person is actively pushing in parallel; it hasn't been contradicted
+by evidence, just not yet exercised. Switch to it for real once a second
+teammate joins.
+
 ## Branches
 
 - `main` is always demo-able and runnable. Nobody pushes to it directly —

@@ -20,6 +20,54 @@ Format:
 
 ---
 
+## 2026-09-01 — Deployment architecture: Vercel + Render + Neon (not Render Postgres)
+
+**Context:** The team needs a free/low-cost, GitHub-auto-deploying,
+publicly reachable environment for team testing and demo access — not
+enterprise infrastructure. The starting assumption was Vercel (frontend) +
+Render (frontend and database).
+
+**Research (2026-09-01):** Checked current provider terms rather than
+assuming an old tutorial still holds:
+- Render's free PostgreSQL **expires 30 days after creation** (14-day
+  grace period, then deleted) and free web services **spin down after 15
+  minutes of inactivity** (~30-60s cold start on the next request); 750
+  free instance-hours/workspace/month.
+- Neon's free tier is **permanent** (no expiration), requires no credit
+  card, allows commercial use, and gives 0.5GB storage / 100 CU-hours/
+  month with scale-to-zero.
+- Vercel's Hobby plan (2026): 100GB transfer/month, 1M requests/month,
+  6000 build-minutes/month, free but restricted to personal/non-commercial
+  use.
+
+**Decision:** Frontend → **Vercel**. Backend → **Render** (free web
+service, `render.yaml` Blueprint). Database → **Neon**, not Render's own
+Postgres — the 30-day expiration is a real risk for a project that needs
+to survive past the hackathon dates (interviews, follow-up), whereas
+Neon's free tier has no such expiry. See `DEPLOYMENT.md` for the full
+setup, env vars, rollback, and limitations.
+
+**Alternatives considered:** Render Postgres (rejected: 30-day expiry);
+Supabase (rejected for the database role: free projects auto-pause after
+7 days of inactivity, requiring a manual dashboard unpause — worse for an
+unattended demo than Neon's scale-to-zero, which resumes on the next
+query with no manual step); Railway/Fly.io for the backend (not
+materially better than Render for this scale, and Render's free-tier
+Blueprint support was already a known quantity).
+
+**Tradeoff:** Render's 15-minute spin-down means the very first request
+after a period of inactivity is slow (~30-60s) — documented clearly in
+`DEPLOYMENT.md` rather than hidden, with a recommendation to load the app
+a minute before presenting live.
+
+**Status:** Configuration prepared and committed (`render.yaml`,
+`client/vercel.json`, SSL support in `server/src/config/db.js`). Actual
+account creation/connection is a manual, human-only step (GitHub OAuth
+login to each dashboard) — **not yet done as of this entry**. See
+`DEPLOYMENT.md`'s status line for the current truth.
+
+---
+
 ## 2026-09-01 — Phase 09: added GET /api/utilization; pending recommendations now refresh their wording on each sync
 
 **Context 1:** REQ-012 (Control Tower utilization view, "runtime vs. idle,
