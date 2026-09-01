@@ -7,6 +7,70 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Phase 11 implemented and verified: demo and panel-defense prep (all 11 phases now VERIFIED — autonomous Phase 03→11 run complete)
+
+**Where we are:** Phase 11 `VERIFIED` — the last phase. **All 11 phases
+(00-11) are now `VERIFIED`, all 20 requirements are `VERIFIED`.** This
+closes out the autonomous Phase 03→11 run authorized after the
+`TEAM-EXECUTION-PLAN.md` planning checkpoint.
+
+**What we built:** `.ai/DEMO-SCRIPT.md` — the literal five-step demo
+script (SPOT → EXPLAIN → ACT → PREDICT → PROVE), using `EQX1002`
+(Caterpillar's own worked example) as the spotted anomaly. `.ai/PANEL-DEFENSE.md`
+— real, sourced answers to all 12 questions from the problem statement's
+own "IMPORTANT EXPECTATION" section (not paraphrased from memory — read
+the literal section, answered each one against the actual decision
+record).
+
+**What we verified, live, twice:** ran the full demo script via a
+scripted Puppeteer session against the real running app, start to finish,
+**twice consecutively**, resetting the Action Queue
+(`UPDATE recommendations SET status='pending', actioned_at=NULL WHERE
+status != 'pending'`) between runs. Both rehearsals produced identical
+results: the anomaly spotted and explained, the mark-actioned interaction
+visibly closing the loop, the forecast panel showing both a real trend
+and an honest fallback, and the expected-impact text correctly labeled
+`"Simulated:"`. This is now documented as a **required pre-demo step** at
+the top of `DEMO-SCRIPT.md`, since the rehearsal itself revealed the
+queue is genuinely stateful — worth knowing before discovering it live in
+front of the panel.
+
+**Final documentation-reality check (11.5):** closed out REQ-016 (was
+sitting at "verified with a caveat" since Phase 07) once the demo script
+confirmed the simulated-labeling isn't just present in raw JSON but part
+of the narrated story. Spot-checked `DECISIONS.md`'s three most
+load-bearing claims (0.40 idle threshold, plain-average forecast method,
+sync-on-read pattern) against the actual running code — all match.
+
+**Honest gaps, not hidden:** `STATE.md`'s Final Phase 11 Gate section
+lists three items genuinely not done this session and says so plainly:
+Docker Compose was never run end-to-end (the app ran via `node`/`vite`
+directly all session — `RISK-001` unchanged); a true fresh-clone bootstrap
+on an empty database was not re-verified (migration idempotency and
+seed-skip behavior were reconfirmed directly, which is not the same
+thing); only Ayush's GitHub invite is accepted, so the team-ownership
+plan in `TEAM-EXECUTION-PLAN.md` is real for when the other three join,
+not evidence they've actually executed any of it (`RISK-002` unchanged).
+None of these block the demo working on this machine; all three are
+listed as pre-presentation action items, not swept under "all done."
+
+**Final state, checked before writing this:** `git status` clean, all 11
+phase checkpoints tagged and pushed and confirmed on `origin` (`git
+rev-list --left-right --count main...origin/main` → `0 0` after every
+single phase this session, not just at the end). Seeded data confirmed
+at the exact Phase 02/07 baseline (17 equipment / 22 checkouts / 192
+usage_logs / 19 pending recommendations) one final time after the
+rehearsals.
+
+**What a future agent picking this up should do:** there is no Phase 12.
+Read `STATE.md`'s "Next recommended action" for the three pre-presentation
+logistics items (Docker, fresh-clone check, teammate invites) — none of
+them are code changes. If asked to add a genuinely new feature, that's
+new scope beyond what this hackathon build was asked to cover this
+session — treat it as a real new request, not a continuation of Phase 11.
+
+---
+
 ## 2026-09-01 — Phase 10 implemented and verified: integration, testing, and polish
 
 **Where we are:** Phase 10 `VERIFIED`. This phase's entire point is

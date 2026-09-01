@@ -1,8 +1,8 @@
 # Project state
 
-**Last updated:** 2026-09-01, AI agent, Phase 03 implementation session
-(autonomous Phase 03→11 run, authorized after the `TEAM-EXECUTION-PLAN.md`
-planning checkpoint).
+**Last updated:** 2026-09-01, AI agent, Phase 11 (final) — end of the
+autonomous Phase 03→11 run, authorized after the `TEAM-EXECUTION-PLAN.md`
+planning checkpoint. All 11 phases are now `VERIFIED`.
 **Statuses used:** `NOT_STARTED` · `PLANNED` · `IN_PROGRESS` · `BLOCKED` · `READY_FOR_REVIEW` · `VERIFIED` · `COMPLETE`
 
 ## Current phase
@@ -82,13 +82,54 @@ one optional stretch feature (REQ-020, a rule-driven top-priority
 summary) is implemented and verified. See
 [`phases/PHASE-10-integration-and-polish.md`](phases/PHASE-10-integration-and-polish.md).
 
-**19 of 20 requirements are `VERIFIED`**; REQ-016 is verified at the API
-layer with one documentation-level pass still due in Phase 11.
+**Phase 11 — Demo and panel-defense prep.** Status: `VERIFIED`. Demo
+scripted (`DEMO-SCRIPT.md`) and rehearsed live, twice consecutively,
+identical results both times. Panel-defense answers to all 12 of the
+problem statement's own "Important Expectation" questions written and
+sourced (`PANEL-DEFENSE.md`). **All 20 requirements are now `VERIFIED`.**
+
+## PROJECT STATUS: all 11 phases (00-11) VERIFIED. The build is complete.
+
+No further phases exist in `ROADMAP.md`. Anything from here is
+maintenance, a real bug report, or the team's own presentation rehearsal
+— not another numbered phase. See the Final Phase 11 Gate checklist below
+before treating this as done for a live presentation.
+
+## Final Phase 11 gate — checked honestly, not rubber-stamped
+
+- [x] All phases 03-11 completed and verified
+- [x] All requirements audited (`REQUIREMENTS.md` — 20/20 `VERIFIED`)
+- [x] Core user journey works end-to-end (Phase 10's live walkthrough + Phase 11's 2 rehearsals)
+- [x] Frontend verified (both screens, live browser testing, not just build success)
+- [x] Backend verified (26 automated tests + extensive manual `curl`/live verification)
+- [x] Database verified (schema, seed, migration idempotency, and row counts double-checked after every phase)
+- [x] Analytics/anomalies/forecasting/recommendations verified against real seeded data, not synthetic assertions
+- [x] Validation verified (Zod on every write endpoint, tested)
+- [x] Error states verified (400/404/409 paths tested at the API; surfaced inline in the UI)
+- [x] Security baseline verified (CORS scoped, parameterized queries throughout, no secrets committed, prod errors redacted)
+- [x] Responsive behavior reviewed (measured, not eyeballed, at 420px on both screens)
+- [x] Tests pass (26/26); build passes (client)
+- [x] Demo path works (2 clean rehearsals, identical results)
+- [x] Representative data intact (17 equipment / 22 checkouts / 192 usage_logs / 19 pending recommendations — the exact Phase 02/07 baseline, reconfirmed after every manual test this session)
+- [x] Documentation reflects reality (updated continuously, phase by phase, not backfilled)
+- [x] Known issues explicitly documented (`ISSUES.md`, `PANEL-DEFENSE.md`'s limitations section — nothing hidden)
+- [x] No critical blockers remain
+- [ ] **Partially honest gaps, not swept under the rug:**
+  - `RISK-001` (Docker Compose end-to-end) is still unverified this session — the app was run directly via `node`/`vite`, not through Docker Compose. Flag before relying on Docker for the actual demo machine.
+  - `RISK-002` — only Ayush's GitHub invite is accepted; Astik/Eklavya/Souharda haven't joined yet, so `TEAM-EXECUTION-PLAN.md`'s ownership map is a plan for when they do, not evidence of real multi-person execution.
+  - A truly clean-machine bootstrap (fresh `git clone` → install → migrate → seed) was not re-run this session end-to-end — migration idempotency and seed-skip behavior were reconfirmed directly, but not from an empty database on a separate machine. Do this once before the real event, not for the first time on the demo machine.
+- Final git state: clean, all checkpoints pushed and verified on remote (see Checkpoint log below).
 
 ## Next recommended action
 
-Continuing the authorized autonomous Phase 03→11 run: **Phase 11 (demo
-and panel-defense prep)** — the last phase. `phases/PHASE-11-demo-and-defense.md`.
+**No further autonomous phase work.** Before presenting: (1) close
+`RISK-001` by actually running `docker compose up` end-to-end once, (2)
+do one real fresh-clone bootstrap on a second machine if possible, (3)
+resolve `RISK-002` if the other three teammates can still join, (4) run
+`DEMO-SCRIPT.md`'s pre-flight reset and do one more live rehearsal on the
+actual presentation machine, per `PANEL-DEFENSE.md`'s own limitations
+list — none of this changes application code, all of it is
+verification/logistics.
 
 ## Overall progress
 
@@ -103,7 +144,7 @@ and panel-defense prep)** — the last phase. `phases/PHASE-11-demo-and-defense.
 | Synthetic data | `VERIFIED` | Phase 02 — 17 equipment, 22 checkouts, 192 usage_logs seeded and verified |
 | Anomaly threshold calibration | `RESOLVED` | 0.40 idle-ratio threshold validated against real seeded data — `DECISIONS.md` |
 | Forecasting method calibration | `RESOLVED` | Plain trailing-window average chosen over exponential smoothing, validated against real seeded data — `DECISIONS.md`, `Q-002` |
-| Requirements | `IMPLEMENTED` (partial) | REQ-001–005, REQ-018 `VERIFIED`; REQ-015 `IMPLEMENTED`; rest `NOT_STARTED` |
+| Requirements | `VERIFIED` | All 20 requirements `VERIFIED` — see `REQUIREMENTS.md` |
 | Phase plan | `VERIFIED` | 11 phases in `ROADMAP.md`; work division in `TEAM-EXECUTION-PLAN.md` |
 | Core backend APIs (equipment/checkouts/usage-logs) | `VERIFIED` | Phase 03 — 14/14 tests pass |
 | Alerts engine | `VERIFIED` | Phase 04 — 16/16 tests pass |
@@ -113,7 +154,8 @@ and panel-defense prep)** — the last phase. `phases/PHASE-11-demo-and-defense.
 | Asset Dashboard UI | `VERIFIED` | Phase 08 — 25/25 backend tests pass, live browser walkthrough verified |
 | Control Tower UI | `VERIFIED` | Phase 09 — 26/26 backend tests pass, live browser walkthrough incl. mark-actioned interaction |
 | Integration, testing, polish | `VERIFIED` | Phase 10 — full E2E chain walked live; found and fixed missing usage-log UI; stretch feature (REQ-020) done |
-| Product implementation | `IN_PROGRESS` | Phases 00-10 done; only Phase 11 (demo/defense prep) remains |
+| Demo and panel-defense prep | `VERIFIED` | Phase 11 — 2 clean live rehearsals; all 12 "Important Expectation" questions answered and sourced |
+| Product implementation | `COMPLETE` | All 11 phases (00-11) `VERIFIED`. See the Final Phase 11 Gate above for honest remaining logistics (Docker, fresh-clone bootstrap, teammate invites). |
 
 ## Known bugs
 
@@ -142,6 +184,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-08-asset-dashboard-ui` | 2026-09-01 | Phase 08 | `2b298bb` | Yes — see Phase 08 doc's "Tests" section |
 | `checkpoint/phase-09-control-tower-ui` | 2026-09-01 | Phase 09 | `32ed4e3` | Yes — see Phase 09 doc's "Tests" section |
 | `checkpoint/phase-10-integration-and-polish` | 2026-09-01 | Phase 10 | `81ff470` | Yes — see Phase 10 doc's "Tests" section |
+| `checkpoint/phase-11-demo-and-defense` | 2026-09-01 | Phase 11 | *(recorded after commit)* | Yes — see Phase 11 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 
