@@ -73,18 +73,22 @@ that visibly closed the loop. Found and fixed two real bugs along the way
 (duplicate signal/reason text; stale pending-recommendation wording) —
 see [`phases/PHASE-09-control-tower-ui.md`](phases/PHASE-09-control-tower-ui.md).
 
-**All 9 product phases (00-09) are now `VERIFIED`.** Only Phase 10
-(integration, testing, polish) and Phase 11 (demo/defense prep) remain.
+**Phase 10 — Integration, testing, and polish.** Status: `VERIFIED`. Ran
+the full CHECK OUT → LOG USAGE → anomaly → Action Queue → mark-actioned →
+CHECK IN chain live through the actual app (not per-phase in isolation) —
+found and fixed a real gap (no usage-log UI existed) along the way.
+Responsive behavior confirmed numerically at 420px on both screens. The
+one optional stretch feature (REQ-020, a rule-driven top-priority
+summary) is implemented and verified. See
+[`phases/PHASE-10-integration-and-polish.md`](phases/PHASE-10-integration-and-polish.md).
+
+**19 of 20 requirements are `VERIFIED`**; REQ-016 is verified at the API
+layer with one documentation-level pass still due in Phase 11.
 
 ## Next recommended action
 
-Continuing the authorized autonomous Phase 03→11 run: **Phase 10
-(integration, testing, polish)** next —
-`phases/PHASE-10-integration-and-polish.md`. This is the "does the whole
-system actually work as one thing" gate before any stretch feature or
-demo prep — the full CHECK OUT → ... → CHECK IN → recommendation → ACT
-chain has been exercised in pieces (per-phase) but not yet as one
-deliberate end-to-end walkthrough script.
+Continuing the authorized autonomous Phase 03→11 run: **Phase 11 (demo
+and panel-defense prep)** — the last phase. `phases/PHASE-11-demo-and-defense.md`.
 
 ## Overall progress
 
@@ -108,7 +112,8 @@ deliberate end-to-end walkthrough script.
 | Recommendations & Action Queue | `VERIFIED` | Phase 07 — 23/23 tests pass |
 | Asset Dashboard UI | `VERIFIED` | Phase 08 — 25/25 backend tests pass, live browser walkthrough verified |
 | Control Tower UI | `VERIFIED` | Phase 09 — 26/26 backend tests pass, live browser walkthrough incl. mark-actioned interaction |
-| Product implementation | `IN_PROGRESS` | Phases 00-09 done (both UI screens + full backend); Phases 10-11 remain (integration + demo) |
+| Integration, testing, polish | `VERIFIED` | Phase 10 — full E2E chain walked live; found and fixed missing usage-log UI; stretch feature (REQ-020) done |
+| Product implementation | `IN_PROGRESS` | Phases 00-10 done; only Phase 11 (demo/defense prep) remains |
 
 ## Known bugs
 
@@ -136,6 +141,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-07-recommendations` | 2026-09-01 | Phase 07 | `d6f1479` | Yes — see Phase 07 doc's "Tests" section |
 | `checkpoint/phase-08-asset-dashboard-ui` | 2026-09-01 | Phase 08 | `2b298bb` | Yes — see Phase 08 doc's "Tests" section |
 | `checkpoint/phase-09-control-tower-ui` | 2026-09-01 | Phase 09 | `32ed4e3` | Yes — see Phase 09 doc's "Tests" section |
+| `checkpoint/phase-10-integration-and-polish` | 2026-09-01 | Phase 10 | *(recorded after commit)* | Yes — see Phase 10 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 

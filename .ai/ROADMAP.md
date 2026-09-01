@@ -44,7 +44,7 @@ Product: **Smart Rental Tracking System** (problem statement received
 | 07 | Recommendations & Action Queue | `VERIFIED` | Souharda (`TEAM-EXECUTION-PLAN.md`) | [`phases/PHASE-07-recommendations.md`](phases/PHASE-07-recommendations.md) |
 | 08 | Asset Dashboard UI | `VERIFIED` | Astik (`TEAM-EXECUTION-PLAN.md`) | [`phases/PHASE-08-asset-dashboard-ui.md`](phases/PHASE-08-asset-dashboard-ui.md) |
 | 09 | Control Tower UI | `VERIFIED` | Souharda (`TEAM-EXECUTION-PLAN.md`) | [`phases/PHASE-09-control-tower-ui.md`](phases/PHASE-09-control-tower-ui.md) |
-| 10 | Integration, testing, polish | `NOT_STARTED` | unassigned | [`phases/PHASE-10-integration-and-polish.md`](phases/PHASE-10-integration-and-polish.md) |
+| 10 | Integration, testing, polish | `VERIFIED` | Ayush drives (`TEAM-EXECUTION-PLAN.md`) | [`phases/PHASE-10-integration-and-polish.md`](phases/PHASE-10-integration-and-polish.md) |
 | 11 | Demo and panel-defense prep | `NOT_STARTED` | unassigned | [`phases/PHASE-11-demo-and-defense.md`](phases/PHASE-11-demo-and-defense.md) |
 
 ## Dependency shape and parallelization

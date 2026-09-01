@@ -9,6 +9,7 @@ import StatusBadge from '../components/StatusBadge.jsx';
 import LoadingState from '../components/LoadingState.jsx';
 import ErrorState from '../components/ErrorState.jsx';
 import EmptyState from '../components/EmptyState.jsx';
+import { summarizeTopSignal } from '../utils/summarize.js';
 
 const LIVE_STATUS_ORDER = ['available', 'checked_out', 'overdue', 'maintenance'];
 
@@ -57,6 +58,9 @@ export default function ControlTower() {
       <div className="control-tower-grid">
         <div className="action-queue-panel">
           <h2>Action Queue</h2>
+          {!loading && !error && recommendations && recommendations.length > 0 && (
+            <p className="top-priority-banner">{summarizeTopSignal(recommendations[0])}</p>
+          )}
           {actionError && <p className="form-error">{actionError}</p>}
 
           {loading && <LoadingState label="Loading the Action Queue…" />}

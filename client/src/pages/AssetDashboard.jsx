@@ -3,6 +3,7 @@ import { useApi } from '../hooks/useApi.js';
 import { listEquipment } from '../api/equipment.js';
 import { listSites, listOperators } from '../api/referenceData.js';
 import { checkOut, checkIn } from '../api/checkouts.js';
+import { logUsage } from '../api/usageLogs.js';
 import StatusBadge from '../components/StatusBadge.jsx';
 import LoadingState from '../components/LoadingState.jsx';
 import ErrorState from '../components/ErrorState.jsx';
@@ -31,6 +32,10 @@ export default function AssetDashboard() {
   const [formBusy, setFormBusy] = useState(false);
   const [checkInBusyId, setCheckInBusyId] = useState(null);
   const [checkInError, setCheckInError] = useState(null);
+  const [usageLogTarget, setUsageLogTarget] = useState(null);
+  const [usageLogError, setUsageLogError] = useState(null);
+  const [usageLogBusy, setUsageLogBusy] = useState(false);
+  const [usageLogNotice, setUsageLogNotice] = useState(null);
 
   const sorted = useMemo(() => {
     if (!equipment) return [];
@@ -93,6 +98,36 @@ export default function AssetDashboard() {
     }
   }
 
+  function openUsageLogForm(item) {
+    setUsageLogTarget(item);
+    setUsageLogError(null);
+  }
+
+  async function handleUsageLogSubmit(event) {
+    event.preventDefault();
+    setUsageLogError(null);
+    setUsageLogBusy(true);
+    const form = new FormData(event.target);
+    try {
+      await logUsage({
+        checkout_id: usageLogTarget.active_checkout.id,
+        logged_at: form.get('logged_at'),
+        engine_hours: Number(form.get('engine_hours')),
+        idle_hours: Number(form.get('idle_hours')),
+        location: form.get('location') || undefined,
+      });
+      setUsageLogNotice(`Usage logged for ${usageLogTarget.code}.`);
+      setUsageLogTarget(null);
+      refetch();
+    } catch (err) {
+      // REQ-004: a bad/duplicate usage-log entry (e.g. the same date
+      // twice) must surface here, not fail silently.
+      setUsageLogError(err.message);
+    } finally {
+      setUsageLogBusy(false);
+    }
+  }
+
   if (loading) return <LoadingState label="Loading equipment…" />;
   if (error) return <ErrorState message={error} onRetry={refetch} />;
   if (!equipment || equipment.length === 0) {
@@ -105,6 +140,7 @@ export default function AssetDashboard() {
       <p className="page-subtitle">Every asset's live status, site, and return date — check in or out here.</p>
 
       {checkInError && <p className="form-error">{checkInError}</p>}
+      {usageLogNotice && <p className="form-notice">{usageLogNotice}</p>}
 
       <div className="table-scroll">
         <table className="asset-table">
@@ -136,11 +172,21 @@ export default function AssetDashboard() {
                     : '—'}
                 </td>
                 <td>{item.type}</td>
-                <td>
+                <td className="action-cell">
                   {item.active_checkout ? (
-                    <button type="button" disabled={checkInBusyId === item.id} onClick={() => handleCheckIn(item)}>
-                      {checkInBusyId === item.id ? 'Checking in…' : 'Check in'}
-                    </button>
+                    <>
+                      <button type="button" onClick={() => openUsageLogForm(item)}>
+                        Log usage
+                      </button>
+                      <button
+                        type="button"
+                        className="action-item-dismiss"
+                        disabled={checkInBusyId === item.id}
+                        onClick={() => handleCheckIn(item)}
+                      >
+                        {checkInBusyId === item.id ? 'Checking in…' : 'Check in'}
+                      </button>
+                    </>
                   ) : (
                     <button type="button" onClick={() => openCheckoutForm(item)}>
                       Check out
@@ -187,6 +233,41 @@ export default function AssetDashboard() {
                 </button>
                 <button type="submit" disabled={formBusy}>
                   {formBusy ? 'Checking out…' : 'Confirm check-out'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {usageLogTarget && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={`Log usage for ${usageLogTarget.code}`}>
+          <div className="modal">
+            <h2>Log usage for {usageLogTarget.code}</h2>
+            <form onSubmit={handleUsageLogSubmit} className="checkout-form">
+              <label>
+                Date
+                <input type="date" name="logged_at" defaultValue={new Date().toISOString().slice(0, 10)} required />
+              </label>
+              <label>
+                Engine hours
+                <input type="number" name="engine_hours" min="0" step="0.1" defaultValue="0" required />
+              </label>
+              <label>
+                Idle hours
+                <input type="number" name="idle_hours" min="0" step="0.1" defaultValue="0" required />
+              </label>
+              <label>
+                Location (optional)
+                <input type="text" name="location" placeholder="e.g. Site S003 yard" />
+              </label>
+              {usageLogError && <p className="form-error">{usageLogError}</p>}
+              <div className="modal-actions">
+                <button type="button" onClick={() => setUsageLogTarget(null)} disabled={usageLogBusy}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={usageLogBusy}>
+                  {usageLogBusy ? 'Logging…' : 'Log usage'}
                 </button>
               </div>
             </form>

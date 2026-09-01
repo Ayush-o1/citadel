@@ -7,6 +7,59 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Phase 10 implemented and verified: integration, testing, and polish
+
+**Where we are:** Phase 10 `VERIFIED`. This phase's entire point is
+verifying the system works as *one thing*, not nine independently-tested
+phases — and it did exactly that: found one real, previously-invisible
+gap by actually trying to run the whole story end to end.
+
+**The real gap:** ran the literal demo chain (CHECK OUT → LOG USAGE →
+anomaly appears → Action Queue → mark actioned → CHECK IN) against a
+disposable fixture (`E2E-DEMO-001`, cleaned up afterward) through the
+actual running app. No single phase's own tests would have caught this,
+but the full walkthrough immediately did: **there was no way to log
+usage from the browser** — Phase 03 built the API, Phase 08's task list
+never included a usage-log UI. Fixed by returning to the Asset Dashboard
+(not a new phase) and adding a "Log usage" button + modal. With that
+fixed, the walkthrough ran clean: a deliberately high-idle usage entry
+(1 engine hour / 9 idle hours) produced a real `excessive_idle` anomaly
+(90%) that flowed through to the Action Queue correctly, and marking it
+actioned closed the loop live.
+
+**10.2 responsive check:** measured (not just eyeballed) both screens at
+420px — `document.body.scrollWidth === window.innerWidth` exactly on
+both, confirming no page-level horizontal overflow. An initial screenshot
+looked like the nav was clipped; precise `getBoundingClientRect`
+measurement showed this was a headless-screenshot rendering artifact, not
+a real bug — worth recording so a future agent doesn't chase a phantom
+issue from a screenshot alone.
+
+**10.4 quality review:** CORS scoped to one origin, all writes validated,
+all queries parameterized, prod errors redact internals, `.env` never
+committed, no dead code left behind (Phase 09 already removed the
+placeholder `Home.jsx`).
+
+**10.5 stretch feature (REQ-020):** implemented a rule-driven top-priority
+summary banner on the Control Tower (`client/src/utils/summarize.js`) —
+plain string templating over the Action Queue's own top-ranked item, no
+new AI dependency, exactly matching the problem statement's own candidate
+for the optional "wow" feature. Verified live: renders "Top priority —
+EQX3001: overdue. Recommended: return it." correctly.
+
+**10.6 requirements audit:** 19 of 20 REQs now `VERIFIED`; REQ-016 is
+verified at the API layer with one final documentation-level pass still
+due in Phase 11 (not silently marked done early).
+
+**What we verified:** `npm test` — 26/26. `npm run build` — clean.
+Post-walkthrough DB check confirmed the fixture fully removed and the
+seeded baseline exactly unchanged (17/22/192, 19 pending recommendations).
+
+**Next:** Phase 11 (demo and panel-defense prep) — the last phase.
+Continuing the authorized Phase 03→11 run without stopping.
+
+---
+
 ## 2026-09-01 — Phase 09 implemented and verified: Control Tower UI (all 9 product phases now complete)
 
 **Where we are:** Phase 09 `VERIFIED`. `client/src/pages/ControlTower.jsx`

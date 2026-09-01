@@ -218,6 +218,27 @@ code {
   font-size: 0.9rem;
 }
 
+.form-notice {
+  color: #4caf6d;
+  font-size: 0.9rem;
+}
+
+.action-cell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.checkout-form input[type='date'],
+.checkout-form input[type='number'],
+.checkout-form input[type='text'] {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  color: var(--color-text);
+  font: inherit;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -297,6 +318,16 @@ code {
 .action-queue-panel h2 {
   margin-top: 0;
   font-size: 1.1rem;
+}
+
+.top-priority-banner {
+  background: rgba(79, 140, 255, 0.1);
+  border: 1px solid rgba(79, 140, 255, 0.3);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
 }
 
 .action-queue {
