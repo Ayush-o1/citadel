@@ -30,6 +30,12 @@ services:
       PORT: 4000
       CLIENT_ORIGIN: http://localhost:5173
       DATABASE_URL: postgresql://${POSTGRES_USER:-citadel}:${POSTGRES_PASSWORD:-citadel_dev_password}@postgres:5432/${POSTGRES_DB:-citadel}
+      # Google Sign-In env vars aren't passed through here (this file has
+      # no secrets in it, on purpose) — Google Sign-In won't work under
+      # `docker compose up` unless you export GOOGLE_CLIENT_ID/
+      # GOOGLE_CLIENT_SECRET/SESSION_SECRET from your shell before running
+      # it. `npm run dev` directly (reading server/.env) is the path that
+      # has real auth working locally — see README.md.
     depends_on:
       postgres:
         condition: service_healthy

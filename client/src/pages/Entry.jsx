@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { ROLES, ROLE_LABELS, useRole } from '../app/RoleContext.jsx';
+import { API_ORIGIN } from '../api/client.js';
 import LoadingState from '../components/LoadingState.jsx';
+
+// A missing VITE_API_URL in a production build (see api/client.js) would
+// otherwise show up as a mysterious 404 the moment someone clicks
+// "Sign in with Google" — this is the same misconfiguration, made
+// visible on-screen instead of only in the console, so it's diagnosable
+// by anyone testing the deployed app, not just someone with devtools open.
+const MISCONFIGURED = import.meta.env.PROD && !API_ORIGIN;
 
 const ROLE_CARDS = [
   {
@@ -79,14 +87,24 @@ export default function Entry() {
 
       {!user ? (
         <section className="entry-signin" aria-label="Sign in">
-          <button type="button" className="google-signin-button" onClick={signIn}>
-            <GoogleIcon />
-            Sign in with Google
-          </button>
-          <p className="entry-signin-note">
-            Real Google Sign-In. Your name, email, and photo come from your Google account; Citadel never sees your
-            Google password.
-          </p>
+          {MISCONFIGURED ? (
+            <p className="form-error" style={{ maxWidth: 480, textAlign: 'center' }}>
+              Sign-in is unavailable: this deployment is missing its API URL configuration
+              (<code>VITE_API_URL</code>). This is a deployment setup issue, not something you can fix here — see{' '}
+              <code>.ai/DEPLOYMENT.md</code> if you're setting this up.
+            </p>
+          ) : (
+            <>
+              <button type="button" className="google-signin-button" onClick={signIn}>
+                <GoogleIcon />
+                Sign in with Google
+              </button>
+              <p className="entry-signin-note">
+                Real Google Sign-In. Your name, email, and photo come from your Google account; Citadel never sees
+                your Google password.
+              </p>
+            </>
+          )}
         </section>
       ) : (
         <section className="entry-roles" aria-label="Choose how you're using Citadel">

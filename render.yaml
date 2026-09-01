@@ -22,5 +22,19 @@ services:
         sync: false
       - key: CLIENT_ORIGIN
         sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
       # PORT is provided by Render at runtime; the app already reads
       # process.env.PORT (see server/src/config/env.js) so it's not set here.
+      #
+      # Listed here (all sync: false, no values committed) so Render's
+      # Blueprint setup actually prompts for them, instead of a deployer
+      # only discovering they're needed by reading DEPLOYMENT.md after
+      # Google Sign-In mysteriously doesn't work. See DEPLOYMENT.md for
+      # what each one needs to be set to.

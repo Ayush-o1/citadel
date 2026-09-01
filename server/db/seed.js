@@ -25,7 +25,12 @@ import pg from 'pg';
 //
 // Idempotent: skips entirely if `equipment` already has rows.
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+// Must match src/config/db.js's SSL handling — see migrate.js's comment
+// for why this can't be skipped for hosted Postgres.
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+});
 
 function addDays(dateStr, n) {
   const d = new Date(`${dateStr}T00:00:00Z`);

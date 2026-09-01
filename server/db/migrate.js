@@ -11,7 +11,16 @@ import pg from 'pg';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const migrationsDir = path.join(__dirname, 'migrations');
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+// Must match src/config/db.js's SSL handling exactly: hosted Postgres
+// (Neon, Render) requires SSL and this is the first thing that runs in
+// production (render.yaml's startCommand is `npm run migrate && npm
+// start`) — without this, a real deploy fails to connect here and the
+// whole service never comes up, before the app pool's own SSL config
+// ever gets a chance to matter.
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+});
 
 async function ensureMigrationsTable(client) {
   await client.query(`

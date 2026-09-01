@@ -1,6 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { API_ORIGIN } from '../api/client.js';
 
-const API_BASE = (import.meta.env.VITE_API_URL || '') + '/api';
+// Same origin as every other API call (see client.js) — Google sign-in
+// is a full navigation, not a fetch(), so it's easy for this to drift
+// out of sync with the rest of the app if it isn't sourced from the
+// same place. It now is, on purpose.
+const API_BASE = `${API_ORIGIN}/api`;
 
 export const ROLES = {
   CUSTOMER: 'customer',
