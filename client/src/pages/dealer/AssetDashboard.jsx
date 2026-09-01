@@ -114,6 +114,7 @@ export default function AssetDashboard() {
         logged_at: form.get('logged_at'),
         engine_hours: Number(form.get('engine_hours')),
         idle_hours: Number(form.get('idle_hours')),
+        fuel_level: form.get('fuel_level') ? Number(form.get('fuel_level')) : undefined,
         location: form.get('location') || undefined,
       });
       setUsageLogNotice(`Usage logged for ${usageLogTarget.code}.`);
@@ -256,6 +257,10 @@ export default function AssetDashboard() {
               <label>
                 Idle hours
                 <input type="number" name="idle_hours" min="0" step="0.1" defaultValue="0" required />
+              </label>
+              <label>
+                Fuel level % (optional)
+                <input type="number" name="fuel_level" min="0" max="100" step="1" placeholder="e.g. 75" />
               </label>
               <label>
                 Location (optional)
