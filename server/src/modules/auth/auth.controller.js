@@ -44,11 +44,38 @@ export async function googleCallback(req, res) {
   if (error) {
     return res.redirect(`${env.clientOrigin}/auth/error?reason=${encodeURIComponent(String(error))}`);
   }
-  if (!code) throw new ApiError(400, 'Missing authorization code from Google');
+  if (!code) {
+    return res.redirect(`${env.clientOrigin}/auth/error?reason=${encodeURIComponent('Missing authorization code from Google')}`);
+  }
 
-  const user = await service.completeGoogleSignIn(String(code));
-  const token = service.signSession(user);
-  res.cookie(service.SESSION_COOKIE, token, COOKIE_OPTIONS);
+  // This whole route is reached by a top-level browser navigation (Google
+  // redirects here directly), not a fetch() call from the SPA — so any
+  // uncaught error here would previously render as a raw
+  // {"success":false,...} JSON page instead of a real screen, and in
+  // production its message would additionally be masked to a useless
+  // generic "Internal server error" with no way to tell what failed
+  // without server log access. Catching here and redirecting to the same
+  // client-side error page as every other sign-in failure fixes both: a
+  // real page instead of a JSON blob, and (since completeGoogleSignIn's
+  // errors are already safe, stage-labeled ApiErrors, never secrets) the
+  // actual failing stage is now visible on-screen.
+  let user;
+  try {
+    user = await service.completeGoogleSignIn(String(code));
+  } catch (err) {
+    console.error('Google sign-in callback failed:', err);
+    const reason = err instanceof ApiError ? err.message : 'Sign-in failed unexpectedly';
+    return res.redirect(`${env.clientOrigin}/auth/error?reason=${encodeURIComponent(reason)}`);
+  }
+
+  try {
+    const token = service.signSession(user);
+    res.cookie(service.SESSION_COOKIE, token, COOKIE_OPTIONS);
+  } catch (err) {
+    console.error('Google sign-in [stage: session creation] — real cause:', err);
+    return res.redirect(`${env.clientOrigin}/auth/error?reason=${encodeURIComponent('Signed in with Google, but could not create your session')}`);
+  }
+
   res.redirect(`${env.clientOrigin}/auth/complete`);
 }
 

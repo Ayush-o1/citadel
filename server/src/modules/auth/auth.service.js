@@ -35,47 +35,88 @@ export function buildGoogleAuthUrl(state) {
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 
+// Every stage below is wrapped so a failure produces a distinct,
+// diagnosable ApiError (never status 500, so errorHandler's production
+// masking never swallows it into a generic "Internal server error") —
+// the real underlying error (network failure, a bad Google response, a
+// database error) is logged server-side with a stage label, never sent
+// to the client, but the client-visible message alone is now enough to
+// tell which stage failed without needing server log access at all.
 export async function completeGoogleSignIn(code) {
-  const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      code,
-      client_id: env.googleClientId,
-      client_secret: env.googleClientSecret,
-      redirect_uri: env.googleRedirectUri,
-      grant_type: 'authorization_code',
-    }),
-  });
+  let tokenRes;
+  try {
+    tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: env.googleClientId,
+        client_secret: env.googleClientSecret,
+        redirect_uri: env.googleRedirectUri,
+        grant_type: 'authorization_code',
+      }),
+    });
+  } catch (err) {
+    console.error('Google sign-in [stage: token request] — could not reach Google at all:', err);
+    throw new ApiError(502, 'Google sign-in failed: could not reach Google to exchange the authorization code');
+  }
   if (!tokenRes.ok) {
+    const body = await tokenRes.text().catch(() => '<unreadable body>');
+    console.error(`Google sign-in [stage: token exchange] — Google responded ${tokenRes.status}:`, body);
     throw new ApiError(502, 'Google sign-in failed while exchanging the authorization code');
   }
-  const tokens = await tokenRes.json();
+  let tokens;
+  try {
+    tokens = await tokenRes.json();
+  } catch (err) {
+    console.error('Google sign-in [stage: token parse] — token response was not valid JSON:', err);
+    throw new ApiError(502, 'Google sign-in failed: unexpected response while exchanging the authorization code');
+  }
 
-  const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-    headers: { Authorization: `Bearer ${tokens.access_token}` },
-  });
+  let profileRes;
+  try {
+    profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${tokens.access_token}` },
+    });
+  } catch (err) {
+    console.error('Google sign-in [stage: profile request] — could not reach Google at all:', err);
+    throw new ApiError(502, 'Google sign-in failed: could not reach Google to fetch your profile');
+  }
   if (!profileRes.ok) {
+    const body = await profileRes.text().catch(() => '<unreadable body>');
+    console.error(`Google sign-in [stage: profile fetch] — Google responded ${profileRes.status}:`, body);
     throw new ApiError(502, 'Google sign-in failed while fetching your profile');
   }
-  const profile = await profileRes.json();
+  let profile;
+  try {
+    profile = await profileRes.json();
+  } catch (err) {
+    console.error('Google sign-in [stage: profile parse] — profile response was not valid JSON:', err);
+    throw new ApiError(502, 'Google sign-in failed: unexpected response while fetching your profile');
+  }
 
-  let user = await repository.findByGoogleId(profile.sub);
-  if (!user) {
-    user = await repository.createUser({
-      googleId: profile.sub,
-      email: profile.email,
-      name: profile.name || profile.email,
-      avatarUrl: profile.picture,
-    });
-  } else {
-    await repository.touchLogin(user.id);
-    if (user.name !== profile.name || user.avatar_url !== profile.picture) {
-      user = await repository.updateProfile(user.id, {
-        name: profile.name || user.name,
+  let user;
+  try {
+    user = await repository.findByGoogleId(profile.sub);
+    if (!user) {
+      user = await repository.createUser({
+        googleId: profile.sub,
+        email: profile.email,
+        name: profile.name || profile.email,
         avatarUrl: profile.picture,
       });
+    } else {
+      await repository.touchLogin(user.id);
+      if (user.name !== profile.name || user.avatar_url !== profile.picture) {
+        user = await repository.updateProfile(user.id, {
+          name: profile.name || user.name,
+          avatarUrl: profile.picture,
+        });
+      }
     }
+  } catch (err) {
+    console.error('Google sign-in [stage: database lookup/create] — real cause:', err);
+    throw new ApiError(502, 'Google sign-in failed while saving your account (a database error on the server)');
   }
   return user;
 }
