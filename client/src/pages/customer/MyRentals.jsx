@@ -26,7 +26,7 @@ export default function MyRentals() {
     setReturnError(null);
     setBusyId(checkout.id);
     try {
-      await checkIn(checkout.id, {});
+      await checkIn(checkout.id, { customer_name: customerName });
       refetch();
     } catch (err) {
       setReturnError(err.message);
@@ -52,9 +52,13 @@ export default function MyRentals() {
                 Checked out {new Date(c.checked_out_at).toLocaleDateString()}
                 {c.expected_return_at ? ` · due ${new Date(c.expected_return_at).toLocaleDateString()}` : ''}
               </p>
+              {c.is_overdue && <p className="form-error">Overdue — please return as soon as possible.</p>}
+              {!c.is_overdue && c.is_upcoming_return && (
+                <p className="form-notice">Due back soon.</p>
+              )}
             </div>
             <div className="rental-card-actions">
-              <StatusBadge status={c.status === 'active' ? 'checked_out' : c.status} />
+              <StatusBadge status={c.is_overdue ? 'overdue' : c.status === 'active' ? 'checked_out' : c.status} />
               {c.status === 'active' && (
                 <button type="button" disabled={busyId === c.id} onClick={() => handleReturn(c)}>
                   {busyId === c.id ? 'Returning…' : 'Return equipment'}

@@ -34,22 +34,30 @@ export async function markEquipmentAvailable(client, equipmentId) {
   await client.query(`UPDATE equipment SET status = 'available' WHERE id = $1`, [equipmentId]);
 }
 
-// Conditional UPDATE (status = 'active' in the WHERE clause) means this
-// returns no row if the checkout was already returned — the service uses
-// that to distinguish "already checked in" from "never existed".
-export async function checkIn(client, checkoutId, { conditionIn }) {
+// Conditional UPDATE (status = 'active' plus, when provided, a matching
+// customer_name in the WHERE clause) means this returns no row if the
+// checkout was already returned OR if expectedCustomerName was given and
+// doesn't match — the service distinguishes those cases via
+// findStatusById. Matching is case/whitespace-insensitive since
+// customer_name is free-text entered twice (once at rental time, once at
+// return time), not a stable identifier.
+export async function checkIn(client, checkoutId, { conditionIn, expectedCustomerName }) {
   const { rows } = await client.query(
     `UPDATE checkouts
      SET status = 'returned', checked_in_at = now(), condition_in = $2
      WHERE id = $1 AND status = 'active'
+       AND ($3::text IS NULL OR TRIM(LOWER(customer_name)) = TRIM(LOWER($3)))
      RETURNING *`,
-    [checkoutId, conditionIn ?? null]
+    [checkoutId, conditionIn ?? null, expectedCustomerName ?? null]
   );
   return rows[0] ?? null;
 }
 
 export async function findStatusById(client, checkoutId) {
-  const { rows } = await client.query('SELECT status FROM checkouts WHERE id = $1', [checkoutId]);
+  const { rows } = await client.query(
+    'SELECT status, customer_name FROM checkouts WHERE id = $1',
+    [checkoutId]
+  );
   return rows[0] ?? null;
 }
 

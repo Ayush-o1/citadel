@@ -20,6 +20,80 @@ Format:
 
 ---
 
+## 2026-09-01 — Scoped a full backend/product rebuild request down to two targeted fixes; name-based ownership check on self-return
+
+**Context:** A request came in for a full rebuild — real Google OAuth,
+a User/Role/Rental/RentalRequest/Notification/AuditLog domain model,
+full RBAC — ahead of the frontend redesign. With presentations the next
+day and a currently working, tested, three-role system already in
+place, this was flagged back to the user as a real scope conflict
+(multi-day work vs. ~24 hours left, plus real OAuth needs the user's
+own Google Cloud Console setup, which can't be done in an agent
+session). The user chose the scoped option: keep the current checkout
+model and client-simulated roles, hold off on real auth, and pick a
+small number of genuinely valuable backend improvements instead of the
+full rebuild.
+
+**Decision:** Two changes, chosen because they closed real, demonstrable
+gaps rather than adding speculative scope:
+
+1. **Name-based ownership check on Customer self-return.**
+   `PATCH /api/checkouts/:id/check-in` had zero ownership check — any
+   browser tab, not just a malicious one, could return a different
+   customer's rental by reusing/guessing a checkout id, because
+   `MyRentals.jsx`'s "Return equipment" button never sent
+   `customer_name` and the backend never asked for it. Now, when a
+   request includes `customer_name` (only the Customer self-return flow
+   sends it — Dealer/Admin check-ins never do), the backend rejects the
+   check-in with 403 unless it matches the checkout's own
+   `customer_name` (case/whitespace-insensitive, since it's free text
+   entered twice). This is explicitly **not** real authentication — it's
+   documented as a name-based ownership check in both the code comment
+   and here, matching the project's existing honesty standard about the
+   client-simulated role model (`FRONTEND-REBUILD-PLAN.md` section 2).
+2. **Computed `is_overdue`/`is_upcoming_return` on every checkout
+   response.** Previously only the alerts module derived these from
+   `checkoutRules.js`; every other consumer (Customer's My Rentals in
+   particular) either duplicated the date math or didn't show urgency at
+   all. Now `checkouts.service.js` attaches both fields to every
+   checkout it returns (list, get, create, check-in), so My Rentals can
+   show "Overdue" / "Due back soon" without re-deriving anything,
+   guaranteed consistent with what an actual alert would say.
+
+Also fixed, found during this pass: `capacity.service.js` had
+re-declared the 65-75% healthy-utilization band as a second literal
+instead of importing `utilization.service.js`'s constants — extracted
+to `server/src/utils/utilizationBand.js`. And the problem statement's
+explicit "fuel usage" logging field was fully wired end-to-end on the
+backend but never exposed in the Dealer's "Log usage" form — added the
+missing input.
+
+**Alternatives considered:** Building the full requested domain model
+anyway ("you decide the phases" was in the prompt) — rejected: the
+highest-risk outcome for a hackathon the night before presentations is
+a half-migrated backend that breaks the currently-verified demo. Doing
+nothing and only documenting the gaps — rejected: the ownership gap in
+particular was cheap, real, and testable to close properly, not just
+worth a note in `ISSUES.md`.
+
+**Tradeoff:** This is still not real authorization — a customer who
+knows another customer's exact name (not just their checkout id) can
+still return their rental. Documented as a known limit, not hidden.
+Real auth (Google OAuth or otherwise) remains future work, requiring
+the user's own external account setup before any agent session can
+build against it.
+
+**Verified:** 31/31 backend tests pass (28 previous + 3 new: ownership
+rejected/accepted, dealer check-in unaffected, urgency fields present).
+Client build clean (58 modules). Confirmed live against the running
+server (restarted to pick up the change) — `EQX3002` correctly shows
+`is_upcoming_return: true`. Found and cleaned one harmless pre-existing
+test-residue checkout (`EQX1001`, status `returned`, from an earlier
+browser QA session, unrelated to this change) while verifying row
+counts — restored the exact documented 21/26/257 baseline.
+
+---
+
 ## 2026-09-01 — Reversed "no auth/multi-user roles" decision; three role experiences + capacity-aware optimization
 
 **Context:** the 2026-08-30 decision (below, "Explicitly NOT building")
