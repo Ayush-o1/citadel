@@ -57,7 +57,7 @@ None open. See `ISSUES.md`.
 | Checkpoint | Date | Phase | Commit | Verified |
 |---|---|---|---|---|
 | `checkpoint/phase-00-foundation` | 2026-08-30 | Phase 00 | `2dfc243` | Yes |
-| `checkpoint/phase-01-data-model` | 2026-09-01 | Phase 01 | (see `git log` after this commit) | Yes — see Phase 01 doc's "Tests" section |
+| `checkpoint/phase-01-data-model` | 2026-09-01 | Phase 01 | `56e1a9d` | Yes — see Phase 01 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 
