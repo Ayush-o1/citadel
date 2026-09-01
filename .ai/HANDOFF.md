@@ -7,6 +7,93 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Phase 01 implemented and verified: data model & migrations
+
+**Where we are:** Phase 01 `VERIFIED`. First real product code exists —
+8 tables, migrated, inspected, and insert-tested. Phases 02 and 03 are
+now unblocked and can run in parallel.
+
+**What we just did:** Wrote and ran migrations `002`–`006` (sites,
+operators, equipment, checkouts, usage_logs, alerts, anomalies,
+forecasts, recommendations) per `phases/PHASE-01-data-model.md`. Executed
+task 01.7's decision (delete `items`) via migration `007` plus removing
+`server/src/modules/items/`, `client/src/pages/Items.jsx`,
+`client/src/api/items.js`, and their route/nav references — `items` was
+always a disposable reference pattern (`ARCHITECTURE.md`) and the real
+tables now serve as the live example instead.
+
+**Two schema deviations from the phase doc, both documented in
+`DECISIONS.md`, not silent:**
+1. `checkouts.site_id` and `checkouts.expected_return_at` had to be
+   nullable — the phase doc's table hadn't marked them so, but the
+   official sample's `EQX1002`/`EQX1007` rows have `NULL` Site ID, and a
+   NOT NULL constraint would make the official data un-storable. This
+   wasn't actually new information — Phase 05's anomaly rule table
+   already assumed `site_id` could be null; the Phase 01 table just
+   hadn't caught up to its own downstream phase.
+2. Added a `code` column to `sites` and `operators` (unique, e.g. `S003`,
+   `OP101`) mirroring the `equipment_code` pattern already specified for
+   `equipment` — needed to store the official sample's actual identifiers
+   instead of inventing names for them.
+
+**What was verified (see `phases/PHASE-01-data-model.md`'s "Tests"
+section for the full list):** migration applied cleanly and is idempotent
+on rerun; every table's structure inspected via `\d` and matches the
+design; a transactional insert (rolled back afterward — Phase 02 owns
+real seeding) proved the exact official 7-row dataset fits the schema,
+including `EQX1002`/`EQX1007`'s `NULL` site/operator/`0` engine-hours
+pattern; the partial unique index correctly rejected a second `active`
+checkout on the same equipment (REQ-018, enforced at the DB level, not
+just relying on future application code); server tests (2/2) and client
+build both still pass after the `items` removal; live server boot
+confirmed `/api/health` still reports `database: connected` against the
+new schema.
+
+**What was not verified:** nothing scoped to this phase was skipped. Real
+seed data (Phase 02) and the anomaly/forecast threshold calibration
+(`RISK-003`) are explicitly out of this phase's scope, not gaps in it.
+
+**Current phase / task:** Phase 01 `VERIFIED`. Phase 02 (synthetic data)
+and Phase 03 (core APIs) are both `PLANNED` and unblocked — see
+`ROADMAP.md`.
+
+**Known bugs:** none. **Known risks:** unchanged (`RISK-001`, `RISK-002`,
+`RISK-003` — see `ISSUES.md`).
+
+**Important decisions:** `DECISIONS.md`'s 2026-09-01 "Phase 01: delete
+the `items` reference module; two schema deviations" entry.
+
+**Files affected this session:** `server/db/migrations/002`–`007_*.sql`;
+removed `server/src/modules/items/`, `client/src/pages/Items.jsx`,
+`client/src/api/items.js`; updated `server/src/routes/index.js`,
+`server/db/seed.js` (stubbed pending Phase 02), `client/src/App.jsx`,
+`client/src/components/Layout.jsx`, `client/src/pages/Home.jsx`;
+`.ai/phases/PHASE-01-data-model.md`, `STATE.md`, `ROADMAP.md`,
+`REQUIREMENTS.md`, `DECISIONS.md` updated to match.
+
+**Blockers:** none.
+
+**Next action:** start Phase 02 and Phase 03 in parallel (see
+`PLAYBOOK.md`'s team table for the suggested split). Do not start
+Phases 04-07 (alerts/anomalies/forecasting/recommendations) before
+Phase 02 has real data seeded.
+
+**Commands to run to pick this up:**
+```bash
+git log --oneline -10 && git status
+cd server && npm install && npm run migrate && npm test
+cd ../client && npm install && npm run build
+```
+Then open `phases/PHASE-02-synthetic-data.md` and/or
+`phases/PHASE-03-core-apis.md` and start on their tasks.
+
+**What not to touch without reason:** `checkouts.site_id`/`operator_id`'s
+nullability (see above — it's load-bearing for the official anomaly
+example, not an oversight to "fix"); the partial unique index enforcing
+one active checkout per equipment; `server/.env`.
+
+---
+
 ## 2026-09-01 — Problem-statement planning: Smart Rental Tracking System
 
 **Where we are:** Problem statement received and fully analyzed. Complete

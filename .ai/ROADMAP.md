@@ -35,9 +35,9 @@ Product: **Smart Rental Tracking System** (problem statement received
 | ID | Name | Status | Owner | File |
 |---|---|---|---|---|
 | 00 | Foundation | `VERIFIED` | Ayush + AI agent | [`phases/PHASE-00-foundation.md`](phases/PHASE-00-foundation.md) |
-| 01 | Data model & migrations | `PLANNED` | unassigned | [`phases/PHASE-01-data-model.md`](phases/PHASE-01-data-model.md) |
-| 02 | Synthetic operational data | `NOT_STARTED` | unassigned | [`phases/PHASE-02-synthetic-data.md`](phases/PHASE-02-synthetic-data.md) |
-| 03 | Core backend APIs | `NOT_STARTED` | unassigned | [`phases/PHASE-03-core-apis.md`](phases/PHASE-03-core-apis.md) |
+| 01 | Data model & migrations | `VERIFIED` | Ayush + AI agent | [`phases/PHASE-01-data-model.md`](phases/PHASE-01-data-model.md) |
+| 02 | Synthetic operational data | `PLANNED` | unassigned | [`phases/PHASE-02-synthetic-data.md`](phases/PHASE-02-synthetic-data.md) |
+| 03 | Core backend APIs | `PLANNED` | unassigned | [`phases/PHASE-03-core-apis.md`](phases/PHASE-03-core-apis.md) |
 | 04 | Alerts engine | `NOT_STARTED` | unassigned | [`phases/PHASE-04-alerts.md`](phases/PHASE-04-alerts.md) |
 | 05 | Anomaly detection | `NOT_STARTED` | unassigned | [`phases/PHASE-05-anomaly-detection.md`](phases/PHASE-05-anomaly-detection.md) |
 | 06 | Demand forecasting | `NOT_STARTED` | unassigned | [`phases/PHASE-06-forecasting.md`](phases/PHASE-06-forecasting.md) |

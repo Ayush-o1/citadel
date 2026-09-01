@@ -26,11 +26,11 @@ for partial, `NOT_STARTED` for missing, `DEFERRED` for optional-and-cut
 
 | ID | Requirement | Type | Priority | Design | Code | Test | Status |
 |---|---|---|---|---|---|---|---|
-| REQ-001 | Equipment inventory with live status (available/checked-out/overdue), site, location, return date | Explicit | Must-have | `phases/PHASE-01-data-model.md` | `server/src/modules/equipment/` | — | `NOT_STARTED` |
+| REQ-001 | Equipment inventory with live status (available/checked-out/overdue), site, location, return date | Explicit | Must-have | `phases/PHASE-01-data-model.md` | `server/src/modules/equipment/` | — | `DESIGNED` |
 | REQ-002 | Check-out an asset (asset ID entry, simulated QR/RFID) with operator + site assignment | Explicit | Must-have | `phases/PHASE-03-core-apis.md` | `server/src/modules/checkouts/` | — | `NOT_STARTED` |
 | REQ-003 | Check-in an asset, recording return time and final condition | Explicit | Must-have | `phases/PHASE-03-core-apis.md` | `server/src/modules/checkouts/` | — | `NOT_STARTED` |
 | REQ-004 | Usage logging: runtime/engine hours, idle hours, fuel, location, condition | Explicit | Must-have | `phases/PHASE-03-core-apis.md` | `server/src/modules/usage-logs/` | — | `NOT_STARTED` |
-| REQ-005 | Every status change records who/what/where/when | Explicit | Must-have | `phases/PHASE-01-data-model.md` | `server/src/modules/checkouts/`, `usage-logs/` | — | `NOT_STARTED` |
+| REQ-005 | Every status change records who/what/where/when | Explicit | Must-have | `phases/PHASE-01-data-model.md` | `server/src/modules/checkouts/`, `usage-logs/` | — | `DESIGNED` |
 | REQ-006 | Alerts: upcoming return, overdue, missing info | Explicit | Must-have | `phases/PHASE-04-alerts.md` | `server/src/modules/alerts/` | — | `NOT_STARTED` |
 | REQ-007 | Anomaly detection: excessive idle, zero runtime, missing assignment, with a stated reason per flag | Explicit | Must-have | `phases/PHASE-05-anomaly-detection.md` | `server/src/modules/anomalies/` | — | `NOT_STARTED` |
 | REQ-008 | Anomaly detection: unusual/inconsistent asset movement | Explicit | Should-have | `phases/PHASE-05-anomaly-detection.md` | `server/src/modules/anomalies/` | — | `NOT_STARTED` |

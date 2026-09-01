@@ -20,6 +20,61 @@ Format:
 
 ---
 
+## 2026-09-01 — Phase 01: delete the `items` reference module; two schema deviations from the phase doc
+
+**Context:** Phase 01 task 01.7 required a decision on the `items`
+module's fate now that real domain tables exist. Also, implementing the
+schema against the actual official sample data surfaced two places where
+the phase doc's field list needed a small, justified correction rather
+than a silent one.
+
+**Decision 1 — delete `items`:** `items` was always a disposable
+reference pattern (`ARCHITECTURE.md`: "delete the folder and that one
+line"), not a real feature. With `equipment`/`checkouts`/`usage_logs`
+now serving as the real, live examples of the same
+routes→controller→service→repository pattern, keeping `items` around adds
+an unused API surface and a client page/nav link with no purpose. Removed:
+`server/src/modules/items/`, its route line, `client/src/pages/Items.jsx`,
+`client/src/api/items.js`, the `/items` nav link, and the table itself via
+migration `007_drop_items_table.sql` (a migration, not a manual `DROP`, so
+a fresh database stays fully reproducible from the repo).
+
+**Decision 2 — `checkouts.site_id` and `checkouts.expected_return_at` must
+be nullable:** The Phase 01 doc's table listed `site_id` without marking
+it nullable. But the official sample's `EQX1002`/`EQX1007` rows have
+`Site ID = NULL` — a NOT NULL constraint would make it impossible to
+store the official data as-is, directly contradicting the explicit
+instruction to preserve it unmodified. This wasn't actually a conflict
+with the plan: Phase 05's anomaly rule table already specified
+`MISSING_ASSIGNMENT` as `operator_id IS NULL OR site_id IS NULL`, which
+only makes sense if `site_id` is nullable — the phase doc's table just
+hadn't caught up to its own rule. `expected_return_at` is nullable for
+the same reason: the historical official rows have no "expected return"
+concept (they're already completed, with only actual checkout/check-in
+dates), so it stays `NULL` for historical rows and is only set on the
+live/active synthetic checkouts Phase 02 creates for the alert demo.
+
+**Decision 3 — natural business codes on `sites`/`operators`:** The phase
+doc's table listed only `id, name, location` for `sites` and
+`id, name, site_id` for `operators`. The official sample references sites
+and operators by short codes (`S003`, `OP101`, ...), not names — added a
+unique `code` column to both tables (mirroring the `equipment_code`
+pattern the phase doc already specified for `equipment`) so the official
+codes can be stored and displayed as-is instead of being silently
+translated into invented names.
+
+**Alternatives considered:** Keeping `items` as a permanently-available
+example — rejected, dead weight once real modules exist. Fabricating a
+placeholder site/operator for `EQX1002`/`EQX1007` instead of allowing
+NULL — explicitly rejected by the task instructions ("do not fabricate
+business meaning the official data does not support").
+
+**Tradeoff:** None significant — these are corrections that make the
+schema match both the official data and the plan's own downstream rules,
+not a new design direction.
+
+---
+
 ## 2026-09-01 — Reconciling the official sample dataset shape with the data model
 
 **Context:** The official one-page handout's sample table (`../PROBLEM-STATEMENT.md`

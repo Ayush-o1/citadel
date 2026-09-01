@@ -1,15 +1,11 @@
 export default function Home() {
   return (
     <section>
-      <h1>Citadel</h1>
+      <h1>Citadel — Smart Rental Tracking System</h1>
       <p>
-        This is a domain-agnostic hackathon starter. Replace this page — and
-        everything else — once the real problem statement is defined.
-      </p>
-      <p>
-        See <code>/items</code> for a working end-to-end example (React page →
-        API service → Express route → Postgres) that you can copy, rename, or
-        delete.
+        Caterpillar hackathon build in progress. See <code>.ai/ROADMAP.md</code> for
+        the phase plan — the Asset Dashboard and Control Tower screens land in
+        later phases.
       </p>
     </section>
   );
