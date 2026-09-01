@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { ROLES, useRole } from '../app/RoleContext.jsx';
+import { ROLES, PENDING_ROLE_KEY, useRole } from '../app/RoleContext.jsx';
 import { API_ORIGIN } from '../api/client.js';
 import { firebaseConfigured } from '../firebase.js';
 import LoadingState from '../components/LoadingState.jsx';
@@ -69,12 +69,24 @@ export default function Entry() {
   // "now pick a role" screen for a first-time visitor. signIn() must be
   // the first awaited call so the popup still counts as triggered by this
   // click (browsers block popups opened after an intervening await).
+  //
+  // Stashing targetRole before signIn() matters specifically for the
+  // popup-blocked-on-this-device case: signIn() falls back to a full
+  // page redirect there, which tears down this whole component (and
+  // targetRole with it) before the `await setRole(targetRole)` below
+  // ever runs. RoleContext reads this back and applies it after the
+  // redirect completes — without it, sign-in would succeed but the
+  // person would land back here instead of their workspace.
   async function handleIdentify(targetRole) {
     setError(null);
     setPendingRole(targetRole);
     try {
-      if (!user) await signIn();
+      if (!user) {
+        sessionStorage.setItem(PENDING_ROLE_KEY, targetRole);
+        await signIn();
+      }
       await setRole(targetRole);
+      sessionStorage.removeItem(PENDING_ROLE_KEY);
     } catch (err) {
       if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
         setError(err.message);

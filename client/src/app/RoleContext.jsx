@@ -13,6 +13,14 @@ import { auth, googleProvider, firebaseConfigured } from '../firebase.js';
 // this is the expected, necessary pattern for cross-device reliability.
 const POPUP_FALLBACK_CODES = new Set(['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment']);
 
+// Survives the full-page reload a redirect-based sign-in does (component
+// state doesn't) so the role someone picked before the popup got blocked
+// can still be applied automatically once they're back — see the
+// redirect-completion effect below. sessionStorage, not localStorage:
+// this is scoped to one specific in-progress sign-in attempt, not
+// something that should persist beyond it.
+export const PENDING_ROLE_KEY = 'citadel_pending_role';
+
 // Same origin as every other API call (see client.js).
 const API_BASE = `${API_ORIGIN}/api`;
 
@@ -74,11 +82,34 @@ export function RoleProvider({ children }) {
     return body.data;
   }, []);
 
+  const setRole = useCallback(async (role) => {
+    const res = await fetch(`${API_BASE}/auth/me/role`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role }),
+    });
+    const body = await res.json();
+    if (!res.ok) throw new Error(body?.error?.message || 'Could not update role');
+    setUser(body.data);
+    return body.data;
+  }, []);
+
   // On mount, check whether we're returning from a signInWithRedirect
   // round trip (Google -> back to this page). A no-op on every normal
   // page load (getRedirectResult resolves to null when there's nothing
   // pending) — cheap enough to always check rather than trying to detect
   // "did we just redirect" some other way.
+  //
+  // Also finishes the job the popup path does in one go (Entry.jsx's
+  // handleIdentify calls signIn() then setRole() back to back): without
+  // this, someone whose popup got blocked would complete Google sign-in,
+  // land back on Entry.jsx signed in, but with the role they picked
+  // completely forgotten (page reload wiped that component's state) —
+  // reported live as "after selecting the account it just goes back to
+  // the landing page instead of the next page." Reading the role back
+  // from PENDING_ROLE_KEY (stashed by Entry.jsx before the redirect
+  // navigated away) and applying it here closes that gap.
   useEffect(() => {
     if (!auth) return;
     getRedirectResult(auth)
@@ -86,9 +117,14 @@ export function RoleProvider({ children }) {
         if (!result) return;
         const idToken = await result.user.getIdToken();
         await finishSignIn(idToken);
+        const pendingRole = sessionStorage.getItem(PENDING_ROLE_KEY);
+        if (pendingRole) {
+          sessionStorage.removeItem(PENDING_ROLE_KEY);
+          await setRole(pendingRole);
+        }
       })
       .catch((err) => setPendingRedirectError(err.message || 'Could not complete sign-in'));
-  }, [finishSignIn]);
+  }, [finishSignIn, setRole]);
 
   // Firebase's client SDK handles the entire Google OAuth flow itself
   // (no server-side redirect URI to configure or get wrong); this only
@@ -127,19 +163,6 @@ export function RoleProvider({ children }) {
     // reuse a stale client-side session. Never blocks sign-out on this.
     if (auth) await firebaseSignOut(auth).catch(() => {});
     setUser(null);
-  }, []);
-
-  const setRole = useCallback(async (role) => {
-    const res = await fetch(`${API_BASE}/auth/me/role`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role }),
-    });
-    const body = await res.json();
-    if (!res.ok) throw new Error(body?.error?.message || 'Could not update role');
-    setUser(body.data);
-    return body.data;
   }, []);
 
   const value = useMemo(
