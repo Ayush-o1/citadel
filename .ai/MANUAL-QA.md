@@ -1,8 +1,17 @@
 # Manual QA checklist
 
 For manual testing only — automated coverage already exists in
-`server/tests/` (28/28 passing as of the RB-6 session; see `STATE.md`).
-This checklist is for a human clicking through the real app.
+`server/tests/`. Two different states are both true and worth knowing
+before you start: against a **freshly migrated + seeded** database this
+session got a clean **28/28** (see `STATE.md`); against the team's
+**persisted** local/demo database it's currently **22/26**, not 26/26 —
+see `ISSUES.md` `BUG-001` (seeded-data drift from an earlier manual-QA
+session, not an application defect, but it means `EQX3001`/`EQX3002`
+aren't in their originally-documented state on that database right now).
+Check which database you're pointed at. This checklist itself is
+separate from automated tests either way: everything below is for a
+human clicking through the real app — no automated result counts as a
+PASS here.
 
 **Everything below this notice describes the pre-rebuild, single-persona
 app** (routes `/` and `/assets`, no role concept). It's kept as-is for
@@ -50,11 +59,22 @@ the three-role rebuild as demo-ready.
 - Backend/API: **http://localhost:4000/api/...**
 - Both are already running — don't restart them mid-session unless a test
   says to.
-- Original seeded baseline this checklist was written against: **17
-  equipment, 22 checkouts, 192 usage_logs, 19 pending recommendations**.
-  RB-6 added a Layer 3 (see `DECISIONS.md`) — current baseline is **21
-  equipment, 26 checkouts, 257 usage_logs**. Recompute expected counts
-  accordingly if re-running this checklist verbatim.
+- Documented seeded baseline (Phase 02/07's original intent): **17
+  equipment, 22 checkouts, 192 usage_logs, 19 pending recommendations**,
+  with `EQX3001` overdue and `EQX3002` upcoming-return.
+- RB-6 (2026-09-01) added a Layer 3 to `server/db/seed.js` on a **fresh**
+  database — see `DECISIONS.md`'s "RB-6" entry — so a freshly migrated +
+  seeded database's baseline is now **21 equipment, 26 checkouts, 257
+  usage_logs**, not 17/22/192. Recompute expected counts accordingly if
+  re-running this checklist against a fresh database.
+- **The team's persisted database has separately drifted** (`ISSUES.md`
+  `BUG-001`, found 2026-09-01): `EQX3001`/`EQX3002` are currently checked
+  in, not active, and only 16 recommendations are pending, on whatever
+  database that session was pointed at. Row counts there are still
+  17/22/192 (it predates the RB-6 Layer 3 addition). Check `ISSUES.md`
+  and confirm which database (fresh vs. persisted) you're testing against
+  before relying on sections F/G/N (alerts) or section I (EQX1002/EQX1007
+  is unaffected either way — that pair was never touched).
 - **Real actions leave real residue.** Checking out a real seeded asset
   (not a throwaway one) and never checking it back in changes the demo
   state permanently. If you want to undo an action:
@@ -62,9 +82,11 @@ the three-role rebuild as demo-ready.
   - Marked a recommendation actioned/dismissed by mistake → this SQL
     restores every recommendation to pending:
     `UPDATE recommendations SET status='pending', actioned_at=NULL WHERE status != 'pending';`
-  - There is no one-command "full reset" script — that's a real gap if
-    you need to reset the seeded data itself (equipment/checkouts/usage_logs),
-    not a bug to silently patch around during this QA pass.
+  - There is no one-command "full reset" script — that's a real gap, now
+    confirmed by `BUG-001` actually happening, not just a hypothetical
+    risk. Restoring `EQX3001`/`EQX3002` to active checkouts currently
+    needs manual SQL matching Phase 02's original seeded values, not a
+    single documented command.
 
 ---
 

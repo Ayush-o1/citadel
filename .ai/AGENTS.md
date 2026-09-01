@@ -61,6 +61,7 @@ Do:
 | `phases/` | One file per phase, filled from `phases/_TEMPLATE.md` |
 | `DECISIONS.md` | ADR-style log of real decisions and why |
 | `ARCHITECTURE.md` | System architecture and how to extend it |
+| `DEPLOYMENT.md` | Hosting architecture (Vercel/Render/Neon), env vars, how to go live, rollback, free-tier limits — its status line says whether it's actually live yet |
 | `DESIGN.md` | UX/visual design system — information architecture, component conventions |
 | `REQUIREMENTS.md` | Requirement → design → code → test traceability |
 | `RESEARCH.md` | Research log (source, date, finding, decision influenced) |

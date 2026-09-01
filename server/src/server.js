@@ -12,7 +12,7 @@ async function start() {
   }
 
   app.listen(env.port, () => {
-    console.log(`Citadel API listening on http://localhost:${env.port}`);
+    console.log(`Citadel API listening on port ${env.port}`);
   });
 }
 

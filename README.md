@@ -1,9 +1,11 @@
-# Citadel
+# Citadel — Smart Rental Tracking System
 
-Domain-agnostic hackathon starter and command center for a 4-person team's
-Caterpillar campus hackathon (Sept 1–3, 2026). No fake domain logic — this
-is a clean foundation to adapt once the real problem statement is
-revealed.
+A 4-person team's submission for the Caterpillar campus hackathon (Sept
+1–3, 2026): a rental-equipment tracking system covering the full asset
+lifecycle (check out → assign/track → log usage → check in), with rule-
+based alerts, anomaly detection, demand forecasting, and a ranked
+recommendation feed that turns each signal into a plain-language
+action. Built on top of a domain-agnostic starter foundation.
 
 **Picking this project up — human or AI agent?** Start at
 [`.ai/AGENTS.md`](.ai/AGENTS.md). It's the entrypoint for current project
@@ -87,17 +89,34 @@ Branch off `main`, open a PR, get one review, merge. Full details —
 naming, commit style, checkpoints, conflict handling — in
 [`.ai/GIT-WORKFLOW.md`](.ai/GIT-WORKFLOW.md).
 
-## Replacing the starter with the real solution
+## What's actually built
 
-The `items` module (`server/src/modules/items/`, `client/src/pages/Items.jsx`,
-`client/src/api/items.js`) is a working end-to-end reference — not a real
-feature. Once the problem statement lands, follow
-[`.ai/PLAYBOOK.md`](.ai/PLAYBOOK.md) to scope the MVP, then copy or
-delete that module as your starting point.
+The starter's placeholder `items` reference module has been fully removed
+and replaced with the real domain modules (each following the same
+routes → controller → service → repository shape it demonstrated):
+`equipment`, `checkouts`, `usage-logs`, `alerts`, `anomalies`, `forecasts`,
+`recommendations`, `sites`, `operators`, `utilization` (all under
+`server/src/modules/`). Two frontend pages: **Control Tower** (`/`) — the
+ranked Action Queue plus live status/utilization/forecast panels — and
+**Asset Dashboard** (`/assets`) — the equipment table with check-out/
+check-in/log-usage actions. See
+[`.ai/REQUIREMENTS.md`](.ai/REQUIREMENTS.md) for the full requirement-to-
+code trace and [`.ai/ARCHITECTURE.md`](.ai/ARCHITECTURE.md) for the
+system design.
+
+## Deployment
+
+Frontend → Vercel, backend → Render, database → Neon (managed
+PostgreSQL), auto-deploying from `main` on push. Configuration is
+committed (`render.yaml`, `client/vercel.json`) but **no account has been
+connected yet** — there is no live public URL as of this writing. Full
+setup steps, environment variables, rollback, and free-tier limitations:
+[`.ai/DEPLOYMENT.md`](.ai/DEPLOYMENT.md) (its status line is the current
+source of truth).
 
 ## What's intentionally not included
 
-No auth, no AI integration, no dashboards, no ORM, no state-management
-library, no CI pipeline. Adding any of these later is meant to be
-straightforward — see [`.ai/ARCHITECTURE.md`](.ai/ARCHITECTURE.md) for how
-each one plugs in without restructuring the app.
+No auth, no AI integration, no ORM, no state-management library, no CI
+pipeline. Adding any of these later is meant to be straightforward — see
+[`.ai/ARCHITECTURE.md`](.ai/ARCHITECTURE.md) for how each one plugs in
+without restructuring the app.

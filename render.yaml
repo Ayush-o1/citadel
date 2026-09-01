@@ -1,0 +1,26 @@
+# Render Blueprint — deploys the backend API only. The database lives on
+# Neon (see .ai/DEPLOYMENT.md for why), and the frontend deploys separately
+# on Vercel, so neither is declared here.
+#
+# Usage: Render dashboard → New → Blueprint → pick this repo. Render reads
+# this file and creates the service below; it does not create anything not
+# listed here.
+services:
+  - type: web
+    name: citadel-api
+    runtime: node
+    repo: https://github.com/Ayush-o1/citadel.git
+    rootDir: server
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run migrate && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+      # PORT is provided by Render at runtime; the app already reads
+      # process.env.PORT (see server/src/config/env.js) so it's not set here.

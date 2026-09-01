@@ -47,6 +47,33 @@ Product: **Smart Rental Tracking System** (problem statement received
 | 10 | Integration, testing, polish | `VERIFIED` | Ayush drives (`TEAM-EXECUTION-PLAN.md`) | [`phases/PHASE-10-integration-and-polish.md`](phases/PHASE-10-integration-and-polish.md) |
 | 11 | Demo and panel-defense prep | `VERIFIED` | All four (`TEAM-EXECUTION-PLAN.md`) | [`phases/PHASE-11-demo-and-defense.md`](phases/PHASE-11-demo-and-defense.md) |
 
+**Owner column note:** these are `TEAM-EXECUTION-PLAN.md`'s *intended*
+per-phase assignments once all four teammates are actively contributing.
+Actual execution to date differs: all 29 commits so far are authored
+solely by `Ayush-o1` (verified via `git log --format=%an`), built in
+autonomous AI-agent sessions, because only Ayush's GitHub invite had been
+accepted by the time Phases 03-11 were built (`ISSUES.md` `RISK-002`).
+Don't cite this table as evidence a specific named teammate wrote a
+specific phase's code — it's the plan, not the execution record.
+
+## Post-Phase-11 stage
+
+No Phase 12 exists. What comes after Phase 11 is not another numbered
+phase, it's:
+
+```
+INTEGRATION (done, Phase 10)
+  → MANUAL QA (in progress — see STATE.md, MANUAL-QA.md)
+  → BUG FIXES (as real bugs are found via manual QA — see ISSUES.md)
+  → DEPLOYMENT (config prepared, not yet live — see DEPLOYMENT.md, ISSUES.md RISK-004)
+  → FINAL DEMO REHEARSAL
+  → PRESENTATION / PANEL DEFENSE (DEMO-SCRIPT.md, PANEL-DEFENSE.md)
+```
+
+Only add a real Phase 12+ here if a genuinely new feature is requested —
+see `AGENTS.md`'s hard rules. Bug fixes, deployment, and QA are not new
+phases; they use `STATE.md`/`ISSUES.md`/`HANDOFF.md` directly.
+
 ## Dependency shape and parallelization
 
 ```

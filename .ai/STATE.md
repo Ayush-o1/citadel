@@ -1,8 +1,12 @@
 # Project state
 
-**Last updated:** 2026-09-01, AI agent — frontend rebuild (role experiences
-+ capacity-aware optimization), phases RB-1..RB-5 in progress. See below;
-the Phase 00-11 history that follows is unchanged/historical.
+**Last updated:** 2026-09-01, AI agent — merge of two parallel sessions:
+(1) the frontend rebuild below (role experiences + capacity-aware
+optimization, RB-1..RB-7, all verified) and (2) a documentation-sync +
+deployment-prep pass (`DEPLOYMENT.md`, `ISSUES.md` `BUG-001`/`RISK-004`,
+`GIT-WORKFLOW.md`). Both are real, non-overlapping work — merged by hand,
+nothing dropped. See "Documentation sync + deployment prep" further down
+for the second session's own status section, kept intact.
 **Statuses used:** `NOT_STARTED` · `PLANNED` · `IN_PROGRESS` · `BLOCKED` · `READY_FOR_REVIEW` · `VERIFIED` · `COMPLETE`
 
 ## Frontend rebuild status (current work, see `.ai/FRONTEND-REBUILD-PLAN.md`)
@@ -104,11 +108,48 @@ three role experiences plus a capacity-aware rental optimization feature.
     none is left running now; a real teammate machine's local DB (if any)
     was never touched.
 
-**What's still not done:** doc sync beyond this file and `DECISIONS.md`
-(e.g. `REQUIREMENTS.md`, `MANUAL-QA.md` additions for the three roles) is
-not done yet. RB-1 through RB-6 are all implemented and verified.
+**What's still not done:** `REQUIREMENTS.md`/`MANUAL-QA.md` role-specific
+additions beyond what's noted above; a human (not just Playwright) has
+not clicked through the new role UIs. RB-1 through RB-7 are otherwise
+implemented and verified — see `MANUAL-QA.md`'s own updated notice for
+exactly what RB-7 covered.
+
+**Note on the test-count discrepancy below:** the parallel doc-sync
+session found the *persisted* local DB at 22/26 passing (`ISSUES.md`
+`BUG-001` — real manual-testing residue, not a code defect). This
+session's RB-6 work ran against a **freshly migrated + seeded** database
+each time (`docker compose up postgres` → `migrate` → `seed`, never a
+carried-over DB) and got a clean **28/28** (26 + 2 new capacity tests) —
+consistent with BUG-001's own diagnosis that "re-seeding fresh data
+would pass all [tests]." The two findings don't conflict; they're
+describing different DB states. `BUG-001` remains open for whichever
+persisted database the team demos from.
 
 ---
+
+## Documentation sync + deployment prep (parallel session, 2026-09-01)
+
+All 11 build phases are `VERIFIED` (see below); the project is in
+**INTEGRATION / MANUAL QA / DEPLOYMENT PREP** mode for that track. No
+Phase 12 exists or is planned.
+
+## Current work mode
+
+- **Build:** complete. All 11 phases `VERIFIED`, all 20 requirements `VERIFIED`.
+- **Manual QA:** `.ai/MANUAL-QA.md` exists (66 tests, A-O). **0 of 66 have
+  actually been manually confirmed by a human** as of this update — only
+  automated tests and AI-scripted browser walkthroughs (Puppeteer) have
+  run. Don't read "all phases VERIFIED" as "manually QA'd" — those are
+  different kinds of verification; see `MANUAL-QA.md`'s own rule that only
+  a human's actual click-through counts as PASS.
+- **Deployment:** configured, **not live**. See `DEPLOYMENT.md` — its
+  status line is the source of truth, not this bullet.
+- **Automated tests, right now:** `server`: **22/26 passing** (not 26/26
+  — see `ISSUES.md` `BUG-001`; this is seeded-data drift from a prior
+  manual-testing session, not an application defect). `client`: build
+  clean (`npm run build`, 42 modules, no errors) as of that session —
+  this session's client build (with the role rebuild + capacity feature
+  added) is separately confirmed clean above (58 modules, no errors).
 
 ## Current phase
 
@@ -213,28 +254,30 @@ before treating this as done for a live presentation.
 - [x] Error states verified (400/404/409 paths tested at the API; surfaced inline in the UI)
 - [x] Security baseline verified (CORS scoped, parameterized queries throughout, no secrets committed, prod errors redacted)
 - [x] Responsive behavior reviewed (measured, not eyeballed, at 420px on both screens)
-- [x] Tests pass (26/26); build passes (client)
-- [x] Demo path works (2 clean rehearsals, identical results)
-- [x] Representative data intact (17 equipment / 22 checkouts / 192 usage_logs / 19 pending recommendations — the exact Phase 02/07 baseline, reconfirmed after every manual test this session)
-- [x] Documentation reflects reality (updated continuously, phase by phase, not backfilled)
+- [ ] Tests pass — **currently 22/26**, not 26/26; see `ISSUES.md` `BUG-001` (seed-data drift, not a code defect). Build passes (client) — reconfirmed 2026-09-01.
+- [x] Demo path works (2 clean rehearsals, identical results — as of when last rehearsed; re-verify after fixing `BUG-001`'s underlying data drift before presenting)
+- [ ] Representative data intact — **currently drifted**: `equipment`/`checkouts`/`usage_logs` counts are still 17/22/192, but `EQX3001`/`EQX3002` are no longer active checkouts and pending recommendations are 16, not 19. See `ISSUES.md` `BUG-001`.
+- [x] Documentation reflects reality (this file, `ISSUES.md`, `DEPLOYMENT.md`, `MANUAL-QA.md`, `README.md` re-audited and corrected 2026-09-01)
 - [x] Known issues explicitly documented (`ISSUES.md`, `PANEL-DEFENSE.md`'s limitations section — nothing hidden)
-- [x] No critical blockers remain
+- [ ] No critical blockers remain — `BUG-001` should be resolved (baseline restored) before the next live demo or full test run
 - [ ] **Partially honest gaps, not swept under the rug:**
-  - `RISK-001` (Docker Compose end-to-end) is still unverified this session — the app was run directly via `node`/`vite`, not through Docker Compose. Flag before relying on Docker for the actual demo machine.
-  - `RISK-002` — only Ayush's GitHub invite is accepted; Astik/Eklavya/Souharda haven't joined yet, so `TEAM-EXECUTION-PLAN.md`'s ownership map is a plan for when they do, not evidence of real multi-person execution.
+  - `RISK-001` (Docker Compose end-to-end) is still unverified. Flag before relying on Docker for the actual demo machine.
+  - `RISK-002` — only Ayush's GitHub invite is accepted; Astik/Eklavya/Souharda haven't joined yet, so `TEAM-EXECUTION-PLAN.md`'s ownership map is a plan for when they do, not evidence of real multi-person execution. All 29 commits to date are authored by `Ayush-o1` alone.
+  - `RISK-004` — deployment is configured (`render.yaml`, `client/vercel.json`, `DEPLOYMENT.md`) but not live; no Vercel/Render/Neon account exists yet.
   - A truly clean-machine bootstrap (fresh `git clone` → install → migrate → seed) was not re-run this session end-to-end — migration idempotency and seed-skip behavior were reconfirmed directly, but not from an empty database on a separate machine. Do this once before the real event, not for the first time on the demo machine.
-- Final git state: clean, all checkpoints pushed and verified on remote (see Checkpoint log below).
+- Final git state: clean at last commit; deployment-prep and documentation changes from this session are being committed now (see git log for the actual current SHA — don't trust a hardcoded hash in this file over `git log`).
 
 ## Next recommended action
 
-**No further autonomous phase work.** Before presenting: (1) close
-`RISK-001` by actually running `docker compose up` end-to-end once, (2)
-do one real fresh-clone bootstrap on a second machine if possible, (3)
-resolve `RISK-002` if the other three teammates can still join, (4) run
-`DEMO-SCRIPT.md`'s pre-flight reset and do one more live rehearsal on the
-actual presentation machine, per `PANEL-DEFENSE.md`'s own limitations
-list — none of this changes application code, all of it is
-verification/logistics.
+No further phase work — Phase 11 was the last phase. Before presenting:
+
+1. **Restore the demo baseline** (`ISSUES.md` `BUG-001`): reset `EQX3001`/`EQX3002` to active checkouts and the 3 drifted recommendations back to `pending`, then re-run `npm test` and confirm 26/26.
+2. **Actually deploy** (`DEPLOYMENT.md`): create the Neon/Render/Vercel accounts, connect GitHub, set the documented env vars, verify the public URL end-to-end — this is a manual, human-only step (browser/OAuth login).
+3. **Run real manual QA**: a human works through `.ai/MANUAL-QA.md`'s 66 tests and marks each PASS/FAIL — currently 0/66 are human-confirmed.
+4. Close `RISK-001` (`docker compose up` end-to-end once), do a real fresh-clone bootstrap if possible, and resolve `RISK-002` if the other three teammates can still join.
+5. Run `DEMO-SCRIPT.md`'s pre-flight reset and do one more live rehearsal on the actual presentation machine after step 1.
+
+None of this is new application code — all verification/logistics/deployment-config, consistent with `QUALITY.md`.
 
 ## Overall progress
 
@@ -261,6 +304,8 @@ verification/logistics.
 | Integration, testing, polish | `VERIFIED` | Phase 10 — full E2E chain walked live; found and fixed missing usage-log UI; stretch feature (REQ-020) done |
 | Demo and panel-defense prep | `VERIFIED` | Phase 11 — 2 clean live rehearsals; all 12 "Important Expectation" questions answered and sourced |
 | Product implementation | `COMPLETE` | All 11 phases (00-11) `VERIFIED`. See the Final Phase 11 Gate above for honest remaining logistics (Docker, fresh-clone bootstrap, teammate invites). |
+| Deployment | `IN_PROGRESS` | Config prepared and committed (`render.yaml`, `client/vercel.json`, `DEPLOYMENT.md`) — `RISK-004`, not yet live. |
+| Manual QA (human-verified) | `NOT_STARTED` | `.ai/MANUAL-QA.md` exists (66 tests); 0/66 marked PASS by an actual human so far. |
 
 ## Known bugs
 
