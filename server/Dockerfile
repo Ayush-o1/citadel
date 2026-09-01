@@ -16,4 +16,4 @@ EXPOSE 4000
 # (auto-detects and uses this Dockerfile) rather than via the render.yaml
 # Blueprint, so that startCommand was never actually in effect. Mirrors
 # it here so the fix applies regardless of which path Render is using.
-CMD ["sh", "-c", "npm run migrate && npm start"]
+CMD ["sh", "-c", "npm run migrate && npm run seed && npm start"]
