@@ -7,6 +7,76 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 (late night) — Admin Control Tower + full doc sync after the real-auth landing
+
+**What this session was:** picked up mid-flight, uncommitted real Google
+OAuth work (migration `010_create_users.sql`, `server/src/modules/auth/`,
+rewritten `RoleContext`/`RoleGate`) that a prior session/agent had already
+built and gotten working (confirmed via a real signed-in row in `users` —
+`ayushh.ofc10@gmail.com`, role `admin`) but never documented or fully
+integrated. Verified it end-to-end (see `.ai/DECISIONS.md`'s "Full
+product/UX audit, second pass" entry for the full method: minted a
+DB-backed test session, ran a real checkout → cross-customer 403 →
+real-owner-check-in cycle against Postgres, cleaned up after). Then did a
+product-level audit against the problem statement's own principle ("the
+dashboard should recommend, not just report") and found Admin's home page
+was still a static report while Dealer's was already a real Control
+Tower — built `client/src/pages/admin/ControlTower.jsx` to close that gap
+(old `FleetOverview` content moved to `/admin/fleet`), plus three smaller
+fixes (Customer capacity-hint ordering, a pointless readonly form field
+removed, search added to Dealer's Asset Dashboard).
+
+**Then a full documentation sync**, because the auth landing had left the
+docs badly out of date — anyone reading them cold would have gotten the
+auth flow, the admin routes, and the baseline numbers wrong:
+- `.ai/PANEL-DEFENSE.md` §12 literally said "No authentication/multi-user
+  roles" — actively wrong and would have been an embarrassing thing to
+  say to judges. Corrected, with the real, honest boundary (auth is real,
+  server-side role *authorization* is still partial).
+- `.ai/MANUAL-QA.md` still instructed testers to "enter any name" — there
+  is no such flow anymore, only real Google Sign-In. Rewrote the auth
+  instructions, the Admin section (new routes/nav), and the baseline
+  count (17/22/192 → 21/26/257) throughout.
+- `.ai/DEMO-SCRIPT.md` — the literal script for tonight's presentation —
+  predated the whole role rebuild: no sign-in step at all, `/assets`
+  instead of `/dealer/assets`, and a forecast number
+  (`Excavator @ S003`) that had drifted from 5/1.25-per-week to
+  6/1.5-per-week since the script was written (checked live against the
+  running API, not assumed). Fixed all three, and added an optional
+  bonus beat showing the new Admin Control Tower.
+- `.ai/DEPLOYMENT.md` had no mention of the Google OAuth env vars
+  (`GOOGLE_CLIENT_ID`/`SECRET`/`REDIRECT_URI`, `SESSION_SECRET`) at all —
+  deploying today would have silently shipped broken sign-in. Added them,
+  plus the Google Cloud Console redirect-URI step deployment needs.
+- `.ai/ARCHITECTURE.md`, `.ai/REQUIREMENTS.md`, `.ai/FRONTEND-UX-PLAN.md`,
+  `.ai/FRONTEND-REBUILD-PLAN.md`, `README.md` — smaller corrections or
+  "superseded, see X" notes pointing at current reality, not rewritten
+  wholesale (history kept intact where it was genuinely historical, per
+  this project's own documentation discipline).
+
+**What's still true and unresolved, not fixed this session (by design —
+flagged, not silently worked around):**
+- Admin's and Dealer's Control Tower queues show the *same* recommendation
+  items — no role-scoped backend query exists yet. Documented everywhere
+  it's relevant rather than presented as more differentiated than it is.
+- Server-side role-based authorization is still mostly UX-guard-only
+  (`RoleGate` redirects, but most read endpoints don't check `req.user.role`).
+- Deployment is still not live — no Vercel/Render/Neon account created.
+- The demo script was corrected in place but **not re-rehearsed live**
+  this session — do at least one live run-through before presenting,
+  per its own instruction.
+
+**Verified this session:** backend 32/32 tests (unchanged, no server
+logic touched beyond what the prior uncommitted auth work already had);
+client build clean (61 modules); live Playwright pass across every
+screen (entry, all three role homes, equipment detail, asset dashboard),
+1440px + 390px mobile, zero console errors; every data shape the new
+Admin Control Tower reads checked against live API responses first.
+Nothing committed by this session — the user asked for docs updated and
+pushed; see the commit this entry ships with for exactly what's included.
+
+---
+
 ## 2026-09-01 — Documentation audit + deployment prep (no application logic changed)
 
 **What this session was:** two things, back to back. (1) Prepared

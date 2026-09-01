@@ -1,38 +1,48 @@
 /* Design tokens — one shared system across Customer/Dealer/Admin.
-   Amber is the single intentional Caterpillar-adjacent accent: brand mark,
-   primary CTA, "needs attention" state. Everything else stays neutral. */
+   Light, neutral surfaces; amber is the single intentional Caterpillar-
+   adjacent accent (brand mark, primary CTA, "needs attention" state).
+   Everything else stays restrained. */
 :root {
-  /* Color — base surfaces */
-  --color-bg: #0f1115;
-  --color-bg-raised: #14161c;
-  --color-surface: #171a21;
-  --color-surface-hover: #1d2129;
-  --color-text: #e6e8eb;
-  --color-muted: #9aa1ac;
-  --color-border: #2a2e37;
+  /* Color — base surfaces (light) */
+  --color-bg: #f7f7f5;
+  --color-bg-raised: #f0f0ed;
+  --color-surface: #ffffff;
+  --color-surface-hover: #fafaf9;
+  --color-text: #1a1a18;
+  --color-muted: #6b6b66;
+  --color-subtle: #6f6d64;
+  --color-border: #e4e3dd;
+  --color-border-strong: #d3d2ca;
 
   /* Color — semantic (4-tone: neutral/info/warning/danger + success) */
-  --color-accent: #4f8cff;
-  --color-danger: #ff5c5c;
-  --color-warning: #e6a82f;
-  --color-success: #4caf6d;
+  --color-accent: #2563eb;
+  --color-danger: #c22828;
+  --color-warning: #a15c07;
+  --color-success: #16794c;
+
+  --color-danger-bg: #fdecec;
+  --color-warning-bg: #fbf1de;
+  --color-success-bg: #e8f5ee;
+  --color-info-bg: #eaf1fe;
+  --color-neutral-bg: #eeeeea;
 
   /* Color — brand */
-  --color-brand: #e6a82f;
-  --color-brand-strong: #d69822;
-  --color-on-brand: #14161c;
+  --color-brand: #9c580c;
+  --color-brand-strong: #7c4709;
+  --color-brand-tint: #fbf1de;
+  --color-on-brand: #ffffff;
 
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* Type scale (1.2 ratio, system font stack, no webfont dependency) */
-  --font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Type scale (1.25 ratio, system font stack, no webfont dependency) */
+  --font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.85rem;
   --font-size-md: 1rem;
-  --font-size-lg: 1.2rem;
-  --font-size-xl: 1.5rem;
-  --font-size-2xl: 2rem;
-  --font-size-3xl: 2.75rem;
+  --font-size-lg: 1.15rem;
+  --font-size-xl: 1.45rem;
+  --font-size-2xl: 1.95rem;
+  --font-size-3xl: 2.65rem;
 
   /* Spacing scale, 4px base */
   --space-1: 0.25rem;
@@ -49,11 +59,16 @@
   --radius-lg: 16px;
   --radius-pill: 999px;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  /* Minimal, intentional elevation — light theme relies on borders first,
+     shadow only for things that float above content (modals, popovers,
+     hover-lift on interactive cards). */
+  --shadow-xs: 0 1px 2px rgba(20, 20, 15, 0.04);
+  --shadow-sm: 0 2px 6px rgba(20, 20, 15, 0.06);
+  --shadow-md: 0 12px 28px rgba(20, 20, 15, 0.10);
+  --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.35);
 
-  --motion-fast: 120ms ease;
-  --motion-base: 200ms ease;
+  --motion-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {

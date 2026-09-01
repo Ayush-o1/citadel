@@ -98,17 +98,22 @@ routes → controller → service → repository shape it demonstrated):
 `recommendations`, `sites`, `operators`, `utilization`, `capacity` (all
 under `server/src/modules/`).
 
-The frontend has **three role-gated experiences**, chosen from an entry
-screen at `/` (client-simulated role switching — no real auth backend,
-see `.ai/FRONTEND-REBUILD-PLAN.md`):
+The frontend has **three role-gated experiences**, entered at `/` via real
+Google Sign-In (OAuth 2.0 authorization code flow, `server/src/modules/auth`,
+migration `010_create_users.sql`) — a signed-in user picks a role once
+(server-persisted, changeable anytime from "Switch role") rather than
+picking from an unauthenticated list, see `.ai/FRONTEND-REBUILD-PLAN.md`:
 - **Customer** (`/customer/...`) — discover available equipment, view a
   rental-fit hint, rent, and track/return from "My Rentals."
 - **Dealer** (`/dealer`, `/dealer/assets`) — the original Control Tower
   (ranked Action Queue + live status/utilization/forecast panels) and
   Asset Dashboard (check-out/check-in/log-usage), now under `/dealer/*`.
-- **Caterpillar Admin** (`/admin/*`) — fleet overview, utilization,
-  capacity, anomalies, forecasts, and the full recommendations queue, at
-  a fleet-wide strategic altitude rather than per-asset actions.
+- **Caterpillar Admin** (`/admin/*`) — a Control Tower home page leading
+  with the fleet-wide ranked recommendations queue plus exception counts
+  (anomalies, capacity flags, unassigned equipment), with fleet
+  allocation (`/admin/fleet`), utilization, capacity, anomalies, and
+  forecasts as supporting deep-dive views — strategic altitude, no
+  per-asset actions, unlike Dealer.
 
 See [`.ai/REQUIREMENTS.md`](.ai/REQUIREMENTS.md) for the full
 requirement-to-code trace, [`.ai/ARCHITECTURE.md`](.ai/ARCHITECTURE.md)
@@ -129,9 +134,12 @@ source of truth).
 
 ## What's intentionally not included
 
-No real authentication (the three-role UI uses client-simulated role
-selection, not a login/session backend), no AI integration, no ORM, no
-state-management library, no CI pipeline. Adding any of these later is
+No AI integration, no ORM, no state-management library, no CI pipeline.
+Real Google Sign-In exists (see above) but role-based **authorization** is
+partial by design: the API enforces true identity-based ownership on the
+one place it matters most (a customer returning their own rental —
+`checkouts.service.js`'s `user_id` check), while most read endpoints are
+not yet role-restricted server-side. Adding any of the above later is
 meant to be straightforward — see
 [`.ai/ARCHITECTURE.md`](.ai/ARCHITECTURE.md) for how each one plugs in
 without restructuring the app.

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { ROLES, ROLE_LABELS, useRole } from '../app/RoleContext.jsx';
+import LoadingState from '../components/LoadingState.jsx';
 
 const ROLE_CARDS = [
   {
@@ -26,28 +27,38 @@ const ROLE_CARDS = [
   },
 ];
 
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+      <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.87 2.7-6.62z" />
+      <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18z" />
+      <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33z" />
+      <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58z" />
+    </svg>
+  );
+}
+
 export default function Entry() {
-  const { role, setRole, customerName, setCustomerName } = useRole();
-  const [pendingCustomerName, setPendingCustomerName] = useState(customerName);
-  const [selecting, setSelecting] = useState(null);
+  const { loading, user, role, signIn, setRole } = useRole();
+  const [pendingRole, setPendingRole] = useState(null);
+  const [error, setError] = useState(null);
+
+  if (loading) return <LoadingState label="Loading…" />;
 
   if (role) {
     const home = ROLE_CARDS.find((c) => c.role === role)?.home ?? '/';
     return <Navigate to={home} replace />;
   }
 
-  function choose(targetRole) {
-    if (targetRole === ROLES.CUSTOMER) {
-      setSelecting(ROLES.CUSTOMER);
-      return;
+  async function choose(targetRole) {
+    setError(null);
+    setPendingRole(targetRole);
+    try {
+      await setRole(targetRole);
+    } catch (err) {
+      setError(err.message);
+      setPendingRole(null);
     }
-    setRole(targetRole);
-  }
-
-  function confirmCustomer(event) {
-    event.preventDefault();
-    setCustomerName(pendingCustomerName.trim() || 'Guest');
-    setRole(ROLES.CUSTOMER);
   }
 
   return (
@@ -59,40 +70,45 @@ export default function Entry() {
           One system to track heavy equipment from checkout to return — built for the people who rent it,
           the dealers who run it, and the fleet owner who has to answer for it.
         </p>
-      </section>
-
-      <section className="entry-roles" aria-label="Choose how you're using Citadel">
-        <p className="entry-roles-label">Demo mode — choose a role to continue. This simulates role switching; it is not a real login.</p>
-        <div className="entry-role-grid">
-          {ROLE_CARDS.map((card) => (
-            <article key={card.role} className="entry-role-card">
-              <h2>{card.title}</h2>
-              <p className="entry-role-tagline">{card.tagline}</p>
-              <p className="entry-role-detail">{card.detail}</p>
-
-              {selecting === card.role ? (
-                <form onSubmit={confirmCustomer} className="entry-customer-form">
-                  <label>
-                    Your name
-                    <input
-                      type="text"
-                      value={pendingCustomerName}
-                      onChange={(e) => setPendingCustomerName(e.target.value)}
-                      placeholder="e.g. Priya Shah"
-                      autoFocus
-                    />
-                  </label>
-                  <button type="submit">Continue as {ROLE_LABELS[ROLES.CUSTOMER]}</button>
-                </form>
-              ) : (
-                <button type="button" onClick={() => choose(card.role)}>
-                  Continue as {card.title}
-                </button>
-              )}
-            </article>
-          ))}
+        <div className="entry-trust-row">
+          <span className="entry-trust-item">Live equipment status</span>
+          <span className="entry-trust-item">Explainable anomaly detection</span>
+          <span className="entry-trust-item">Real Google sign-in</span>
         </div>
       </section>
+
+      {!user ? (
+        <section className="entry-signin" aria-label="Sign in">
+          <button type="button" className="google-signin-button" onClick={signIn}>
+            <GoogleIcon />
+            Sign in with Google
+          </button>
+          <p className="entry-signin-note">
+            Real Google Sign-In. Your name, email, and photo come from your Google account; Citadel never sees your
+            Google password.
+          </p>
+        </section>
+      ) : (
+        <section className="entry-roles" aria-label="Choose how you're using Citadel">
+          <p className="entry-roles-label">
+            Signed in as <strong>{user.name}</strong> ({user.email}) — choose how you'd like to use Citadel. You can
+            switch roles later from any screen.
+          </p>
+          {error && <p className="form-error">{error}</p>}
+          <div className="entry-role-grid">
+            {ROLE_CARDS.map((card) => (
+              <article key={card.role} className="entry-role-card">
+                <h2>{card.title}</h2>
+                <p className="entry-role-tagline">{card.tagline}</p>
+                <p className="entry-role-detail">{card.detail}</p>
+                <button type="button" disabled={pendingRole !== null} onClick={() => choose(card.role)}>
+                  {pendingRole === card.role ? 'Setting up…' : `Continue as ${card.title}`}
+                </button>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

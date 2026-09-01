@@ -30,7 +30,7 @@ custom CI pipeline.
 |---|---|---|
 | Frontend | Vercel (Hobby/free) | Zero-config for Vite, GitHub-integrated auto-deploy, generous free limits (100GB transfer/mo, 1M requests/mo as of 2026-09) for a hackathon demo's traffic. Non-commercial-use restriction is fine — this isn't a commercial product. |
 | Backend | Render (Free web service) | GitHub-integrated auto-deploy, supports a plain `npm install` / `npm start` Node service with no Docker required, has a Blueprint (`render.yaml`) for reproducible one-click setup. |
-| Database | **Neon** (free tier), not Render's free Postgres | Render's free Postgres **expires 30 days after creation** (14-day grace period, then deleted) — unacceptable for a project that needs to survive past the hackathon dates for interviews/follow-up. Neon's free tier has no expiration, no credit card, allows commercial use, and gives 0.5GB storage / 100 CU-hours/month, which is more than enough at this data volume (17 equipment / 22 checkouts / 192 usage_logs). |
+| Database | **Neon** (free tier), not Render's free Postgres | Render's free Postgres **expires 30 days after creation** (14-day grace period, then deleted) — unacceptable for a project that needs to survive past the hackathon dates for interviews/follow-up. Neon's free tier has no expiration, no credit card, allows commercial use, and gives 0.5GB storage / 100 CU-hours/month, which is more than enough at this data volume (21 equipment / 26 checkouts / 257 usage_logs). |
 
 Recorded as a real decision in `DECISIONS.md` (2026-09-01 entry) with
 sources.
@@ -61,6 +61,9 @@ sources.
 | `DATABASE_URL` | Neon connection string, must include `?sslmode=require`. |
 | `CLIENT_ORIGIN` | The deployed Vercel URL (e.g. `https://citadel-xyz.vercel.app`) — CORS only allows this one origin, never `*`. |
 | `PORT` | Provided automatically by Render at runtime — do not set manually. |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | From the same Google Cloud OAuth client used locally (`server/.env.example`) — real Google Sign-In needs these set on Render too, not just locally. |
+| `GOOGLE_REDIRECT_URI` | Must be the real deployed callback URL (`<render-url>/api/auth/google/callback`), and that exact URL must also be added to the OAuth client's Authorized redirect URIs in Google Cloud Console — see step 3 below. |
+| `SESSION_SECRET` | A long random string signing session JWTs (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`) — without it the app falls back to a secret generated fresh per process start, meaning every Render restart signs out all users. Set a real one for production. |
 
 **Frontend (Vercel):**
 | Variable | Purpose |
@@ -88,12 +91,18 @@ an AI agent — this is the one part of this file that requires a person:
    (build command `npm run build`, output `dist`) and reads
    `client/vercel.json` for the SPA rewrite rule (needed because the app
    uses `react-router-dom`'s `BrowserRouter` — without it, refreshing
-   `/assets` in production 404s). Set `VITE_API_URL` to the Render URL
-   from step 2.
+   `/dealer/assets` in production 404s). Also set `GOOGLE_REDIRECT_URI`
+   on Render to the real `<render-url>/api/auth/google/callback`, and add
+   that same URL plus the Vercel origin to the OAuth client's Authorized
+   redirect URIs / JavaScript origins in Google Cloud Console — real
+   Google Sign-In won't work on the deployed URL until this is done (it's
+   currently only configured for `localhost`). Set `VITE_API_URL` to the
+   Render URL from step 2.
 4. Go back to Render, set `CLIENT_ORIGIN` to the real Vercel URL, redeploy.
-5. Verify: open the Vercel URL, confirm the Control Tower loads real data,
-   confirm no CORS errors in the console, confirm `<render-url>/api/health`
-   returns `database: "connected"`.
+5. Verify: open the Vercel URL, confirm Google Sign-In completes and
+   lands you in a role workspace with real data, confirm no CORS errors
+   in the console, confirm `<render-url>/api/health` returns
+   `database: "connected"`.
 6. Update this file's status line at the top from "NOT YET LIVE" to the
    actual public URLs and today's date.
 

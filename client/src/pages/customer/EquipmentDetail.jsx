@@ -59,14 +59,22 @@ export default function EquipmentDetail() {
           <h1>{equipment.code}</h1>
           {equipment.home_site && <p className="page-subtitle">Located at {equipment.home_site.code}</p>}
 
+          {typeBaseline && (
+            <p className="capacity-fit-hint">
+              Typical {equipment.type.toLowerCase()} rentals here log about {typeBaseline.typical_total_hours}h of
+              productive work in total (based on {typeBaseline.sample_count} comparable past rentals), against an
+              assumed {typeBaseline.assumed_capacity_hours}h/day of capacity — a useful reference point when
+              deciding how long to book this for.
+            </p>
+          )}
+
           {unavailable ? (
             <p className="form-error">This machine is currently {equipment.status.replace('_', ' ')} — check back later.</p>
           ) : (
             <form onSubmit={handleRent} className="checkout-form equipment-rent-form">
-              <label>
-                Renting as
-                <input type="text" value={customerName} readOnly />
-              </label>
+              <p className="equipment-rent-as">
+                Renting as <strong>{customerName}</strong> — your signed-in Google account.
+              </p>
               <label>
                 Needed until (optional)
                 <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
@@ -76,15 +84,6 @@ export default function EquipmentDetail() {
                 {busy ? 'Requesting…' : 'Rent this equipment'}
               </button>
             </form>
-          )}
-
-          {typeBaseline && (
-            <p className="capacity-fit-hint">
-              Typical {equipment.type.toLowerCase()} rentals here log about {typeBaseline.typical_total_hours}h of
-              productive work in total (based on {typeBaseline.sample_count} comparable past rentals), against an
-              assumed {typeBaseline.assumed_capacity_hours}h/day of capacity — a useful reference point when
-              deciding how long to book this for.
-            </p>
           )}
         </div>
       </div>

@@ -1,6 +1,8 @@
-// No external image assets shipped for this demo — a clean labeled
-// placeholder (type + a simple silhouette) rather than a broken image or
-// generic stock photo. See .ai/FRONTEND-UX-PLAN.md "Images".
+import EquipmentSilhouette from './EquipmentSilhouette.jsx';
+
+// Real per-type line-art (see EquipmentSilhouette.jsx) with a text-mark
+// fallback for any type the illustration set doesn't cover — never a
+// broken image, never a generic/random stock photo.
 const INITIAL_BY_TYPE = {
   Excavator: 'EX',
   Bulldozer: 'BD',
@@ -9,10 +11,16 @@ const INITIAL_BY_TYPE = {
 };
 
 export default function EquipmentImage({ type }) {
+  const hasIllustration = type in INITIAL_BY_TYPE;
   const initials = INITIAL_BY_TYPE[type] || type?.slice(0, 2).toUpperCase() || '—';
+
   return (
     <div className="equipment-image" aria-hidden="true">
-      <span className="equipment-image-mark">{initials}</span>
+      {hasIllustration ? (
+        <EquipmentSilhouette type={type} className="equipment-silhouette" />
+      ) : (
+        <span className="equipment-image-mark">{initials}</span>
+      )}
     </div>
   );
 }

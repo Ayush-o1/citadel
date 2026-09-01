@@ -1,5 +1,20 @@
 # Frontend rebuild plan — three role experiences + capacity-aware optimization
 
+**Partially superseded (2026-09-01, later that night):** this plan's
+"client-simulated, no real auth backend" decision (§2 below, and the
+non-goals in §9) was itself superseded — real Google OAuth was built
+(`server/src/modules/auth/`, migration `010_create_users.sql`) and is
+confirmed working with a real signed-in account. `RoleContext.jsx` now
+holds real identity from `/api/auth/me`, not `localStorage`. The Admin
+route map in §5 is also out of date: `/admin` is now a Control Tower
+(`ControlTower.jsx`), `Recommendations.jsx` was folded into it, and the
+old `/admin` content (fleet/site allocation) moved to `/admin/fleet`.
+Everything else here (role/feature scope, capacity feature design,
+non-auth architecture decisions) still holds. See `.ai/DECISIONS.md`'s
+"Full product/UX audit, second pass" entry and `.ai/STATE.md` for current
+reality — this file is kept for the original reasoning trail, not edited
+in place.
+
 **Status:** superseding decision, recorded 2026-09-01 (post-Phase-11). The
 Phase 00–11 build shipped a single-persona dispatcher tool by deliberate
 choice (`DECISIONS.md` 2026-08-30, `PANEL-DEFENSE.md` §12: "no

@@ -43,7 +43,7 @@ export default function MyRentals() {
   return (
     <section>
       <h1>My rentals</h1>
-      <p className="page-subtitle">Rentals under the name "{customerName}".</p>
+      <p className="page-subtitle">Signed in as {customerName}.</p>
       {returnError && <p className="form-error">{returnError}</p>}
 
       <ul className="rental-list">

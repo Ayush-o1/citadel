@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { ROLES, ROLE_LABELS, useRole } from '../../app/RoleContext.jsx';
 
 const NAV_BY_ROLE = {
@@ -11,26 +11,35 @@ const NAV_BY_ROLE = {
     { to: '/dealer/assets', label: 'Asset Dashboard' },
   ],
   [ROLES.ADMIN]: [
-    { to: '/admin', label: 'Fleet', end: true },
+    { to: '/admin', label: 'Control Tower', end: true },
+    { to: '/admin/fleet', label: 'Fleet' },
     { to: '/admin/utilization', label: 'Utilization' },
     { to: '/admin/capacity', label: 'Capacity' },
     { to: '/admin/anomalies', label: 'Anomalies' },
     { to: '/admin/forecasts', label: 'Forecasts' },
-    { to: '/admin/recommendations', label: 'Recommendations' },
   ],
 };
 
 export default function AppShell() {
-  const { role, exitRole } = useRole();
+  const { role, user, signOut } = useRole();
+  const navigate = useNavigate();
   const links = NAV_BY_ROLE[role] ?? [];
+
+  async function handleSignOut() {
+    await signOut();
+    navigate('/');
+  }
 
   return (
     <div className="layout">
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
       <header className="layout-header">
         <Link to="/" className="brand">
           Citadel
         </Link>
-        <nav>
+        <nav aria-label="Primary">
           {links.map((link) => (
             <NavLink key={link.to} to={link.to} end={link.end}>
               {link.label}
@@ -38,13 +47,17 @@ export default function AppShell() {
           ))}
         </nav>
         <div className="role-indicator">
+          {user?.avatar_url && <img src={user.avatar_url} alt="" className="user-avatar" referrerPolicy="no-referrer" />}
           <span className="role-pill">{ROLE_LABELS[role]}</span>
-          <button type="button" className="role-switch" onClick={exitRole}>
+          <Link to="/switch-role" className="role-switch">
             Switch role
+          </Link>
+          <button type="button" className="role-switch" onClick={handleSignOut}>
+            Sign out
           </button>
         </div>
       </header>
-      <main className="layout-main">
+      <main className="layout-main" id="main-content">
         <Outlet />
       </main>
     </div>

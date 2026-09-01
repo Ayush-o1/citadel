@@ -1,12 +1,19 @@
 # Manual QA checklist
 
 For manual testing only — automated coverage lives in `server/tests/`
-(**28/28 passing**, reconfirmed against a fresh migrate+seed on
+(**32/32 passing**, reconfirmed against a fresh migrate+seed on
 2026-09-01 — see `STATE.md`). This checklist is for a human clicking
 through the real, running app. **Mark each test `[x] PASS` or `[ ] FAIL`
 yourself as you go** — nothing here is pre-checked, and no automated
 result counts as a PASS here. If something fails, report the Test ID and
 what you saw (see "Reporting a failure" at the bottom).
+
+**Auth note:** the app now uses real Google Sign-In (superseded the
+earlier "enter any name" client-simulated flow this checklist originally
+described). You need a real Google account to run sections B/C/D below —
+there is no test/bypass login. Sign in once, then use "Switch role" to
+move between Customer/Dealer/Admin on the same account without signing
+in three times.
 
 ## Before you start
 
@@ -31,14 +38,19 @@ written, and is the main thing this update covers:
 
 | Role | Entry | Routes |
 |---|---|---|
-| Customer | "Continue as Customer" (enter any name) | `/customer`, `/customer/equipment/:id`, `/customer/rentals` |
-| Dealer | "Continue as Dealer" | `/dealer`, `/dealer/assets` |
-| Caterpillar Admin | "Continue as Caterpillar Admin" | `/admin`, `/admin/utilization`, `/admin/capacity`, `/admin/anomalies`, `/admin/forecasts`, `/admin/recommendations` |
+| Customer | Sign in with Google → "Continue as Customer" | `/customer`, `/customer/equipment/:id`, `/customer/rentals` |
+| Dealer | Sign in with Google → "Continue as Dealer" | `/dealer`, `/dealer/assets` |
+| Caterpillar Admin | Sign in with Google → "Continue as Caterpillar Admin" | `/admin`, `/admin/fleet`, `/admin/utilization`, `/admin/capacity`, `/admin/anomalies`, `/admin/forecasts` |
 
-Role selection is **client-simulated, not real authentication** — no
-password, no server-side session. "Switch role" (top-right) always
-returns you to `/`. This is by design and stated on the entry screen
-itself — don't file it as a bug.
+Role selection is **real, server-persisted** — a signed-in Google account
+picks a role once, stored on the `users` table, changeable anytime via
+"Switch role" (top-right), which returns you to `/switch-role` (not the
+signed-out entry screen — you stay signed in). "Sign out" (top-right)
+clears the session and returns you to `/`. Route gating (`RoleGate`) is
+still a UX guard, not the full authorization boundary — see
+`.ai/PANEL-DEFENSE.md` §12 for exactly what is/isn't enforced
+server-side. Don't file the gap itself as a bug; do file it if a route
+gate visibly fails to redirect.
 
 **Real actions leave real residue.** This is a shared demo database, not
 a sandboxed test environment. If you check something out, log usage, rent
@@ -77,16 +89,16 @@ That's what this pass is for.
 
 ## B. Customer flow
 
-Start at `/`, click "Continue as Customer," enter any name (e.g. "QA Tester").
+Start at `/`, sign in with Google, click "Continue as Customer."
 
-- [ ] **CUST-01** — After entering a name and continuing, confirm you land on `/customer` with an equipment grid ("Find equipment"). Confirm only equipment with status **Available** appears (no checked-out machines in the grid).
+- [ ] **CUST-01** — After choosing Customer, confirm you land on `/customer` with an equipment grid ("Find equipment"). Confirm only equipment with status **Available** appears (no checked-out machines in the grid).
 - [ ] **CUST-02** — Click a type filter chip (e.g. "Excavator"). **Expect:** grid narrows to only that type; click "All types" to reset.
-- [ ] **CUST-03** — Click an equipment card. **Expect:** navigates to a detail page showing type, code, home site, and a rent form pre-filled with your entered name.
-- [ ] **CUST-04** — If the machine's type has enough historical data (currently: Excavator), confirm a green-bordered "capacity-fit hint" box appears below the form with a typical-hours figure and sample count. For a type without enough history, confirm the hint is simply **absent** — not a broken/empty box.
-- [ ] **CUST-05** — Set a return date, click "Rent this equipment." **Expect:** navigates to `/customer/rentals`, and the machine you just rented appears there with status "Checked out."
+- [ ] **CUST-03** — Click an equipment card. **Expect:** navigates to a detail page showing type, code, home site. If the machine's type has enough historical data, a capacity-fit hint appears **above** the rent form (not below — moved so the decision-support info comes before the action); below that, "Renting as **[your Google name]** — your signed-in Google account" (a plain sentence, not an editable field — your identity comes from your real signed-in session).
+- [ ] **CUST-04** — If the machine's type has enough historical data (currently: Excavator), confirm the capacity-fit hint box appears with a typical-hours figure and sample count. For a type without enough history, confirm the hint is simply **absent** — not a broken/empty box.
+- [ ] **CUST-05** — Set a return date, click "Rent this equipment." **Expect:** navigates to `/customer/rentals`, and the machine you just rented appears there with status "Checked out," under your real name.
 - [ ] **CUST-06** — Go back to `/customer` (Discover). **Expect:** the machine you just rented no longer appears in the available grid.
 - [ ] **CUST-07** — On My Rentals, click "Return equipment" on your active rental. **Expect:** status flips to "Returned," the button disappears.
-- [ ] **CUST-08** — Click "Switch role" (top right). **Expect:** returns to `/`, and choosing Customer again with a **different** name shows an empty "My Rentals" (no cross-contamination between names).
+- [ ] **CUST-08** — Click "Switch role" (top right). **Expect:** goes to `/switch-role` (you stay signed in as the same Google account) — choosing Dealer or Admin there takes you straight to that workspace. Click "Sign out" instead. **Expect:** returns to `/` fully signed out (Google sign-in button shown again).
 
 ## C. Dealer flow
 
@@ -109,15 +121,19 @@ Customer above.
 
 ## D. Caterpillar Admin flow
 
-Switch role → "Continue as Caterpillar Admin." You land on `/admin` (Fleet Overview).
+Switch role → "Continue as Caterpillar Admin." You land on `/admin` — a
+Control Tower, not a static report (this is new; the old default was a
+"Fleet Overview" report page, now moved to `/admin/fleet`).
 
-- [ ] **ADM-01** — Confirm "Status by equipment type" table and "Allocation by site" list both show real, non-zero numbers.
+- [ ] **ADM-01** — Confirm `/admin` shows a "Top priority" banner and a ranked recommendations queue (same card style as Dealer's Action Queue: signal, reason, expected-impact sentence, "Mark actioned"/"Dismiss" buttons that work). Confirm the right-hand sidebar shows "Fleet status" (available/checked out/overdue/maintenance counts) and "Exceptions" (high-severity anomaly count, rentals below capacity, equipment with no home site, types outside the healthy band) — real, non-zero numbers, not placeholders.
+- [ ] **ADM-01b** — Click "Full fleet breakdown →" in the sidebar, or "Fleet" in the nav. **Expect:** navigates to `/admin/fleet`, showing "Status by equipment type" table and "Allocation by site" list, both with real, non-zero numbers (this is the old `/admin` content, just relocated).
 - [ ] **ADM-02** — Click "Utilization" in the nav. **Expect:** each equipment type shows a runtime % and a band label (Healthy/Underutilized/Overutilized/No data), each with a one-line plain-English explanation.
 - [ ] **ADM-03** — Click "Capacity" in the nav. **Expect:** see section E below — this is the capacity-aware optimization feature's dedicated view.
 - [ ] **ADM-04** — Click "Anomalies" in the nav. **Expect:** a list of flagged equipment with type + reason + severity badge (this is the same underlying data as Dealer's Action Queue, but Admin gets a dedicated direct view of it — no per-asset action buttons here, by design: Admin observes, Dealer executes).
 - [ ] **ADM-05** — Click "Forecasts" in the nav. **Expect:** cards per equipment-type/site pair — some with a real predicted-demand number and trend, at least one with an honest "insufficient history" message (never a fabricated number).
-- [ ] **ADM-06** — Click "Recommendations" in the nav. **Expect:** the full ranked queue (same underlying data/actions as Dealer's Action Queue — mark actioned/dismissed here works identically).
-- [ ] **ADM-07** — Confirm Admin's pages never expose a "Check out" / "Check in" / "Log usage" button anywhere — Admin is strategic/read-only for asset actions by design, unlike Dealer.
+- [ ] **ADM-06** — On `/admin`, click "Mark actioned" or "Dismiss" on a recommendation card. **Expect:** it disappears from the queue and does not reappear on reload — same closes-the-loop behavior as Dealer's Action Queue. (There is no longer a separate `/admin/recommendations` route — this is now the `/admin` home page itself.)
+- [ ] **ADM-07** — Confirm Admin's pages never expose a "Check out" / "Check in" / "Log usage" button anywhere — Admin is strategic/read-only for per-asset actions by design, unlike Dealer. (Marking a recommendation actioned/dismissed is intentionally still available to Admin — that's a triage decision, not a per-asset operational one.)
+- [ ] **ADM-08** — Known, documented gap, not a bug to file: Admin's `/admin` queue and Dealer's `/dealer` Action Queue currently show the **same** recommendation items (the backend has no role-scoped query yet) — differentiated by sidebar framing, not by which signals each role sees. See `.ai/DECISIONS.md`.
 
 ## E. Capacity-aware rental optimization
 
@@ -127,7 +143,7 @@ Queue (Dealer or Admin).
 
 - [ ] **CAP-01** — On `/admin/capacity`, confirm `EQX3006` appears under "Review for early return or reassignment" (green-bordered) with: a utilization percentage, an observed-vs-assumed-capacity sentence (e.g. "4h/day observed vs. an assumed 8h/day capacity"), an estimated completion **range** (not a single number), and a bulleted list of stated assumptions.
 - [ ] **CAP-02** — Confirm `EQX3001` and `EQX3004` appear under "Below capacity, not enough history to estimate completion" **or** show a real estimate without being flagged — either is correct; what matters is neither is silently missing nor shown with a fabricated number it can't support.
-- [ ] **CAP-03** — On the Dealer Action Queue (or Admin Recommendations), find the `EQX3006: underutilized capacity` card. **Expect:** its left border is a distinct green (not red/amber/blue like alerts/anomalies/forecasts), and its expected-impact line starts with "Simulated:" like every other card.
+- [ ] **CAP-03** — On the Dealer Action Queue (`/dealer`) or Admin's Control Tower (`/admin`), find the `EQX3006: underutilized capacity` card. **Expect:** its left border is a distinct green (not red/amber/blue like alerts/anomalies/forecasts), and its expected-impact line starts with "Simulated:" like every other card.
 - [ ] **CAP-04** — Read the `EQX3006` card's reason sentence aloud. **Expect:** it states the observed rate, the assumed capacity, the estimated completion range, and the remaining rental window — not just a bare percentage.
 - [ ] **CAP-05** — Click "Mark investigated" on the `EQX3006` capacity card. **Expect:** it disappears from the queue like any other recommendation, and does not reappear on reload (same insert-once/closes-the-loop behavior as alerts/anomalies).
 

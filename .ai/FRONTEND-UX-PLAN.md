@@ -4,6 +4,16 @@ Companion to `FRONTEND-REBUILD-PLAN.md` (architecture/roles/capacity
 feature) and `FRONTEND-ROLE-MATRIX.md` (feature ownership). This file
 covers visual/interaction/quality specifics.
 
+**Partially superseded (2026-09-01, later that night):** the "No fake
+Google auth" decision below was overtaken by events — real Google OAuth
+was built (`server/src/modules/auth/`, migration `010_create_users.sql`)
+and is confirmed working with a real account. Kept below for the
+reasoning trail; see `.ai/DECISIONS.md`'s "Full product/UX audit, second
+pass" entry and `.ai/STATE.md` for current reality. Everything else in
+this file (visual direction, motion, images, responsive, accessibility,
+the Admin ≠ Dealer / Customer-never-sees-internals decisions) still
+holds.
+
 ## Visual direction
 
 Industrial/premium/technical, not generic SaaS. Reference:

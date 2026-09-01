@@ -42,12 +42,16 @@ scale.
 
 ## How to add things later
 
-**Authentication** — not included by default; most hackathon judging
-criteria don't require it, and it's easy to add if the problem statement
-needs it. Add `jsonwebtoken` + `bcrypt`, a `server/src/middleware/auth.js`
-that reads a `Bearer` token and attaches `req.user`, and a `users` table +
-module following the existing pattern. Apply the middleware only to the
-routers that need it.
+**Authentication** — **now built** (2026-09-01), not hypothetical: real
+Google OAuth (authorization code flow, no `bcrypt` needed since there are
+no passwords to hash), `server/src/middleware/auth.js` reads a session
+cookie (`jsonwebtoken`, not a `Bearer` header) and attaches `req.user`,
+`server/src/modules/auth/` + a real `users` table
+(`server/db/migrations/010_create_users.sql`). The generic guidance below
+was written before this existed — see the real implementation instead of
+following it from scratch. Applied globally (`attachUser` in `app.js`),
+with `requireAuth` opted into per-route where a signed-in user is
+required.
 
 **AI / external APIs** — add a `server/src/services/` folder (sibling to
 `modules/`) for cross-cutting integrations like an LLM client or a
@@ -62,8 +66,12 @@ routes-style organization.
 that needs it; store files locally in dev, swap for S3-compatible storage
 later without touching other routes.
 
-**Role-based access** — once auth exists, a small `requireRole('admin')`
-middleware placed after `auth` on the routes that need it.
+**Role-based access** — auth now exists (above) with a `role` column on
+`users`, but most read endpoints don't yet check it server-side (only
+`checkouts.service.js`'s self-return ownership check does) — see
+`.ai/PANEL-DEFENSE.md` §12 for the current honest boundary. Adding a
+`requireRole('admin')` middleware placed after `attachUser`/`requireAuth`
+on the routes that need it is the straightforward next step.
 
 **A second database (MongoDB)** — only if the domain genuinely needs
 document storage the relational model can't express well. Add a

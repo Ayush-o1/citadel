@@ -1,5 +1,42 @@
 # Project state
 
+## Real Google auth landed + Admin Control Tower added (2026-09-01, late)
+
+Two things changed since the last entry below, both verified live against
+the running app, not just by reading code:
+
+1. **Real Google OAuth is live**, not the earlier client-simulated role
+   model. Migration `010_create_users.sql` (a real `users` table,
+   `checkouts.user_id`), `server/src/modules/auth/` (manual OAuth
+   Authorization Code flow, JWT session cookie, no auth library
+   dependency), `client/src/app/RoleContext.jsx`/`RoleGate.jsx` rewritten
+   around it. Role now lives on the authenticated account (nullable until
+   first chosen, changeable afterward via `/switch-role`) instead of
+   `localStorage`. Checkout self-return ownership now checks the real
+   `user_id` first, falling back to the old free-text `customer_name`
+   match only for unauthenticated/legacy callers. **Confirmed working
+   with a real Google account** — a genuine row exists in `users`
+   (`ayushh.ofc10@gmail.com`, role `admin`), not just a code review. See
+   `.ai/DECISIONS.md`'s "Full product/UX audit, second pass" entry for
+   the fuller verification (a scripted DB-backed test customer exercised
+   checkout → ownership-rejected-for-a-stranger → real-owner-check-in,
+   live against Postgres, then cleaned up — baseline still 21/26/257).
+2. **Admin's landing page is now a real Control Tower**
+   (`client/src/pages/admin/ControlTower.jsx`, mounted at `/admin`),
+   leading with the ranked recommendation queue instead of static tables
+   — closes the gap where Dealer got the problem statement's "the
+   dashboard should recommend" principle and Admin didn't. Old
+   `FleetOverview` content moved to `/admin/fleet`, still reachable from
+   nav. Full reasoning and known tradeoff (Admin/Dealer queues share the
+   same unscoped backend data for now) in `.ai/DECISIONS.md`.
+
+Not yet done: `SESSION_SECRET`/`GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`
+in `server/.env` are real, working local values — confirm they're also
+set in whatever hosts the deployed instance before relying on Google
+sign-in there (`DEPLOYMENT.md`). This session did not touch deployment.
+
+---
+
 ## Second launch pass — this session's own independent re-verification (2026-09-01)
 
 Pulled 9 new commits from `origin/main` (the rebuild below, pushed by

@@ -2,7 +2,23 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { app } from '../src/app.js';
-import { createFixtureEquipment, deleteFixtureEquipment, pickOperatorId, pickSiteId } from './helpers/fixtures.js';
+import { signSession, SESSION_COOKIE } from '../src/modules/auth/auth.service.js';
+import {
+  createFixtureEquipment,
+  deleteFixtureEquipment,
+  createFixtureUser,
+  deleteFixtureUser,
+  pickOperatorId,
+  pickSiteId,
+} from './helpers/fixtures.js';
+
+// Real jwt.sign()/verify() through the same code path a real Google
+// sign-in produces, just without the network round-trip to Google — the
+// user row itself is real (FK-backed), only the "how did we authenticate"
+// step is stubbed.
+function sessionCookieFor(user) {
+  return `${SESSION_COOKIE}=${signSession(user)}`;
+}
 
 test('check-out, duplicate check-out rejected, check-in, double check-in rejected', async () => {
   const equipment = await createFixtureEquipment('CO');
@@ -102,6 +118,39 @@ test('a customer can only self-return their own named rental, not another custom
     assert.equal(rightCustomer.body.data.status, 'returned');
   } finally {
     await deleteFixtureEquipment(equipment.id);
+  }
+});
+
+test('a signed-in customer\'s rental is owned by their real user_id, and another signed-in customer cannot return it', async () => {
+  const equipment = await createFixtureEquipment('AUTH');
+  const userA = await createFixtureUser('A', { name: 'Alice Auth' });
+  const userB = await createFixtureUser('B', { name: 'Bob Auth' });
+
+  try {
+    const rented = await request(app)
+      .post('/api/checkouts')
+      .set('Cookie', sessionCookieFor(userA))
+      .send({ equipment_id: equipment.id, customer_name: 'Someone Else Entirely' }); // ignored -- real identity wins
+    assert.equal(rented.status, 201);
+    assert.equal(rented.body.data.customer_name, 'Alice Auth', 'authenticated identity overrides any client-sent name');
+    const checkoutId = rented.body.data.id;
+
+    const wrongUser = await request(app)
+      .patch(`/api/checkouts/${checkoutId}/check-in`)
+      .set('Cookie', sessionCookieFor(userB))
+      .send({});
+    assert.equal(wrongUser.status, 403, 'a different signed-in customer must not be able to return this rental');
+
+    const rightUser = await request(app)
+      .patch(`/api/checkouts/${checkoutId}/check-in`)
+      .set('Cookie', sessionCookieFor(userA))
+      .send({});
+    assert.equal(rightUser.status, 200);
+    assert.equal(rightUser.body.data.status, 'returned');
+  } finally {
+    await deleteFixtureEquipment(equipment.id);
+    await deleteFixtureUser(userA.id);
+    await deleteFixtureUser(userB.id);
   }
 });
 

@@ -26,6 +26,19 @@ export async function createFixtureEquipment(suffix) {
   return rows[0];
 }
 
+export async function createFixtureUser(suffix, { name, role = 'customer' } = {}) {
+  const googleId = `test-google-id-${suffix}-${Date.now()}`;
+  const { rows } = await query(
+    `INSERT INTO users (google_id, email, name, role) VALUES ($1, $2, $3, $4) RETURNING *`,
+    [googleId, `${googleId}@example.com`, name ?? `Fixture User ${suffix}`, role]
+  );
+  return rows[0];
+}
+
+export async function deleteFixtureUser(userId) {
+  await query('DELETE FROM users WHERE id = $1', [userId]);
+}
+
 // Deletion order matters: every analytics table (alerts/anomalies/
 // recommendations) has an ON DELETE RESTRICT FK to equipment, same as
 // usage_logs/checkouts — all must be cleared before the equipment row

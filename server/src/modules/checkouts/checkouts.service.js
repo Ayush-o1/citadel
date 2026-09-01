@@ -23,7 +23,16 @@ function withUrgency(checkout) {
 // an app-level pre-check (fast, friendly 409) and the DB's partial unique
 // index idx_checkouts_one_active_per_equipment (the real guarantee under a
 // race — caught here as a 23505 and mapped to the same 409).
-export async function createCheckout(input) {
+export async function createCheckout(input, authUser) {
+  // When the request comes from a signed-in Customer, their real Google
+  // identity is the source of truth for who this rental belongs to — the
+  // client-sent customer_name (if any) is ignored rather than trusted.
+  // Dealer/Admin-initiated checkouts, and any unauthenticated request
+  // (automated tests, legacy flows), keep the original free-text behavior.
+  const isCustomerBooking = authUser?.role === 'customer';
+  const customerName = isCustomerBooking ? authUser.name : input.customer_name;
+  const userId = isCustomerBooking ? authUser.id : null;
+
   return withTransaction(async (client) => {
     const equipment = await repository.findEquipmentById(client, input.equipment_id);
     if (!equipment) throw new ApiError(404, 'Equipment not found');
@@ -41,7 +50,8 @@ export async function createCheckout(input) {
         siteId: input.site_id,
         expectedReturnAt: input.expected_return_at,
         conditionOut: input.condition_out,
-        customerName: input.customer_name,
+        customerName,
+        userId,
       });
     } catch (err) {
       if (err.code === '23505') throw new ApiError(409, 'Equipment is already checked out');
@@ -56,26 +66,28 @@ export async function createCheckout(input) {
   });
 }
 
-// Not real authentication -- there's no login system (see DECISIONS.md,
-// client-simulated roles). But when a request includes customer_name (the
-// Customer role's self-return flow always sends it; Dealer/Admin never
-// do), the backend genuinely enforces that it matches the checkout's own
-// customer_name before allowing the return. Without this, any browser
-// tab -- not just a malicious one, just a second person testing the demo
-// -- could return someone else's rental by guessing/reusing a checkout
-// id. This is name-based ownership, not identity verification; it's
-// honest about that limit, not a substitute for real auth.
-export async function checkInCheckout(checkoutId, input) {
+// Ownership on self-return is enforced two ways, chosen per request:
+//   - a signed-in Customer's real user_id (real identity, can't be spoofed
+//     by typing someone else's name)
+//   - the legacy free-text customer_name match, kept for unauthenticated
+//     callers (automated tests, and any pre-auth data with no user_id)
+// Dealer/Admin check-ins never send either, so they can always check in
+// any active rental — that's their job, not a gap.
+export async function checkInCheckout(checkoutId, input, authUser) {
+  const expectedUserId = authUser?.role === 'customer' ? authUser.id : null;
+  const expectedCustomerName = expectedUserId ? null : (input.customer_name ?? null);
+
   return withTransaction(async (client) => {
     const checkout = await repository.checkIn(client, checkoutId, {
       conditionIn: input.condition_in,
-      expectedCustomerName: input.customer_name ?? null,
+      expectedCustomerName,
+      expectedUserId,
     });
     if (!checkout) {
       const existing = await repository.findStatusById(client, checkoutId);
       if (!existing) throw new ApiError(404, 'Checkout not found');
       if (existing.status !== 'active') throw new ApiError(409, 'Checkout is already returned');
-      throw new ApiError(403, 'This rental is not under that customer name');
+      throw new ApiError(403, 'This rental does not belong to you');
     }
     await repository.markEquipmentAvailable(client, checkout.equipment_id);
     return withUrgency(checkout);

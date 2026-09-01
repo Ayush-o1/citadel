@@ -1,3 +1,8 @@
 export default function LoadingState({ label = 'Loading…' }) {
-  return <p className="state state-loading">{label}</p>;
+  return (
+    <div className="state state-loading" role="status">
+      <span className="spinner" aria-hidden="true" />
+      <span>{label}</span>
+    </div>
+  );
 }

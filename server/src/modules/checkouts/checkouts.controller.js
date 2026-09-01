@@ -2,12 +2,12 @@ import * as service from './checkouts.service.js';
 import { ok, created } from '../../utils/apiResponse.js';
 
 export async function create(req, res) {
-  const checkout = await service.createCheckout(req.body);
+  const checkout = await service.createCheckout(req.body, req.user);
   created(res, checkout);
 }
 
 export async function checkIn(req, res) {
-  const checkout = await service.checkInCheckout(req.params.id, req.body);
+  const checkout = await service.checkInCheckout(req.params.id, req.body, req.user);
   ok(res, checkout);
 }
 

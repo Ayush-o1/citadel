@@ -134,8 +134,17 @@ Stated plainly, not hidden:
   recommendation whose underlying signal has cleared doesn't
   auto-resolve — it sits until a human acts on it (`DECISIONS.md`'s
   Phase 09 entry, documented as a deliberate scope cut, not an oversight).
-- No authentication/multi-user roles — single-operator context, matching
-  the problem statement's own scope.
+- Real Google Sign-In exists (three role-gated experiences, a real
+  `users` table, server-persisted role), but role-based **authorization**
+  is partial: the API enforces true identity-based ownership on the one
+  place it matters most (a customer returning their own rental —
+  `checkouts.service.js`'s `user_id` check), while most read endpoints
+  aren't yet role-restricted server-side, and `/admin` and `/dealer`
+  currently read the same unscoped recommendations feed rather than a
+  role-scoped one. `RoleGate` on the frontend is a UX guard, not the
+  authorization boundary — stated plainly, not hidden. See
+  `.ai/DECISIONS.md`'s 2026-09-01 "Reversed 'no auth/multi-user roles'"
+  and "Full product/UX audit, second pass" entries.
 - Docker Compose (`RISK-001`) hasn't been run end-to-end this session;
   the app has only been verified via `npm run dev`/`node src/server.js`
   directly.
@@ -144,8 +153,12 @@ Stated plainly, not hidden:
 
 ## What would be improved in a production system?
 
-Authentication and role-based access; a background job for the
-alerts/anomalies sync instead of computing on every read (fine at 17
+Full server-side role-based authorization (today, most read endpoints
+trust the frontend's route gating; only self-return ownership is
+enforced server-side) and a role-scoped recommendations feed (Admin and
+Dealer currently see the same queue, differentiated only by framing, not
+by which signals each role is shown); a background job for the
+alerts/anomalies sync instead of computing on every read (fine at 21
 equipment, wouldn't scale to a real fleet); auto-resolving
 recommendations when their underlying signal clears; a real forecasting
 model once there's enough historical volume to support one honestly;

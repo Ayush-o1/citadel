@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-const ROLE_KEY = 'citadel.role';
-const CUSTOMER_NAME_KEY = 'citadel.customerName';
+const API_BASE = (import.meta.env.VITE_API_URL || '') + '/api';
 
 export const ROLES = {
   CUSTOMER: 'customer',
@@ -17,32 +16,62 @@ export const ROLE_LABELS = {
 
 const RoleContext = createContext(null);
 
-// Demo-mode role switching only — there is no auth backend. Role is
-// stored client-side and never treated as a real authorization boundary.
-// See .ai/FRONTEND-REBUILD-PLAN.md section 2.
+// Real identity, real session. `user` is undefined while the initial
+// /api/auth/me check is in flight, null once we know there's no session,
+// or the signed-in user's real Google-backed record otherwise. Role is
+// stored server-side on that user (nullable until first chosen) — see
+// server/src/modules/auth and migration 010_create_users.sql.
 export function RoleProvider({ children }) {
-  const [role, setRoleState] = useState(() => localStorage.getItem(ROLE_KEY));
-  const [customerName, setCustomerNameState] = useState(() => localStorage.getItem(CUSTOMER_NAME_KEY) || '');
+  const [user, setUser] = useState(undefined);
+
+  const refresh = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
+      const body = await res.json();
+      setUser(body.data ?? null);
+    } catch {
+      setUser(null);
+    }
+  }, []);
 
   useEffect(() => {
-    if (role) localStorage.setItem(ROLE_KEY, role);
-    else localStorage.removeItem(ROLE_KEY);
-  }, [role]);
+    refresh();
+  }, [refresh]);
 
-  useEffect(() => {
-    if (customerName) localStorage.setItem(CUSTOMER_NAME_KEY, customerName);
-  }, [customerName]);
+  const signIn = useCallback(() => {
+    window.location.href = `${API_BASE}/auth/google`;
+  }, []);
 
-  const setRole = useCallback((next) => setRoleState(next), []);
-  const setCustomerName = useCallback((name) => setCustomerNameState(name), []);
-  const exitRole = useCallback(() => {
-    setRoleState(null);
-    localStorage.removeItem(ROLE_KEY);
+  const signOut = useCallback(async () => {
+    await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' });
+    setUser(null);
+  }, []);
+
+  const setRole = useCallback(async (role) => {
+    const res = await fetch(`${API_BASE}/auth/me/role`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role }),
+    });
+    const body = await res.json();
+    if (!res.ok) throw new Error(body?.error?.message || 'Could not update role');
+    setUser(body.data);
+    return body.data;
   }, []);
 
   const value = useMemo(
-    () => ({ role, setRole, exitRole, customerName, setCustomerName }),
-    [role, setRole, exitRole, customerName, setCustomerName]
+    () => ({
+      user,
+      loading: user === undefined,
+      role: user?.role ?? null,
+      customerName: user?.name ?? '',
+      signIn,
+      signOut,
+      setRole,
+      refresh,
+    }),
+    [user, signIn, signOut, setRole, refresh]
   );
 
   return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;

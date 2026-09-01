@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 export default function EmptyState({ message = 'Nothing here yet.', action }) {
   return (
     <div className="state state-empty">
+      <span className="state-empty-icon" aria-hidden="true">○</span>
       <p>{message}</p>
       {action &&
         (action.to ? (

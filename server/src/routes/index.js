@@ -11,6 +11,7 @@ import { sitesRouter } from '../modules/sites/sites.routes.js';
 import { operatorsRouter } from '../modules/operators/operators.routes.js';
 import { utilizationRouter } from '../modules/utilization/utilization.routes.js';
 import { capacityRouter } from '../modules/capacity/capacity.routes.js';
+import { authRouter } from '../modules/auth/auth.routes.js';
 
 // Add new feature modules by mounting them here, one line each.
 // Deleting a feature is the same in reverse: remove the module folder + line.
@@ -28,3 +29,4 @@ apiRouter.use('/sites', sitesRouter);
 apiRouter.use('/operators', operatorsRouter);
 apiRouter.use('/utilization', utilizationRouter);
 apiRouter.use('/capacity', capacityRouter);
+apiRouter.use('/auth', authRouter);

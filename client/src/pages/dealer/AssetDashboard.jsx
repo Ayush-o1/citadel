@@ -27,6 +27,7 @@ export default function AssetDashboard() {
 
   const [sortKey, setSortKey] = useState('code');
   const [sortDir, setSortDir] = useState('asc');
+  const [query, setQuery] = useState('');
   const [checkoutTarget, setCheckoutTarget] = useState(null);
   const [formError, setFormError] = useState(null);
   const [formBusy, setFormBusy] = useState(false);
@@ -37,17 +38,25 @@ export default function AssetDashboard() {
   const [usageLogBusy, setUsageLogBusy] = useState(false);
   const [usageLogNotice, setUsageLogNotice] = useState(null);
 
-  const sorted = useMemo(() => {
+  const filtered = useMemo(() => {
     if (!equipment) return [];
+    const q = query.trim().toLowerCase();
+    if (!q) return equipment;
+    return equipment.filter(
+      (e) => e.code.toLowerCase().includes(q) || e.type.toLowerCase().includes(q)
+    );
+  }, [equipment, query]);
+
+  const sorted = useMemo(() => {
     const getValue = SORT_ACCESSORS[sortKey];
-    return [...equipment].sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       const av = getValue(a);
       const bv = getValue(b);
       if (av < bv) return sortDir === 'asc' ? -1 : 1;
       if (av > bv) return sortDir === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [equipment, sortKey, sortDir]);
+  }, [filtered, sortKey, sortDir]);
 
   function toggleSort(key) {
     if (sortKey === key) {
@@ -143,6 +152,22 @@ export default function AssetDashboard() {
       {checkInError && <p className="form-error">{checkInError}</p>}
       {usageLogNotice && <p className="form-notice">{usageLogNotice}</p>}
 
+      <div className="asset-search">
+        <input
+          type="search"
+          placeholder="Search by asset code or type…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          aria-label="Search equipment by code or type"
+        />
+      </div>
+
+      {sorted.length === 0 ? (
+        <EmptyState
+          message={`No equipment matches "${query}".`}
+          action={{ label: 'Clear search', onClick: () => setQuery('') }}
+        />
+      ) : (
       <div className="table-scroll">
         <table className="asset-table">
           <thead>
@@ -207,6 +232,7 @@ export default function AssetDashboard() {
           </tbody>
         </table>
       </div>
+      )}
 
       {checkoutTarget && (
         <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={`Check out ${checkoutTarget.code}`}>

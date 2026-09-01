@@ -15,13 +15,21 @@ export async function findActiveByEquipment(client, equipmentId) {
 
 export async function insertCheckout(
   client,
-  { equipmentId, operatorId, siteId, expectedReturnAt, conditionOut, customerName }
+  { equipmentId, operatorId, siteId, expectedReturnAt, conditionOut, customerName, userId }
 ) {
   const { rows } = await client.query(
-    `INSERT INTO checkouts (equipment_id, operator_id, site_id, checked_out_at, expected_return_at, status, condition_out, customer_name)
-     VALUES ($1, $2, $3, now(), $4, 'active', $5, $6)
+    `INSERT INTO checkouts (equipment_id, operator_id, site_id, checked_out_at, expected_return_at, status, condition_out, customer_name, user_id)
+     VALUES ($1, $2, $3, now(), $4, 'active', $5, $6, $7)
      RETURNING *`,
-    [equipmentId, operatorId ?? null, siteId ?? null, expectedReturnAt ?? null, conditionOut ?? null, customerName ?? null]
+    [
+      equipmentId,
+      operatorId ?? null,
+      siteId ?? null,
+      expectedReturnAt ?? null,
+      conditionOut ?? null,
+      customerName ?? null,
+      userId ?? null,
+    ]
   );
   return rows[0];
 }
@@ -41,14 +49,15 @@ export async function markEquipmentAvailable(client, equipmentId) {
 // findStatusById. Matching is case/whitespace-insensitive since
 // customer_name is free-text entered twice (once at rental time, once at
 // return time), not a stable identifier.
-export async function checkIn(client, checkoutId, { conditionIn, expectedCustomerName }) {
+export async function checkIn(client, checkoutId, { conditionIn, expectedCustomerName, expectedUserId }) {
   const { rows } = await client.query(
     `UPDATE checkouts
      SET status = 'returned', checked_in_at = now(), condition_in = $2
      WHERE id = $1 AND status = 'active'
        AND ($3::text IS NULL OR TRIM(LOWER(customer_name)) = TRIM(LOWER($3)))
+       AND ($4::uuid IS NULL OR user_id = $4)
      RETURNING *`,
-    [checkoutId, conditionIn ?? null, expectedCustomerName ?? null]
+    [checkoutId, conditionIn ?? null, expectedCustomerName ?? null, expectedUserId ?? null]
   );
   return rows[0] ?? null;
 }
