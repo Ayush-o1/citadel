@@ -95,14 +95,27 @@ The starter's placeholder `items` reference module has been fully removed
 and replaced with the real domain modules (each following the same
 routes → controller → service → repository shape it demonstrated):
 `equipment`, `checkouts`, `usage-logs`, `alerts`, `anomalies`, `forecasts`,
-`recommendations`, `sites`, `operators`, `utilization` (all under
-`server/src/modules/`). Two frontend pages: **Control Tower** (`/`) — the
-ranked Action Queue plus live status/utilization/forecast panels — and
-**Asset Dashboard** (`/assets`) — the equipment table with check-out/
-check-in/log-usage actions. See
-[`.ai/REQUIREMENTS.md`](.ai/REQUIREMENTS.md) for the full requirement-to-
-code trace and [`.ai/ARCHITECTURE.md`](.ai/ARCHITECTURE.md) for the
-system design.
+`recommendations`, `sites`, `operators`, `utilization`, `capacity` (all
+under `server/src/modules/`).
+
+The frontend has **three role-gated experiences**, chosen from an entry
+screen at `/` (client-simulated role switching — no real auth backend,
+see `.ai/FRONTEND-REBUILD-PLAN.md`):
+- **Customer** (`/customer/...`) — discover available equipment, view a
+  rental-fit hint, rent, and track/return from "My Rentals."
+- **Dealer** (`/dealer`, `/dealer/assets`) — the original Control Tower
+  (ranked Action Queue + live status/utilization/forecast panels) and
+  Asset Dashboard (check-out/check-in/log-usage), now under `/dealer/*`.
+- **Caterpillar Admin** (`/admin/*`) — fleet overview, utilization,
+  capacity, anomalies, forecasts, and the full recommendations queue, at
+  a fleet-wide strategic altitude rather than per-asset actions.
+
+See [`.ai/REQUIREMENTS.md`](.ai/REQUIREMENTS.md) for the full
+requirement-to-code trace, [`.ai/ARCHITECTURE.md`](.ai/ARCHITECTURE.md)
+for the backend system design, and
+[`.ai/FRONTEND-REBUILD-PLAN.md`](.ai/FRONTEND-REBUILD-PLAN.md)/
+[`.ai/FRONTEND-ROLE-MATRIX.md`](.ai/FRONTEND-ROLE-MATRIX.md) for the
+frontend/role architecture.
 
 ## Deployment
 
@@ -116,7 +129,9 @@ source of truth).
 
 ## What's intentionally not included
 
-No auth, no AI integration, no ORM, no state-management library, no CI
-pipeline. Adding any of these later is meant to be straightforward — see
+No real authentication (the three-role UI uses client-simulated role
+selection, not a login/session backend), no AI integration, no ORM, no
+state-management library, no CI pipeline. Adding any of these later is
+meant to be straightforward — see
 [`.ai/ARCHITECTURE.md`](.ai/ARCHITECTURE.md) for how each one plugs in
 without restructuring the app.

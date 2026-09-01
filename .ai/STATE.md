@@ -1,5 +1,35 @@
 # Project state
 
+## Final integration + launch pass (2026-09-01)
+
+Re-verified the merged `main` from a clean slate (not assumed from prior
+sessions): fresh Docker Postgres → `npm run migrate` (9/9 migrations,
+clean) → `npm run seed` (21 equipment / 26 checkouts / 257 usage_logs,
+matches RB-6's documented baseline exactly) → `npm test` (**28/28
+passing**) → `npm run build` (client, clean, 58 modules) → live Playwright
+pass across all three roles + the capacity feature (zero console errors)
+→ confirmed `EQX1002`/`EQX1007` still produce the exact official
+zero_runtime/missing_assignment/excessive_idle triad via a direct API
+check. Security check: only `.env.example` files tracked, no secrets in
+source, `.gitignore` covers `.env`.
+
+**The database currently running for manual QA is this session's fresh
+seed** — it does **not** have `ISSUES.md` `BUG-001`'s drift (that bug
+describes a *different*, previously-persisted database from an earlier
+manual-testing session). If you're QA-ing against the instance this
+session left running, `BUG-001` does not apply to what you're looking at;
+if you later point at a different/older database, check `ISSUES.md`
+first. `.ai/MANUAL-QA.md` was rewritten for the current three-role app
+(URLs, routes, and a Customer/Dealer/Admin/Capacity test breakdown) —
+the previous version was written for the pre-rebuild single-persona app
+and is now superseded, not merely annotated.
+
+Deployment: still **not live** (`DEPLOYMENT.md`'s own status line is
+authoritative) — no Vercel/Render/Neon account exists yet, so there is no
+public URL to give out. Local is the only running environment.
+
+---
+
 **Last updated:** 2026-09-01, AI agent — merge of two parallel sessions:
 (1) the frontend rebuild below (role experiences + capacity-aware
 optimization, RB-1..RB-7, all verified) and (2) a documentation-sync +
