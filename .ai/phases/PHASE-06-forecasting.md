@@ -110,6 +110,22 @@ Actually run against the local `citadel` database:
    group, replaced not accumulated" design.
 5. `npm run build` (client) — clean, unaffected.
 
+## Addendum (from Phase 07)
+
+Phase 07 revealed a real cross-phase issue and fixed it here rather than
+working around it downstream (per the standing instruction to return to
+an earlier phase when a later one exposes a design mistake):
+`forecasts.repository.replaceForecast` originally deleted and reinserted
+a group's forecast row on every recompute, meaning its `id` changed every
+poll. Phase 07 needs a stable `id` to use as `recommendations.source_id`
+(so a forecast-driven recommendation isn't duplicated on every request).
+Fixed by changing it to `upsertForecast` — update in place if a row for
+`(equipment_type, site_id)` exists, insert only if it doesn't. Re-ran this
+phase's own tests (`forecasts.test.js`) after the change — still 19/19
+(now more, post-Phase-07) passing, behavior unchanged from this phase's
+perspective. See `DECISIONS.md`'s "Phase 07: recommendations calls the
+other analytics modules'..." entry for the full reasoning.
+
 ## Exit criteria (phase gate)
 
 - [x] Implementation complete

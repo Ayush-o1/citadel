@@ -49,17 +49,23 @@ deliberately sparse pair) — exactly as designed (19/19 tests pass).
 `RISK-003` and `Q-002` are now both fully resolved. See
 [`phases/PHASE-06-forecasting.md`](phases/PHASE-06-forecasting.md).
 
-**Phases 07-11:** `NOT_STARTED`. 07 (recommendations) is now unblocked —
-04, 05, and 06 all exist. 08 (Asset Dashboard UI) has been unblocked
-since Phase 03.
+**Phase 07 — Recommendations & Action Queue.** Status: `VERIFIED`.
+`GET /api/recommendations` unifies alerts/anomalies/forecasts into one
+ranked, worded feed (23/23 tests pass). Found and fixed a real
+cross-file test-concurrency bug along the way (`server/package.json`'s
+`test` script now runs files sequentially — see `DECISIONS.md`) and a
+forecast-id-stability bug in Phase 06 (delete-then-insert → upsert). See
+[`phases/PHASE-07-recommendations.md`](phases/PHASE-07-recommendations.md).
+
+**Phases 08-11:** `NOT_STARTED`. 08 (Asset Dashboard UI) unblocked since
+Phase 03. 09 (Control Tower UI) now unblocked — 07's API contract exists.
 
 ## Next recommended action
 
-Continuing the authorized autonomous Phase 03→11 run: **Phase 07
-(recommendations & action queue)** next —
-`phases/PHASE-07-recommendations.md`, the module the differentiation
-strategy hinges on, unifying alerts/anomalies/forecasts into one ranked
-feed.
+Continuing the authorized autonomous Phase 03→11 run: **Phase 08 (Asset
+Dashboard UI)** next — `phases/PHASE-08-asset-dashboard-ui.md`, the first
+frontend phase, independent of 09 so either order is fine, but 08 has
+been unblocked the longest.
 
 ## Overall progress
 
@@ -80,7 +86,8 @@ feed.
 | Alerts engine | `VERIFIED` | Phase 04 — 16/16 tests pass |
 | Anomaly detection | `VERIFIED` | Phase 05 — 17/17 tests pass, threshold reconfirmed in production code |
 | Demand forecasting | `VERIFIED` | Phase 06 — 19/19 tests pass, both RISK-003 halves resolved |
-| Product implementation | `IN_PROGRESS` | Phases 00-06 done; Phases 07-11 not started |
+| Recommendations & Action Queue | `VERIFIED` | Phase 07 — 23/23 tests pass |
+| Product implementation | `IN_PROGRESS` | Phases 00-07 done (backend complete); Phases 08-11 not started (frontend + integration + demo remain) |
 
 ## Known bugs
 
@@ -105,6 +112,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-04-alerts` | 2026-09-01 | Phase 04 | `2052ec1` | Yes — see Phase 04 doc's "Tests" section |
 | `checkpoint/phase-05-anomaly-detection` | 2026-09-01 | Phase 05 | `3f59f3d` | Yes — see Phase 05 doc's "Tests" section |
 | `checkpoint/phase-06-forecasting` | 2026-09-01 | Phase 06 | `16b1e5f` | Yes — see Phase 06 doc's "Tests" section |
+| `checkpoint/phase-07-recommendations` | 2026-09-01 | Phase 07 | *(recorded after commit)* | Yes — see Phase 07 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 

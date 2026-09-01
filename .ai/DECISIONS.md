@@ -20,6 +20,52 @@ Format:
 
 ---
 
+## 2026-09-01 — Phase 07: recommendations calls the other analytics modules' service functions (one deliberate exception to "no module imports another"); test files now run sequentially
+
+**Context:** `ARCHITECTURE.md` states modules shouldn't import each other
+directly ("if two features need to share logic, put it in
+`server/src/utils/`"), but also describes recommendations as reading from
+alerts/anomalies/forecasts. Phase 07 has to reconcile the two.
+
+**Decision:** `recommendations.service.js` imports and calls
+`alerts.service.syncAndListAlerts`, `anomalies.service.syncAndListAnomalies`,
+and `forecasts.service.computeAndListForecasts` directly. This is treated
+as the one deliberate exception to the module-isolation rule, not a
+precedent for other modules: recommendations is the aggregation layer *by
+design* (Phase 07's own spec: "Inputs: Phase 04's alerts, Phase 05's
+anomalies, Phase 06's forecasts... read-only from this module's
+perspective"), and calling their service functions gets freshly-synced
+data without re-deriving a single detection rule — which is the actual
+thing the isolation rule is protecting against. No other pair of modules
+should import each other this way.
+
+A second, related fix: made `forecasts.upsertForecast` update an existing
+row in place instead of delete-then-insert, so a forecast's `id` stays
+stable across recomputes. Recommendations references a forecast's row as
+`recommendations.source_id`; the old delete/recreate approach would have
+generated a fresh id (and a fresh, duplicate "new" recommendation) on
+every single poll.
+
+**A real test-infrastructure bug found and fixed:** `npm test` runs each
+test file as its own OS process, and Node's test runner defaults to
+running files concurrently. Every file shares one real Postgres database
+— this was a latent risk that happened to not manifest until Phase 07's
+`syncAndListRecommendations` (which internally calls three other sync
+functions doing table-wide reads/writes each) enlarged the overlap window
+enough to make it fail intermittently: two files' concurrent DB activity
+occasionally produced a connection-level failure severe enough to break a
+supertest response entirely. Fixed by adding `--test-concurrency=1` to
+the `test` script — correct for an integration suite hitting one shared
+mutable database, not a real limitation being worked around. Verified
+clean across three full consecutive runs after the fix (previously
+flaky ~1-in-3).
+
+**Tradeoff:** the full suite takes ~80s sequential vs. ~15s concurrent.
+Acceptable at this test count for a hackathon project; revisit only if
+the suite grows enough to make that friction real.
+
+---
+
 ## 2026-09-01 — Phase 06: forecast method chosen — plain trailing-window average, not exponential smoothing; sufficiency judged by raw checkout count, not weekly buckets
 
 **Context:** Task 06.1 required deciding moving-average vs. exponential

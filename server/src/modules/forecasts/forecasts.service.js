@@ -73,7 +73,7 @@ export async function computeAndListForecasts() {
     const method = `trailing-window average (last ${weeks} weeks)`;
     const factors = `Based on ${count} checkout(s) over the last ${weeks} weeks (~${avgPerWeek}/week), trending ${trend}.`;
 
-    const forecast = await repository.replaceForecast({
+    const forecast = await repository.upsertForecast({
       equipmentType: group.equipmentType,
       siteId: group.siteId,
       periodStart,
@@ -84,6 +84,7 @@ export async function computeAndListForecasts() {
     });
 
     results.push({
+      id: forecast.id, // Phase 07 uses this as recommendations.source_id
       equipment_type: forecast.equipment_type,
       site,
       // Use the date-only strings computed above, not pg's round-tripped
@@ -96,6 +97,7 @@ export async function computeAndListForecasts() {
       predicted_demand: Number(forecast.predicted_demand),
       method: forecast.method,
       factors: forecast.factors,
+      trend, // Phase 07 reads this directly rather than parsing `factors`
       insufficient_history: false,
     });
   }

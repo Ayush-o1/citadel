@@ -7,6 +7,66 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Phase 07 implemented and verified: recommendations & Action Queue (backend complete)
+
+**Where we are:** Phase 07 `VERIFIED` — the last backend analytics phase.
+`server/src/modules/recommendations/` built. **The entire backend is now
+functionally complete**: Phases 03-07 cover the full CHECK OUT → ASSIGN &
+TRACK → LOG USAGE → CHECK IN → alert/anomaly/forecast → recommendation
+chain end-to-end via API. Only the frontend (08/09) and integration/demo
+polish (10/11) remain.
+
+**What we built:** `GET /api/recommendations` calls the other three
+analytics modules' service functions (a deliberate, documented exception
+to "no module imports another" — see `DECISIONS.md`), maps each real
+signal through one function per source type into `signal/reason/action/
+expected_impact`, inserts a `pending` row for any signal that doesn't
+already have one (insert-once — a still-open alert/anomaly must not
+resurrect a recommendation the user already actioned/dismissed), and
+returns the active queue ranked alert/anomaly-first, forecast-last.
+`PATCH /api/recommendations/:id` marks actioned/dismissed, 409s on a
+second attempt.
+
+**Two real bugs found and fixed while implementing this phase, not
+deferred:**
+1. **Forecast id instability** — Phase 06's `forecasts.repository` did
+   delete-then-insert on every recompute, so a forecast's `id` changed on
+   every poll. Since Phase 07 needs a stable `source_id` to avoid
+   duplicate recommendations for the same forecast, fixed the earlier
+   phase's repository to upsert in place. Reran Phase 06's own tests
+   after the change — unaffected, now folded into the larger green suite.
+2. **A real cross-file test-concurrency bug** — `npm test` was flaky
+   (~1-in-3 failure) with a raw connection-level error once this phase's
+   heavier internal fan-out (one `GET /api/recommendations` triggers 3
+   nested syncs, each doing multiple queries) widened the overlap window
+   between Node's test-runner's default *concurrent* test-file execution
+   and the fact that every file shares one real Postgres database. Fixed
+   via `--test-concurrency=1` in `server/package.json`'s `test` script.
+   Found and cleaned up 3 stale `TEST-EQX-*` fixture rows left behind by
+   the pre-fix flaky runs — confirmed via DB count that this was purely a
+   test-isolation artifact, not corruption of the Phase 02 seeded data
+   (which remained exactly 17/22/192 throughout).
+
+**What we verified:**
+- `npm test` — 23/23 pass, reliably across 3 consecutive full runs
+  post-fix (previously flaky). Every recommendation across the real
+  19-item queue has all four required fields, every `expected_impact`
+  starts with `"Simulated:"` (REQ-016), forecast items rank last,
+  re-syncing twice produces an identical set (no duplicates).
+- A fixture-based test (not touching seeded data) proves the full
+  actioned/dismissed lifecycle: appears while pending → actioned →
+  disappears from the active queue → a second status change on the same
+  id is rejected (409).
+- Post-test DB check: seeded counts unchanged (17/22/192, 0 leftover
+  fixtures); `recommendations` table holds exactly 19 rows.
+- `npm run build` (client) — clean, unaffected (no frontend work yet).
+
+**Next:** Phase 08 (Asset Dashboard UI) — the first frontend phase,
+unblocked since Phase 03 landed. Phase 09 (Control Tower UI) is also now
+unblocked. Continuing the authorized Phase 03→11 run without stopping.
+
+---
+
 ## 2026-09-01 — Phase 06 implemented and verified: demand forecasting (RISK-003 fully resolved)
 
 **Where we are:** Phase 06 `VERIFIED` — the last of the three

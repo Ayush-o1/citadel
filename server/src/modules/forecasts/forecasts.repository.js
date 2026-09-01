@@ -13,12 +13,14 @@ export async function findRecentCheckouts(lookbackDays) {
   return rows;
 }
 
-// One forecast row per (equipment_type, site) — replaced wholesale on
-// every recompute rather than accumulated, since only the latest forecast
-// per group is meaningful (the table has no status/lifecycle column the
-// way alerts/anomalies do, so there's nothing for an old row to resolve
-// into; keeping history isn't a requirement here).
-export async function replaceForecast({
+// One forecast row per (equipment_type, site), upserted (not
+// delete-then-insert) so its id stays stable across recomputes — Phase 07
+// references a forecast's id as recommendations.source_id, which would
+// break (a fresh id, and a fresh "new" recommendation, on every single
+// poll) if this recreated the row every time instead of updating it in
+// place. The table has no status/lifecycle column the way alerts/
+// anomalies do, so there's nothing else for an old row to resolve into.
+export async function upsertForecast({
   equipmentType,
   siteId,
   periodStart,
@@ -27,7 +29,22 @@ export async function replaceForecast({
   method,
   factors,
 }) {
-  await query('DELETE FROM forecasts WHERE equipment_type = $1 AND site_id = $2', [equipmentType, siteId]);
+  const existing = await query('SELECT id FROM forecasts WHERE equipment_type = $1 AND site_id = $2', [
+    equipmentType,
+    siteId,
+  ]);
+
+  if (existing.rows[0]) {
+    const { rows } = await query(
+      `UPDATE forecasts
+       SET period_start = $2, period_end = $3, predicted_demand = $4, method = $5, factors = $6, generated_at = now()
+       WHERE id = $1
+       RETURNING *`,
+      [existing.rows[0].id, periodStart, periodEnd, predictedDemand, method, factors]
+    );
+    return rows[0];
+  }
+
   const { rows } = await query(
     `INSERT INTO forecasts (equipment_type, site_id, period_start, period_end, predicted_demand, method, factors)
      VALUES ($1, $2, $3, $4, $5, $6, $7)
