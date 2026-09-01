@@ -352,6 +352,10 @@ code {
   border-left-color: var(--color-accent);
 }
 
+.action-item-success {
+  border-left-color: var(--color-success);
+}
+
 .action-item-body {
   min-width: 0;
 }
@@ -786,6 +790,44 @@ code {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.capacity-section-title {
+  font-size: var(--font-size-md);
+  color: var(--color-muted);
+  margin: var(--space-6) 0 var(--space-3);
+}
+
+.capacity-section-title:first-of-type {
+  margin-top: 0;
+}
+
+.capacity-card-flagged {
+  border-color: var(--color-success);
+}
+
+.capacity-estimate {
+  font-weight: 600;
+  margin: var(--space-2) 0;
+}
+
+.capacity-assumptions {
+  margin: var(--space-2) 0 0;
+  padding-left: 1.1rem;
+  color: var(--color-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+}
+
+.capacity-fit-hint {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-success);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-top: var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
 }
 
 .anomaly-list {

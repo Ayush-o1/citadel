@@ -1,6 +1,7 @@
 import { syncAndListAlerts } from '../alerts/alerts.service.js';
 import { syncAndListAnomalies } from '../anomalies/anomalies.service.js';
 import { computeAndListForecasts } from '../forecasts/forecasts.service.js';
+import { getCapacitySummary } from '../capacity/capacity.service.js';
 import * as repository from './recommendations.repository.js';
 import { ApiError } from '../../utils/apiResponse.js';
 
@@ -9,14 +10,15 @@ import { ApiError } from '../../utils/apiResponse.js';
 // collapses into one signal -> reason -> action -> expected impact item.
 //
 // This is the one deliberate exception to ARCHITECTURE.md's "no feature
-// module imports another" rule: recommendations calls the other three
+// module imports another" rule: recommendations calls the other feature
 // modules' public service functions (not their repositories, and none of
 // their detection RULES are re-derived here) specifically because it is
 // the aggregation layer by design — Phase 07's own spec describes its
 // inputs as "Phase 04's alerts, Phase 05's anomalies, Phase 06's
-// forecasts... read-only from this module's perspective." Calling their
-// service functions is how it gets freshly-synced data without
-// duplicating a single detection rule. See DECISIONS.md.
+// forecasts... read-only from this module's perspective." RB-6 (2026-09-01)
+// extends this same relationship to capacity. Calling their service
+// functions is how it gets freshly-synced data without duplicating a
+// single detection rule. See DECISIONS.md.
 const ANOMALY_ACTIONS = {
   excessive_idle: 'reassign',
   zero_runtime: 'investigate',
@@ -77,6 +79,29 @@ function buildForecastCandidates(forecasts) {
     }));
 }
 
+// Only a confident, flagged signal (a real typical-workload baseline
+// behind it, and the completion range's high end still leaves >20% of the
+// rental unused) becomes a recommendation -- an insufficient_history
+// capacity signal stays informational-only (visible via GET /api/capacity)
+// same as forecasts' insufficient_history entries never becoming a
+// recommendation. source_id is the checkout_id (see migration 009): at
+// most one open active checkout per equipment, so it's a stable key for
+// insert-once/refresh-while-pending across recomputes.
+function buildCapacityCandidates(capacitySignals) {
+  return capacitySignals
+    .filter((s) => s.underutilized_capacity)
+    .map((s) => ({
+      sourceType: 'capacity',
+      sourceId: s.checkout_id,
+      equipmentId: s.equipment_id,
+      signal: `${s.equipment_code}: underutilized capacity`,
+      reason: `Operating at ~${Math.round(s.utilization_ratio * 100)}% of assumed capacity (${s.observed_daily_rate}h/day vs. an assumed ${s.assumed_capacity_hours}h/day) -- current pace suggests the typical workload for this equipment type completes in ${s.estimated_completion_days_low}-${s.estimated_completion_days_high} days, well inside the ${s.remaining_rental_days}-day remaining rental window.`,
+      action: 'investigate',
+      expectedImpact:
+        'Simulated: reviewing for early return or reassignment could free this equipment for the next job sooner.',
+    }));
+}
+
 async function syncRecommendations(candidates) {
   for (const candidate of candidates) {
     const existing = await repository.findBySource(candidate.sourceType, candidate.sourceId);
@@ -97,16 +122,18 @@ async function syncRecommendations(candidates) {
 }
 
 export async function syncAndListRecommendations() {
-  const [alerts, anomalies, forecasts] = await Promise.all([
+  const [alerts, anomalies, forecasts, capacity] = await Promise.all([
     syncAndListAlerts(),
     syncAndListAnomalies(),
     computeAndListForecasts(),
+    getCapacitySummary(),
   ]);
 
   const candidates = [
     ...buildAlertCandidates(alerts),
     ...buildAnomalyCandidates(anomalies),
     ...buildForecastCandidates(forecasts),
+    ...buildCapacityCandidates(capacity.active_checkouts),
   ];
 
   await syncRecommendations(candidates);

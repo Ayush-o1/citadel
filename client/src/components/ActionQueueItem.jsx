@@ -12,6 +12,7 @@ const TONE_BY_SOURCE = {
   alert: 'danger',
   anomaly: 'warning',
   forecast: 'info',
+  capacity: 'success',
 };
 
 export default function ActionQueueItem({ item, onAction, busy }) {

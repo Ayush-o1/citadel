@@ -13,6 +13,7 @@ const NAV_BY_ROLE = {
   [ROLES.ADMIN]: [
     { to: '/admin', label: 'Fleet', end: true },
     { to: '/admin/utilization', label: 'Utilization' },
+    { to: '/admin/capacity', label: 'Capacity' },
     { to: '/admin/anomalies', label: 'Anomalies' },
     { to: '/admin/forecasts', label: 'Forecasts' },
     { to: '/admin/recommendations', label: 'Recommendations' },

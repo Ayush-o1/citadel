@@ -52,6 +52,64 @@ standard as the rest of the project's documented limitations.
 
 ---
 
+## 2026-09-01 — RB-6: capacity-aware optimization method + a Layer 3 seed addition
+
+**Context:** the new capacity-aware rental optimization feature needs a
+"typical workload" baseline (median total engine hours across historical
+rentals of the same equipment type that fell in the existing 65-75%
+healthy utilization band) to turn a raw utilization percentage into an
+estimated completion window. Checking the actual seeded data first (per
+this session's own "verify before recommending" discipline): none of the
+existing Excavator history (Layer 1's EQX1001/1004/1007, Layer 2a's
+EQX2001/2002 volume checkouts) happens to land inside that exact 65-75%
+band — by design, they each demonstrate other signals (anomalies,
+forecast volume) instead. Building the feature against that data as-is
+would mean it could only ever show its honest "insufficient history"
+degradation path, never its actual output — weak for a panel demo of a
+feature explicitly pitched as a differentiator.
+
+**Decision:** (1) Capacity method: assumed per-type capacity (a
+documented constant, e.g. 8h/day for Excavator — not measured per
+machine) compared against each active checkout's own observed daily rate
+(avg engine_hours over its logged days, >=3 days required); only ratios
+below the 65% floor produce a signal at all. Completion estimate = the
+type's historical healthy-band median total hours / this rental's
+observed rate, shown as a +/-20% range, flagged as
+`underutilized_capacity` only when that range's high end still leaves
+>20% of the remaining contracted rental window unused. `source_type`
+'capacity' keys its `recommendations.source_id` off the checkout's own
+UUID (already stable) rather than adding a new persisted table — no
+migration needed beyond extending the `source_type` CHECK (migration
+009). (2) Seed data: added a small, clearly-labeled Layer 3 to
+`server/db/seed.js` — three historical, healthy-band (65-75%) Excavator
+rentals purely to give the feature a real baseline to compute from, plus
+one new active checkout (EQX3006) shaped like the flagship demo scenario
+(long rental window, legitimately light usage) so the feature's full
+"flag + estimate" path is actually exercised by the seeded data, not
+just its fallback path. Both additions are purely additive — no existing
+equipment/checkout/usage_log row was modified, and every existing
+alert/anomaly/forecast/utilization test still passes unchanged (28/28,
+up from 26/26 — the 2 new capacity tests).
+
+**Alternatives considered:** deriving "typical workload" from the
+rental's own contracted duration × observed rate (closer to the original
+prompt's illustrative arithmetic) — rejected because it's circular
+(estimating need from the very rate being questioned, rather than from
+independent historical evidence) and harder to defend under panel
+questioning than "here's the real historical median." Leaving the seed
+data untouched and accepting that the feature only ever demos its
+degraded path — rejected: technically honest but a materially weaker
+demonstration of the AI/analytics judging criterion for a feature this
+session was specifically asked to make a differentiator.
+
+**Tradeoff:** the Layer 3 addition changes the previously-documented
+17/22/192 seed baseline (now 21/26/257 equipment/checkouts/usage_logs) —
+`STATE.md`'s RB-6 section records the new counts; the original Phase
+00-11 phase docs are left untouched as a historical record of what that
+build delivered at the time, not retroactively edited.
+
+---
+
 ## 2026-09-01 — Phase 09: added GET /api/utilization; pending recommendations now refresh their wording on each sync
 
 **Context 1:** REQ-012 (Control Tower utilization view, "runtime vs. idle,

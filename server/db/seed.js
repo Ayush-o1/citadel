@@ -2,8 +2,9 @@ import 'dotenv/config';
 import pg from 'pg';
 
 // Phase 02 synthetic data — see .ai/phases/PHASE-02-synthetic-data.md.
+// Layer 3 added for RB-6 (2026-09-01) — see .ai/FRONTEND-REBUILD-PLAN.md.
 //
-// Two layers, both fully deterministic (no Math.random() anywhere, so
+// All layers fully deterministic (no Math.random() anywhere, so
 // re-running against a fresh database always produces identical data):
 //
 //   1. OFFICIAL_ROWS — the exact 7-row Caterpillar sample dataset
@@ -16,7 +17,11 @@ import pg from 'pg';
 //      equipment-type/site pair to forecast from (and one deliberately
 //      sparse pair to exercise the "insufficient history" fallback), and
 //      live active checkouts covering overdue / upcoming-return /
-//      missing-assignment / unusual-movement / healthy-baseline states.
+//      missing-assignment / unusual-movement / healthy-baseline /
+//      underutilized-capacity states.
+//   3. CAPACITY_BASELINE_HISTORY — three historical, healthy-band
+//      Excavator rentals giving the capacity-aware optimization feature
+//      (RB-6) a real "typical workload" baseline to compute against.
 //
 // Idempotent: skips entirely if `equipment` already has rows.
 
@@ -87,6 +92,27 @@ const VOLUME_PROFILES = [
   { label: 'poor-utilization', engineHours: 2, idleHours: 6 },
 ];
 
+// --- Layer 3: capacity-baseline history (RB-6, 2026-09-01) ---
+//
+// The capacity-aware optimization feature (.ai/FRONTEND-REBUILD-PLAN.md
+// section 4) needs a real "typical workload" baseline: the median total
+// engine hours across historical RETURNED checkouts of a given equipment
+// type that themselves fell in the existing 65-75% healthy utilization
+// band, gated at >=3 samples before being trusted
+// (capacity.service.js's MIN_BASELINE_SAMPLES). None of Layer 1/2a's
+// existing Excavator history happens to land in that exact band (by
+// design, they demonstrate other signals), so this layer adds three
+// deliberately healthy-band, isolated, historical Excavator rentals
+// purely to give the capacity feature real data to compute from — same
+// deterministic-data discipline as every other layer (fixed values, old
+// historical dates so they don't skew the 28-day forecast window).
+// engineHours=5.2, idleHours=2.3 -> ratio 5.2/7.5 = 0.693, inside band.
+const CAPACITY_BASELINE_HISTORY = [
+  { code: 'EQX5001', type: 'Excavator', site: 'S003', operator: 'OP501', checkedOut: '2025-07-01', operatingDays: 20, engineHours: 5.2, idleHours: 2.3 },
+  { code: 'EQX5002', type: 'Excavator', site: 'S004', operator: 'OP502', checkedOut: '2025-07-15', operatingDays: 20, engineHours: 5.2, idleHours: 2.3 },
+  { code: 'EQX5003', type: 'Excavator', site: 'S003', operator: 'OP503', checkedOut: '2025-08-01', operatingDays: 20, engineHours: 5.2, idleHours: 2.3 },
+];
+
 // --- Layer 2b: live active checkouts for the demo ---
 const ACTIVE_CHECKOUTS = [
   {
@@ -122,6 +148,26 @@ const ACTIVE_CHECKOUTS = [
     checkedOutDaysAgo: 3, expectedReturnHoursFromNow: 144,
     logs: [{ engineHours: 6, idleHours: 1 }, { engineHours: 6, idleHours: 1 }, { engineHours: 5.5, idleHours: 1 }],
     note: 'healthy baseline — no flags expected',
+  },
+  {
+    // RB-6 capacity-aware optimization demo case: a long (60-day) rental
+    // window with genuinely light-but-legitimate daily usage (idle ratio
+    // stays under the 0.40 excessive_idle threshold, so this is a distinct
+    // signal from the anomaly engine, not a restatement of it) — enough
+    // evidence (5 logged days, >= MIN_LOGGED_DAYS) to compute a real
+    // completion estimate against the Layer 3 Excavator baseline above,
+    // and enough remaining rental window (~55 days) that the estimate
+    // lands well inside it, triggering underutilized_capacity.
+    code: 'EQX3006', type: 'Excavator', site: 'S003', operator: 'OP405',
+    checkedOutDaysAgo: 5, expectedReturnHoursFromNow: 55 * 24,
+    logs: [
+      { engineHours: 4, idleHours: 2 },
+      { engineHours: 4, idleHours: 2 },
+      { engineHours: 3.5, idleHours: 1.5 },
+      { engineHours: 4, idleHours: 2 },
+      { engineHours: 4.5, idleHours: 2 },
+    ],
+    note: 'capacity: underutilized — pace suggests an early-return/reassignment candidate against a 60-day window',
   },
 ];
 
@@ -162,6 +208,7 @@ async function seed() {
     const operatorCodes = [
       'OP101', 'OP106', 'OP114', 'OP203', 'OP301', // official
       'OP401', 'OP402', 'OP403', 'OP404', // active checkouts (EQX3003 deliberately has none)
+      'OP405', // EQX3006 (RB-6 capacity demo case)
       'OP501', 'OP502', 'OP503', 'OP504', // volume checkouts, cycled
     ];
     const operatorId = {};
@@ -197,6 +244,22 @@ async function seed() {
           row.checkedOut,
           row.checkedIn,
         ]
+      );
+      const entries = Array.from({ length: row.operatingDays }, () => ({
+        engineHours: row.engineHours,
+        idleHours: row.idleHours,
+      }));
+      await insertUsageLogs(client, rows[0].id, equipmentId[row.code], row.checkedOut, entries);
+    }
+
+    // --- Layer 3: capacity-baseline history ---
+    for (const row of CAPACITY_BASELINE_HISTORY) {
+      await insertEquipment(row.code, row.type, 'available');
+      const checkedIn = addDays(row.checkedOut, row.operatingDays);
+      const { rows } = await client.query(
+        `INSERT INTO checkouts (equipment_id, operator_id, site_id, checked_out_at, checked_in_at, status, condition_out, condition_in)
+         VALUES ($1, $2, $3, $4, $5, 'returned', 'Good', 'Good') RETURNING id`,
+        [equipmentId[row.code], operatorId[row.operator], siteId[row.site], row.checkedOut, checkedIn]
       );
       const entries = Array.from({ length: row.operatingDays }, () => ({
         engineHours: row.engineHours,

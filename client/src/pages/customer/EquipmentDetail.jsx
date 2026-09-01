@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi.js';
 import { getEquipment } from '../../api/equipment.js';
 import { checkOut } from '../../api/checkouts.js';
+import { getCapacitySummary } from '../../api/capacity.js';
 import LoadingState from '../../components/LoadingState.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import EquipmentImage from '../../components/customer/EquipmentImage.jsx';
@@ -13,6 +14,7 @@ export default function EquipmentDetail() {
   const navigate = useNavigate();
   const { customerName } = useRole();
   const { data: equipment, loading, error } = useApi(() => getEquipment(id), [id]);
+  const { data: capacity } = useApi(getCapacitySummary);
 
   const [returnDate, setReturnDate] = useState('');
   const [formError, setFormError] = useState(null);
@@ -23,6 +25,7 @@ export default function EquipmentDetail() {
   if (!equipment) return null;
 
   const unavailable = equipment.status !== 'available';
+  const typeBaseline = capacity?.type_baselines?.find((b) => b.equipment_type === equipment.type);
 
   async function handleRent(event) {
     event.preventDefault();
@@ -75,6 +78,15 @@ export default function EquipmentDetail() {
                 {busy ? 'Requesting…' : 'Rent this equipment'}
               </button>
             </form>
+          )}
+
+          {typeBaseline && (
+            <p className="capacity-fit-hint">
+              Typical {equipment.type.toLowerCase()} rentals here log about {typeBaseline.typical_total_hours}h of
+              productive work in total (based on {typeBaseline.sample_count} comparable past rentals), against an
+              assumed {typeBaseline.assumed_capacity_hours}h/day of capacity — a useful reference point when
+              deciding how long to book this for.
+            </p>
           )}
         </div>
       </div>

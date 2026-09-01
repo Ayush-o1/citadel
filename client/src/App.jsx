@@ -10,6 +10,7 @@ import ControlTower from './pages/dealer/ControlTower.jsx';
 import AssetDashboard from './pages/dealer/AssetDashboard.jsx';
 import FleetOverview from './pages/admin/FleetOverview.jsx';
 import Utilization from './pages/admin/Utilization.jsx';
+import Capacity from './pages/admin/Capacity.jsx';
 import Anomalies from './pages/admin/Anomalies.jsx';
 import Forecasts from './pages/admin/Forecasts.jsx';
 import Recommendations from './pages/admin/Recommendations.jsx';
@@ -40,6 +41,7 @@ export default function App() {
           <Route element={<AppShell />}>
             <Route path="/admin" element={<FleetOverview />} />
             <Route path="/admin/utilization" element={<Utilization />} />
+            <Route path="/admin/capacity" element={<Capacity />} />
             <Route path="/admin/anomalies" element={<Anomalies />} />
             <Route path="/admin/forecasts" element={<Forecasts />} />
             <Route path="/admin/recommendations" element={<Recommendations />} />

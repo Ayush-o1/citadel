@@ -40,10 +40,37 @@ three role experiences plus a capacity-aware rental optimization feature.
   `utilization`/`anomalies`/`forecasts`/`recommendations` endpoints (new
   dedicated `alerts.js`/`anomalies.js` frontend API clients added — those
   backend endpoints existed but had no frontend consumer before).
-- **RB-6 (capacity-aware optimization):** `NOT_STARTED`. Design is written
-  (`FRONTEND-REBUILD-PLAN.md` section 4) — new `capacity` backend module,
-  migration extending `recommendations.source_type`, surfaced across all
-  three roles. Not yet implemented.
+- **RB-6 (capacity-aware optimization):** `VERIFIED`. Migration 009
+  extends `recommendations.source_type` to include `'capacity'`; new
+  `server/src/modules/capacity/` module (rule-based, same
+  sync-on-read/honest-degradation style as alerts/anomalies/forecasts —
+  see the 2026-09-01 "RB-6" `DECISIONS.md` entry for the full method).
+  Wired into `recommendations.service.js` as a fourth signal source
+  alongside alerts/anomalies/forecasts. Surfaced in all three roles:
+  Dealer's Action Queue and Admin's Recommendations (both via the shared
+  `ActionQueueItem`, new `success`/green tone), a dedicated Admin
+  `/admin/capacity` page (flagged vs. below-capacity-but-insufficient-
+  history sections), and a Customer equipment-fit hint on
+  `EquipmentDetail` (type-level baseline only, since an unrented machine
+  has no observed rate yet).
+
+  Required one seed-data addition (`server/db/seed.js` Layer 3, see
+  `DECISIONS.md`) — the existing seeded Excavator history didn't happen
+  to contain a real 65-75%-band sample for the baseline to compute from,
+  so the feature could only ever show its "insufficient history"
+  fallback. Added 3 historical healthy-band Excavator rentals +
+  1 new active checkout (EQX3006, a 60-day-window/light-usage flagship
+  case) — purely additive, no existing row touched. **New seed baseline:
+  21 equipment / 26 checkouts / 257 usage_logs** (was 17/22/192 through
+  Phase 11 — see `DECISIONS.md` for why this changed and why the
+  original phase docs were left as historical record rather than edited).
+
+  Verified for real: 28/28 backend tests pass (26 previous + 2 new
+  `server/tests/capacity.test.js` cases asserting the exact flagged/
+  not-flagged outcomes computed from the seeded numbers), and live in a
+  browser (Admin Capacity page, Admin/Dealer Recommendations/Action
+  Queue showing the EQX3006 capacity item, Customer equipment-fit hint
+  on an Excavator) — zero console errors.
 - **RB-7 (QA pass — live browser, not just build/API checks):** `VERIFIED`
   for RB-2..RB-5. No `chromium-cli`/Playwright was preinstalled in this
   environment, so it was installed fresh into the scratchpad
@@ -77,10 +104,9 @@ three role experiences plus a capacity-aware rental optimization feature.
     none is left running now; a real teammate machine's local DB (if any)
     was never touched.
 
-**What's still not done:** RB-6 (capacity-aware optimization) is
-unimplemented — designed only. Doc sync beyond this file (e.g.
-`REQUIREMENTS.md`, `MANUAL-QA.md` additions for the three roles) is not
-done yet.
+**What's still not done:** doc sync beyond this file and `DECISIONS.md`
+(e.g. `REQUIREMENTS.md`, `MANUAL-QA.md` additions for the three roles) is
+not done yet. RB-1 through RB-6 are all implemented and verified.
 
 ---
 
