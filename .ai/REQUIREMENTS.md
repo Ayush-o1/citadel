@@ -31,7 +31,7 @@ for partial, `NOT_STARTED` for missing, `DEFERRED` for optional-and-cut
 | REQ-003 | Check-in an asset, recording return time and final condition | Explicit | Must-have | `phases/PHASE-03-core-apis.md` | `server/src/modules/checkouts/` | `server/tests/checkouts.test.js` | `VERIFIED` |
 | REQ-004 | Usage logging: runtime/engine hours, idle hours, fuel, location, condition | Explicit | Must-have | `phases/PHASE-03-core-apis.md` | `server/src/modules/usage-logs/` | `server/tests/usage-logs.test.js` | `VERIFIED` |
 | REQ-005 | Every status change records who/what/where/when | Explicit | Must-have | `phases/PHASE-01-data-model.md` | `server/src/modules/checkouts/`, `usage-logs/` | `server/tests/checkouts.test.js` | `VERIFIED` |
-| REQ-006 | Alerts: upcoming return, overdue, missing info | Explicit | Must-have | `phases/PHASE-04-alerts.md` | `server/src/modules/alerts/` | — | `NOT_STARTED` |
+| REQ-006 | Alerts: upcoming return, overdue, missing info | Explicit | Must-have | `phases/PHASE-04-alerts.md` | `server/src/modules/alerts/` | `server/tests/alerts.test.js` | `VERIFIED` |
 | REQ-007 | Anomaly detection: excessive idle, zero runtime, missing assignment, with a stated reason per flag | Explicit | Must-have | `phases/PHASE-05-anomaly-detection.md` | `server/src/modules/anomalies/` | — | `NOT_STARTED` |
 | REQ-008 | Anomaly detection: unusual/inconsistent asset movement | Explicit | Should-have | `phases/PHASE-05-anomaly-detection.md` | `server/src/modules/anomalies/` | — | `NOT_STARTED` |
 | REQ-009 | Demand forecasting by equipment type, site, and time, stating an operational answer ("what, where, when") and its influencing factors | Explicit | Must-have | `phases/PHASE-06-forecasting.md` | `server/src/modules/forecasts/` | — | `NOT_STARTED` |

@@ -7,6 +7,49 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Phase 04 implemented and verified: alerts engine
+
+**Where we are:** Phase 04 `VERIFIED`. `server/src/modules/alerts/` built;
+`GET /api/alerts` recomputes signals from live `checkouts` data on every
+call and syncs them into the `alerts` table (insert newly-detected,
+resolve stale). Shared detection logic lives in the new
+`server/src/utils/checkoutRules.js` specifically so Phase 05's
+`missing_assignment` anomaly can reuse `hasMissingAssignment` instead of
+reimplementing it (task 04.4's explicit requirement).
+
+**Real decision made and documented:** chose to persist alerts (sync on
+read) rather than pure in-memory computation, because `ARCHITECTURE.md`
+already describes recommendations (Phase 07) as *reading from* alerts/
+anomalies/forecasts — which only holds together if those are real rows,
+not logic Phase 07 would have to re-derive itself. Full reasoning in
+`DECISIONS.md`'s "Phase 04: alerts synced on read" entry.
+
+**What we verified:**
+- `npm test` — 16/16 pass (14 from Phase 03 + 2 new). The seeded
+  `EQX3001`/`EQX3002`/`EQX3003` each produce exactly the alert Phase 02
+  documented (overdue/upcoming_return/missing_info, one of each, verified
+  both via the API and a direct SQL count).
+- A fixture test proves the *resolve* path actually fires, not just the
+  insert path: checked out with a past `expected_return_at` → alert
+  appears → checked in → alert disappears on the next `GET`.
+- Post-test DB check: seeded counts unchanged (17/22/192), zero leftover
+  test fixtures or their alerts (cleanup order updated in
+  `tests/helpers/fixtures.js` to clear `recommendations`/`anomalies`/
+  `alerts` before `equipment`, since all three have the same
+  `ON DELETE RESTRICT` FK Phase 03's fixtures already had to respect for
+  `checkouts`/`usage_logs`).
+- `npm run build` (client) — clean, unaffected.
+
+**Not verified:** anything beyond the 3 required alert types at the
+current data scale — no load test, no test of what happens if `alerts`
+grows large (not a concern at 17-equipment/22-checkout scale, noted as a
+real limitation in `DECISIONS.md`'s tradeoff line).
+
+**Next:** Phase 05 (anomaly detection) — unblocked, next up. Continuing
+the authorized Phase 03→11 run without stopping for approval.
+
+---
+
 ## 2026-09-01 — Phase 03 implemented and verified: core backend APIs
 
 **Where we are:** Phase 03 `VERIFIED`. `server/src/modules/equipment/`,

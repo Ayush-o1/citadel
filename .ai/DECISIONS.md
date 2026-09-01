@@ -20,6 +20,41 @@ Format:
 
 ---
 
+## 2026-09-01 — Phase 04: alerts (and, by the same pattern, anomalies) are synced into their tables on read, not left purely in-memory
+
+**Context:** Phase 04's task 04.1 offered two options — compute alerts
+purely on-demand from `checkouts` (simplest, no staleness), or persist
+each detected condition into the `alerts` table. `ARCHITECTURE.md`
+already states the analytics layer's dependency direction as "recommendations
+reads from alerts, anomalies, and forecasts" — which only makes sense if
+those are real rows recommendations can query, not logic Phase 07 would
+otherwise have to re-derive from `checkouts`/`usage_logs` itself
+(duplicating Phase 04/05's rules, which is exactly what `ARCHITECTURE.md`'s
+one-way dependency is meant to prevent).
+
+**Decision:** `GET /api/alerts` recomputes the current signals from live
+`checkouts` data on every call, then syncs the result into the `alerts`
+table: inserts a new `open` row for any newly-detected `(checkout, type)`
+condition, and resolves (`status = 'resolved'`, `resolved_at = now()`) any
+previously-open row whose condition no longer holds (checked in, or the
+window passed). No cron job, no background worker — the sync runs
+synchronously inside the request. Phase 05 (anomalies) will follow the
+same pattern for its own table.
+
+**Alternatives considered:** (1) Pure on-demand, never touching the
+`alerts` table — rejected because it leaves the table permanently empty
+against its own schema and forces Phase 07 to duplicate Phase 04's rules
+instead of reading its output. (2) A scheduled recompute job — rejected as
+unnecessary complexity/infrastructure for a single-demo-machine hackathon
+app at this data scale (`QUALITY.md`: don't optimize a hypothetical
+bottleneck).
+
+**Tradeoff:** every `GET /api/alerts` does a handful of extra writes
+(insert/resolve) before its read — fine at 17-equipment scale, would not
+scale to a real fleet without moving the sync to a background job.
+
+---
+
 ## 2026-09-01 — Phase 02: RISK-003 calibration result — 40% idle threshold confirmed
 
 **Context:** `ISSUES.md` `RISK-003` flagged that the idle-ratio anomaly

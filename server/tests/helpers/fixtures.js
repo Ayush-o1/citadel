@@ -26,7 +26,14 @@ export async function createFixtureEquipment(suffix) {
   return rows[0];
 }
 
+// Deletion order matters: every analytics table (alerts/anomalies/
+// recommendations) has an ON DELETE RESTRICT FK to equipment, same as
+// usage_logs/checkouts — all must be cleared before the equipment row
+// itself, or the final DELETE throws a foreign-key-violation.
 export async function deleteFixtureEquipment(equipmentId) {
+  await query('DELETE FROM recommendations WHERE equipment_id = $1', [equipmentId]);
+  await query('DELETE FROM anomalies WHERE equipment_id = $1', [equipmentId]);
+  await query('DELETE FROM alerts WHERE equipment_id = $1', [equipmentId]);
   await query('DELETE FROM usage_logs WHERE equipment_id = $1', [equipmentId]);
   await query('DELETE FROM checkouts WHERE equipment_id = $1', [equipmentId]);
   await query('DELETE FROM equipment WHERE id = $1', [equipmentId]);

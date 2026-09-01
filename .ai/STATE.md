@@ -27,15 +27,21 @@ unchanged after tests (17/22/192 — test fixtures are created and deleted
 per-test, never touching the seeded rows). See
 [`phases/PHASE-03-core-apis.md`](phases/PHASE-03-core-apis.md).
 
-**Phases 04-11:** `NOT_STARTED`. 04 (alerts), 05 (anomalies), 06
-(forecasting), and 08 (Asset Dashboard UI) are all unblocked now — see
-`ROADMAP.md`'s dependency graph.
+**Phase 04 — Alerts engine.** Status: `VERIFIED`. `GET /api/alerts`
+recomputes and syncs `overdue`/`upcoming_return`/`missing_info` from live
+`checkouts` data on every read (16/16 tests pass, incl. Phase 03's).
+Seeded `EQX3001`/`EQX3002`/`EQX3003` each produce exactly the expected
+alert. See [`phases/PHASE-04-alerts.md`](phases/PHASE-04-alerts.md).
+
+**Phases 05-11:** `NOT_STARTED`. 05 (anomalies), 06 (forecasting), and 08
+(Asset Dashboard UI) are all unblocked now — see `ROADMAP.md`'s
+dependency graph.
 
 ## Next recommended action
 
-Continuing the authorized autonomous Phase 03→11 run: **Phase 04
-(alerts engine)** next — `phases/PHASE-04-alerts.md`, the simplest
-analytics module, establishing the pattern Phases 05-06 follow.
+Continuing the authorized autonomous Phase 03→11 run: **Phase 05
+(anomaly detection)** next — `phases/PHASE-05-anomaly-detection.md`, one
+of the two highest-judging-weight modules.
 
 ## Overall progress
 
@@ -53,7 +59,8 @@ analytics module, establishing the pattern Phases 05-06 follow.
 | Requirements | `IMPLEMENTED` (partial) | REQ-001–005, REQ-018 `VERIFIED`; REQ-015 `IMPLEMENTED`; rest `NOT_STARTED` |
 | Phase plan | `VERIFIED` | 11 phases in `ROADMAP.md`; work division in `TEAM-EXECUTION-PLAN.md` |
 | Core backend APIs (equipment/checkouts/usage-logs) | `VERIFIED` | Phase 03 — 14/14 tests pass |
-| Product implementation | `IN_PROGRESS` | Phases 00-03 done; Phases 04-11 not started |
+| Alerts engine | `VERIFIED` | Phase 04 — 16/16 tests pass |
+| Product implementation | `IN_PROGRESS` | Phases 00-04 done; Phases 05-11 not started |
 
 ## Known bugs
 
@@ -76,6 +83,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-01-data-model` | 2026-09-01 | Phase 01 | `56e1a9d` | Yes |
 | `checkpoint/phase-02-synthetic-data` | 2026-09-01 | Phase 02 | `a61aa90` | Yes — see Phase 02 doc's "Tests" section |
 | `checkpoint/phase-03-core-apis` | 2026-09-01 | Phase 03 | `92d71b5` | Yes — see Phase 03 doc's "Tests" section |
+| `checkpoint/phase-04-alerts` | 2026-09-01 | Phase 04 | *(recorded after commit)* | Yes — see Phase 04 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 
