@@ -75,7 +75,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-00-foundation` | 2026-08-30 | Phase 00 | `2dfc243` | Yes |
 | `checkpoint/phase-01-data-model` | 2026-09-01 | Phase 01 | `56e1a9d` | Yes |
 | `checkpoint/phase-02-synthetic-data` | 2026-09-01 | Phase 02 | `a61aa90` | Yes — see Phase 02 doc's "Tests" section |
-| `checkpoint/phase-03-core-apis` | 2026-09-01 | Phase 03 | *(recorded after commit — see next commit)* | Yes — see Phase 03 doc's "Tests" section |
+| `checkpoint/phase-03-core-apis` | 2026-09-01 | Phase 03 | `92d71b5` | Yes — see Phase 03 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 
