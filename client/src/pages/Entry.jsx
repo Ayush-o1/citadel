@@ -52,9 +52,10 @@ function GoogleIcon() {
 }
 
 export default function Entry() {
-  const { loading, user, role, signIn, setRole } = useRole();
+  const { loading, user, role, signIn, setRole, pendingRedirectError } = useRole();
   const [pendingRole, setPendingRole] = useState(null);
   const [error, setError] = useState(null);
+  const displayError = error || pendingRedirectError;
 
   if (loading) return <LoadingState label="Loading…" />;
 
@@ -132,7 +133,7 @@ export default function Entry() {
               <>Pick a role — a real Google sign-in window opens, then you land straight in that workspace.</>
             )}
           </p>
-          {error && <p className="form-error">{error}</p>}
+          {displayError && <p className="form-error">{displayError}</p>}
         </div>
 
         <div className="entry-role-grid">
