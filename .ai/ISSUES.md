@@ -19,6 +19,7 @@ Statuses: `OPEN` · `IN_PROGRESS` · `RESOLVED` · `WON'T_FIX` · `ACCEPTED` (ri
 |---|---|---|---|---|
 | RISK-001 | `docker-compose.yml` was authored and reviewed but never run end-to-end — the Docker daemon wasn't available during Phase 00. | Medium — the team may hit an unknown issue with the Compose stack for the first time under hackathon time pressure. | OPEN | Whoever has Docker running next: `docker compose up`, then `docker compose exec server npm run migrate`, confirm client/server/db all reachable. Update this row. |
 | RISK-002 | 2 of 3 invited teammates (`Astik01`, `Souharda6996`) have not yet accepted their GitHub collaborator invitation as of 2026-08-30. | High if unresolved by hackathon day — they wouldn't be able to push. | OPEN | Confirm acceptance before 2026-09-01. Ayush can check via repo Settings → Collaborators, or re-run the `gh api repos/Ayush-o1/citadel/invitations` check. |
+| RISK-003 | Anomaly thresholds (Phase 05) and forecasting method (Phase 06) are designed from small-sample industry research (`RESEARCH.md` R-001/R-002) and the official 7-row example, not yet validated against the actual seeded dataset. | Medium — a threshold that floods or empties the Action Queue undermines the whole differentiation strategy. | OPEN | Phases 05/06 each include an explicit calibration task (05.1, 06.1) against real seeded numbers before the rule is treated as final — don't skip it under time pressure. |
 
 ## Tech debt
 
@@ -36,7 +37,8 @@ Statuses: `OPEN` · `IN_PROGRESS` · `RESOLVED` · `WON'T_FIX` · `ACCEPTED` (ri
 
 | ID | Question | Status | Next action |
 |---|---|---|---|
-| Q-001 | Will Caterpillar provide any datasets, APIs, or sample data alongside the problem statement? | OPEN | Check at reveal time (2026-09-01 ~10:25); log the answer in `RESEARCH.md` if relevant. |
+| Q-001 | Will Caterpillar provide any datasets, APIs, or sample data alongside the problem statement? | RESOLVED | Yes — a 7-row sample dataset (`EQX1001`-`EQX1007`) on the official handout. See `PROBLEM-STATEMENT.md` Source A, incorporated into `phases/PHASE-02-synthetic-data.md`. |
+| Q-002 | Which trailing-window method (moving average vs. exponential smoothing) actually reads better once real seeded data exists? | OPEN | Decide in Phase 06 task 06.1 against real numbers, not in the abstract — see `RESEARCH.md` R-001. |
 
 ## Blockers
 

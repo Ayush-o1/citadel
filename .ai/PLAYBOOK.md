@@ -124,20 +124,31 @@ creating issues instead of inventing a new taxonomy.
 
 ### Team responsibility template
 
-Fill this in once the MVP and task split are decided — don't pre-assign
-roles before the problem is known (see `OVERVIEW.md`):
+Suggested split, derived from `ROADMAP.md`'s dependency graph — adjust for
+actual interest/speed, but confirm as a team before starting rather than
+mid-morning:
 
-| Name | GitHub | Area / role | Current task | Status |
+| Name | GitHub | Suggested area | Current task | Status |
 |---|---|---|---|---|
-| Ayush | `Ayush-o1` | | | |
-| Astik | `Astik01` | | | |
-| Eklavya | `eklavaya008` | | | |
-| Souharda | `Souharda6996` | | | |
+| Ayush | `Ayush-o1` | Phase 01 (data model) → Phase 02 (synthetic data) → joins analytics (04-06) | | |
+| Astik | `Astik01` | Phase 03 (core APIs) → Phase 08 (Asset Dashboard UI) | | |
+| Eklavya | `eklavaya008` | Analytics: Phase 04 (alerts) → 05 (anomalies) → 06 (forecasting) | | |
+| Souharda | `Souharda6996` | Phase 07 (recommendations) once 04-06 land → Phase 09 (Control Tower UI) | | |
 
-Split by skill + dependency + risk + speed + file ownership — avoid four
-people editing the same files. Before claiming a task, identify the
-specific files/components it touches (this is what phase files' "Files /
-systems affected" section is for).
+**Why this split:** Business Impact (25%) + Innovation (25%) + AI &
+Analytics (15%) — 65% of the judging weight — sits in Phases 04-07, so
+that gets two people (Eklavya building the signals, Souharda building
+what they become) rather than one. Ayush clears the Phase 01 dependency
+everything else waits on, then reinforces analytics once Phase 02 is
+done. Astik owns the operational backbone (checkout/check-in — the one
+thing that has to work perfectly since everything else reads from it)
+straight through to the screen that exercises it. Update this table with
+real task/status as work starts — this is a starting proposal, not a
+lock-in.
+
+Before claiming a task, identify the specific files/components it touches
+(each phase file's "Files / systems affected" section) — avoid four
+people editing the same files.
 
 ## Step 5 — Implement, integrate, test continuously
 

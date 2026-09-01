@@ -75,6 +75,34 @@ split a single feature across both databases.
 page calling a read-only backend route; no new architecture needed unless
 query volume genuinely requires a separate reporting datastore.
 
+## Domain modules — Smart Rental Tracking System
+
+Once the problem statement (2026-09-01) was known, the following
+`server/src/modules/` were planned (each follows the same
+routes/controller/service/repository shape as `items/`, which becomes the
+template to copy — see `phases/PHASE-01-data-model.md` onward):
+
+`equipment`, `checkouts`, `usage-logs`, `alerts`, `anomalies`, `forecasts`,
+`recommendations`. See `../REQUIREMENTS.md` for what each must do and
+`phases/` for how each gets built.
+
+### Analytics layer
+
+Alerts, anomalies, forecasts, and recommendations are not a separate
+service or process — they're plain service-layer functions operating on
+data already in Postgres, following the exact same layering as any other
+module (a `*.service.js` with the logic, a `*.repository.js` for the
+reads/writes). No ML pipeline, no separate analytics process, no new
+infrastructure. See `DECISIONS.md`'s "Rule-based analytics, not a trained
+ML model" entry for why, and `RESEARCH.md` for where the specific
+thresholds and forecasting method came from.
+
+The dependency direction is one-way: `recommendations` reads from
+`alerts`, `anomalies`, and `forecasts` to build the Action Queue; those
+three don't depend on each other or on `recommendations`. This keeps each
+independently buildable/testable — see `ROADMAP.md`'s phase index for the
+build order this implies.
+
 ## Frontend structure
 
 ```

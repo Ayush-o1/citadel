@@ -7,6 +7,105 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Problem-statement planning: Smart Rental Tracking System
+
+**Where we are:** Problem statement received and fully analyzed. Complete
+11-phase build plan exists (`ROADMAP.md`, `phases/PHASE-01`–`PHASE-11`).
+**Nothing coded yet** — this session was planning only, per the explicit
+"do not skip to coding" instruction. Phase 01 (data model) is `PLANNED`
+and ready for someone to actually start.
+
+**What we just did:**
+- Ran Problem-Statement Mode end to end: filled `problem-statement/ANALYSIS.md`,
+  populated `REQUIREMENTS.md` with 20 real requirements (REQ-001–020),
+  logged 2 research findings in `RESEARCH.md` (forecasting method,
+  industry idle/utilization thresholds — both with real cited sources),
+  added a tech-stack decision gate and an analytics-approach decision to
+  `DECISIONS.md`, wrote `DESIGN.md` (the UX/IA spec for the Control Tower
+  and Asset Dashboard screens), and extended `ARCHITECTURE.md` with the
+  domain module list and analytics-layer convention.
+- Created all 11 phase files with concrete tasks, acceptance criteria, and
+  exit criteria — see `ROADMAP.md`'s dependency graph for build order and
+  parallelization.
+- Filled `PLAYBOOK.md`'s team responsibility table with a suggested
+  split, reasoned from the judging weights (analytics gets 2 people).
+
+**Important discovery — two problem-statement sources didn't match:** a
+photo of the actual one-page Caterpillar handout (`PROBLEM-STATEMENT.md`
+Source A) surfaced *after* this session had already been analyzing a more
+elaborate text version (Source B: "Control Tower," judging weights,
+recommendation-engine shape, demo narrative) that the user had pasted in
+as "official problem context." None of Source B appears on the literal
+handout. **Asked the user directly** rather than guessing which to trust
+— confirmed (2026-09-01) that Source B is real content from the live
+event presentation/briefing, not an AI/interpretive elaboration. Both
+sources are now preserved verbatim in `PROBLEM-STATEMENT.md`, clearly
+labeled, and don't actually conflict — Source B adds structure on top of
+Source A's same six capabilities. **If a future agent finds any other
+discrepancy between what's in this repo's analysis and what the team
+actually saw/heard at the event, ask before assuming — don't silently
+pick one.**
+
+**A concrete, valuable finding from Source A's sample data:** two of the
+seven official example rows (`EQX1002`, `EQX1007`) have `Site ID = NULL`,
+`Last Operator ID = NULL`, and `0` Engine Hours/Day together — almost
+certainly Caterpillar's own worked example of the "unassigned equipment"
+/ "zero runtime" anomaly. Phase 02's synthetic data reproduces these 7
+rows exactly (with daily `usage_logs` generated to match the handout's
+per-day averages), and Phase 05's anomaly rules are written to catch this
+exact pattern — see `DECISIONS.md`'s reconciliation entry.
+
+**What was verified:** nothing new technically (no code changed this
+session) — Phase 00's baseline (tests, build, migrations) was not
+re-run since no application code was touched. Verify it fresh before
+starting Phase 01, per `AGENTS.md`'s boot sequence.
+
+**What was not verified:** the anomaly thresholds and forecasting method
+are designed from research and the official sample, not from actually
+running numbers against seeded data yet — this is explicit in `ISSUES.md`
+(`RISK-003`) and built into Phases 05/06 as calibration tasks (05.1, 06.1),
+not assumed settled.
+
+**Current phase / task:** Phase 00 `VERIFIED` (unchanged). Phase 01
+(`phases/PHASE-01-data-model.md`) is `PLANNED` — this is the next actual
+work. Do not re-run Problem-Statement Mode; that's done.
+
+**Known bugs:** none. **Known risks:** `RISK-001` (Docker untested),
+`RISK-002` (2 pending invites — check before day one), `RISK-003`
+(uncalibrated thresholds, see above).
+
+**Important decisions:** `DECISIONS.md`'s three 2026-09-01 entries (tech
+stack reconfirmed, rule-based analytics over ML, sample-data reconciliation).
+
+**Files affected this session:** `PROBLEM-STATEMENT.md` (rewritten with
+both sources), everything new under `.ai/problem-statement/`,
+`.ai/phases/PHASE-01` through `PHASE-11`, `REQUIREMENTS.md`, `RESEARCH.md`,
+`DECISIONS.md`, `DESIGN.md` (new), `ARCHITECTURE.md`, `ROADMAP.md`,
+`PLAYBOOK.md`, `STATE.md`, `ISSUES.md`. No application code.
+
+**Blockers:** none. Ready to implement.
+
+**Next action:** start Phase 01 (`phases/PHASE-01-data-model.md`) — write
+the migrations, run them, verify schema, then hand off to whoever's doing
+Phase 02/03 per `PLAYBOOK.md`'s team table.
+
+**Commands to run to pick this up:**
+```bash
+git log --oneline -10 && git status
+cd server && npm install && npm run migrate && npm test
+cd ../client && npm install && npm run build
+```
+Then open `phases/PHASE-01-data-model.md` and start on its tasks.
+
+**What not to touch without reason:** the two-sources structure of
+`PROBLEM-STATEMENT.md` — don't collapse it back into one version; the
+distinction matters if another discrepancy surfaces later. The rule-based
+(not ML) analytics decision — don't introduce a trained model without a
+new `DECISIONS.md` entry justifying it against the alternative already
+rejected there.
+
+---
+
 ## 2026-08-30 — Foundation session 2: AI-agent operating system
 
 **Where we are:** Phase 00 (foundation) complete and verified. Repository

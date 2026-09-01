@@ -28,24 +28,41 @@ Rules for creating phases:
 
 ## Phase index
 
+Product: **Smart Rental Tracking System** (problem statement received
+2026-09-01 — see `PROBLEM-STATEMENT.md`, analyzed in
+`problem-statement/ANALYSIS.md`).
+
 | ID | Name | Status | Owner | File |
 |---|---|---|---|---|
 | 00 | Foundation | `VERIFIED` | Ayush + AI agent | [`phases/PHASE-00-foundation.md`](phases/PHASE-00-foundation.md) |
-| 01+ | *(the real product, TBD)* | `NOT_STARTED` | — | created after `PROBLEM-STATEMENT.md` is filled and analyzed per `PLAYBOOK.md` |
+| 01 | Data model & migrations | `PLANNED` | unassigned | [`phases/PHASE-01-data-model.md`](phases/PHASE-01-data-model.md) |
+| 02 | Synthetic operational data | `NOT_STARTED` | unassigned | [`phases/PHASE-02-synthetic-data.md`](phases/PHASE-02-synthetic-data.md) |
+| 03 | Core backend APIs | `NOT_STARTED` | unassigned | [`phases/PHASE-03-core-apis.md`](phases/PHASE-03-core-apis.md) |
+| 04 | Alerts engine | `NOT_STARTED` | unassigned | [`phases/PHASE-04-alerts.md`](phases/PHASE-04-alerts.md) |
+| 05 | Anomaly detection | `NOT_STARTED` | unassigned | [`phases/PHASE-05-anomaly-detection.md`](phases/PHASE-05-anomaly-detection.md) |
+| 06 | Demand forecasting | `NOT_STARTED` | unassigned | [`phases/PHASE-06-forecasting.md`](phases/PHASE-06-forecasting.md) |
+| 07 | Recommendations & Action Queue | `NOT_STARTED` | unassigned | [`phases/PHASE-07-recommendations.md`](phases/PHASE-07-recommendations.md) |
+| 08 | Asset Dashboard UI | `NOT_STARTED` | unassigned | [`phases/PHASE-08-asset-dashboard-ui.md`](phases/PHASE-08-asset-dashboard-ui.md) |
+| 09 | Control Tower UI | `NOT_STARTED` | unassigned | [`phases/PHASE-09-control-tower-ui.md`](phases/PHASE-09-control-tower-ui.md) |
+| 10 | Integration, testing, polish | `NOT_STARTED` | unassigned | [`phases/PHASE-10-integration-and-polish.md`](phases/PHASE-10-integration-and-polish.md) |
+| 11 | Demo and panel-defense prep | `NOT_STARTED` | unassigned | [`phases/PHASE-11-demo-and-defense.md`](phases/PHASE-11-demo-and-defense.md) |
 
-## When the problem statement lands
+## Dependency shape and parallelization
 
-Don't write phase files from a guess. Follow `PLAYBOOK.md`'s
-Problem-Statement Mode first — it produces the MVP definition, architecture
-fit, and task list that phase 01+ files should be built from. Typically
-that produces something like (illustrative, not prescriptive):
+```
+01 (data model)
+ ├─→ 02 (synthetic data) ─┬─→ 04 (alerts)     ─┐
+ └─→ 03 (core APIs) ──────┼─→ 05 (anomalies)  ─┼─→ 07 (recommendations) ─→ 09 (control tower UI) ─┐
+                          └─→ 06 (forecasting) ─┘                                                  ├─→ 10 (integration) ─→ 11 (demo)
+                             03 ───────────────────────────────────────→ 08 (asset dashboard UI) ──┘
+```
 
-- Phase 01 — data model + migrations for the real domain
-- Phase 02 — core backend APIs for the MVP
-- Phase 03 — core frontend screens for the MVP
-- Phase 04 — integration + end-to-end testing
-- Phase 05 — the one differentiating feature (see `PLAYBOOK.md` §Innovation)
-- Phase 06 — polish + demo prep
-- Phase 07 — presentation + panel-defense prep
+01 gates everything. Once 01 is done, 02 and 03 can run in parallel (see
+`PLAYBOOK.md`'s team table). Once 02+03 land, 04/05/06 can run in
+parallel with each other and with 08. 07 needs 04+05+06. 09 needs 07 (and
+benefits from 04-06 directly). 10 needs everything. 11 needs 10.
 
-Adjust freely. The point of this file is the mechanism, not this example.
+## Rejected/deferred scope
+
+See `problem-statement/ANALYSIS.md` §15-16 for should-have/stretch/
+explicitly-not-building — not repeated here to avoid two copies drifting.

@@ -61,6 +61,7 @@ Do:
 | `phases/` | One file per phase, filled from `phases/_TEMPLATE.md` |
 | `DECISIONS.md` | ADR-style log of real decisions and why |
 | `ARCHITECTURE.md` | System architecture and how to extend it |
+| `DESIGN.md` | UX/visual design system — information architecture, component conventions |
 | `REQUIREMENTS.md` | Requirement → design → code → test traceability |
 | `RESEARCH.md` | Research log (source, date, finding, decision influenced) |
 | `ISSUES.md` | Bugs, risks, tech debt, assumptions, open questions, blockers |
@@ -69,3 +70,4 @@ Do:
 | `PLAYBOOK.md` | The step-by-step protocol for when the hackathon actually starts |
 | `PRE-HACKATHON-CHECKLIST.md` | The team's literal Sept 1 morning-of checklist — clone through first commit |
 | `problem-statement/ANALYSIS-TEMPLATE.md` | Template for analyzing the real problem statement |
+| `problem-statement/ANALYSIS.md` | The filled analysis of the actual Smart Rental Tracking System problem statement |
