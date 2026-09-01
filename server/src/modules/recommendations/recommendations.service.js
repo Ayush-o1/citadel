@@ -41,7 +41,7 @@ function buildAlertCandidates(alerts) {
       sourceType: 'alert',
       sourceId: a.id,
       equipmentId: a.equipment_id,
-      signal: a.message,
+      signal: `${a.equipment_code}: overdue`,
       reason: a.message,
       action: 'return',
       expectedImpact: 'Simulated: returning this equipment could avoid further rental cost and free it up for reassignment.',
@@ -80,13 +80,18 @@ function buildForecastCandidates(forecasts) {
 async function syncRecommendations(candidates) {
   for (const candidate of candidates) {
     const existing = await repository.findBySource(candidate.sourceType, candidate.sourceId);
-    // Insert-once, never re-insert: once a recommendation exists for a
-    // given source, its own status (pending/actioned/dismissed) owns its
+    // Insert-once for status: once a recommendation exists for a given
+    // source, only its own status (pending/actioned/dismissed) owns its
     // fate — a still-open underlying alert/anomaly must not resurrect a
     // recommendation the user already actioned or dismissed (REQ-017's
     // "closes the loop visibly" would otherwise be undone on every poll).
+    // But while it's still pending, its wording is refreshed each sync
+    // (e.g. an overdue alert's "expected back <date>" text) so it never
+    // goes stale while sitting in the queue.
     if (!existing) {
       await repository.insert(candidate);
+    } else if (existing.status === 'pending') {
+      await repository.updateContent(existing.id, candidate);
     }
   }
 }

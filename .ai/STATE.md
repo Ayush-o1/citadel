@@ -65,15 +65,26 @@ missing backend endpoints along the way (`GET /api/sites`,
 `GET /api/operators`) that the check-out form needed. See
 [`phases/PHASE-08-asset-dashboard-ui.md`](phases/PHASE-08-asset-dashboard-ui.md).
 
-**Phases 09-11:** `NOT_STARTED`. 09 (Control Tower UI) unblocked — 07's
-API contract exists.
+**Phase 09 — Control Tower UI.** Status: `VERIFIED`. Now the default `/`
+route (the placeholder `Home.jsx` was deleted). Action Queue, Live
+Status, Utilization, and Forecast panels all verified live in a browser
+against real seeded data — including a live mark-actioned interaction
+that visibly closed the loop. Found and fixed two real bugs along the way
+(duplicate signal/reason text; stale pending-recommendation wording) —
+see [`phases/PHASE-09-control-tower-ui.md`](phases/PHASE-09-control-tower-ui.md).
+
+**All 9 product phases (00-09) are now `VERIFIED`.** Only Phase 10
+(integration, testing, polish) and Phase 11 (demo/defense prep) remain.
 
 ## Next recommended action
 
-Continuing the authorized autonomous Phase 03→11 run: **Phase 09
-(Control Tower UI)** next — `phases/PHASE-09-control-tower-ui.md`, the
-screen the differentiation strategy hinges on and the one judges will
-remember most.
+Continuing the authorized autonomous Phase 03→11 run: **Phase 10
+(integration, testing, polish)** next —
+`phases/PHASE-10-integration-and-polish.md`. This is the "does the whole
+system actually work as one thing" gate before any stretch feature or
+demo prep — the full CHECK OUT → ... → CHECK IN → recommendation → ACT
+chain has been exercised in pieces (per-phase) but not yet as one
+deliberate end-to-end walkthrough script.
 
 ## Overall progress
 
@@ -96,7 +107,8 @@ remember most.
 | Demand forecasting | `VERIFIED` | Phase 06 — 19/19 tests pass, both RISK-003 halves resolved |
 | Recommendations & Action Queue | `VERIFIED` | Phase 07 — 23/23 tests pass |
 | Asset Dashboard UI | `VERIFIED` | Phase 08 — 25/25 backend tests pass, live browser walkthrough verified |
-| Product implementation | `IN_PROGRESS` | Phases 00-08 done; Phases 09-11 not started (Control Tower UI + integration + demo remain) |
+| Control Tower UI | `VERIFIED` | Phase 09 — 26/26 backend tests pass, live browser walkthrough incl. mark-actioned interaction |
+| Product implementation | `IN_PROGRESS` | Phases 00-09 done (both UI screens + full backend); Phases 10-11 remain (integration + demo) |
 
 ## Known bugs
 
@@ -123,6 +135,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-06-forecasting` | 2026-09-01 | Phase 06 | `16b1e5f` | Yes — see Phase 06 doc's "Tests" section |
 | `checkpoint/phase-07-recommendations` | 2026-09-01 | Phase 07 | `d6f1479` | Yes — see Phase 07 doc's "Tests" section |
 | `checkpoint/phase-08-asset-dashboard-ui` | 2026-09-01 | Phase 08 | `2b298bb` | Yes — see Phase 08 doc's "Tests" section |
+| `checkpoint/phase-09-control-tower-ui` | 2026-09-01 | Phase 09 | *(recorded after commit)* | Yes — see Phase 09 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 

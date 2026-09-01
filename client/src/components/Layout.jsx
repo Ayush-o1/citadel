@@ -8,7 +8,7 @@ export default function Layout() {
           Citadel
         </Link>
         <nav>
-          <Link to="/">Home</Link>
+          <Link to="/">Control Tower</Link>
           <Link to="/assets">Asset Dashboard</Link>
         </nav>
       </header>

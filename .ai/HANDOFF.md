@@ -7,6 +7,63 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Phase 09 implemented and verified: Control Tower UI (all 9 product phases now complete)
+
+**Where we are:** Phase 09 `VERIFIED`. `client/src/pages/ControlTower.jsx`
+is now the default `/` route (the placeholder `Home.jsx` deleted — no
+longer referenced). **All of Phases 00-09 are `VERIFIED`.** Only Phase 10
+(integration/polish) and Phase 11 (demo/defense prep) remain.
+
+**What we built:** Action Queue at the top (ranked, color-coded by source
+— red=overdue alert, amber=anomaly, blue=forecast), Live Status/
+Utilization/Forecast as a supporting sidebar, matching `DESIGN.md`'s
+Attention → Explanation → Action hierarchy exactly. Mark-actioned/dismiss
+wired to Phase 07's `PATCH` endpoint.
+
+**A real gap found and closed:** REQ-012 (utilization view) had no
+backend support — Phase 05's idle-ratio logic was per-checkout only, not
+a fleet-wide aggregate. Added `GET /api/utilization` (by equipment type,
+classified against the same 65-75% healthy band Phase 05 already uses).
+
+**Two real bugs found via actually looking at the rendered screen, not
+by reading code:**
+1. The overdue alert's Action Queue card showed the exact same sentence
+   twice (`signal` and `reason` were both the raw alert message) — only
+   visible once the card was actually rendered and read. Fixed in Phase
+   07's `buildAlertCandidates`.
+2. Fixing #1 surfaced that a still-`pending` recommendation's wording
+   never refreshed after its first sync (an overdue alert's "expected
+   back <date>" text would freeze at creation time forever). Fixed the
+   sync loop to refresh content for `pending` rows only — `actioned`/
+   `dismissed` rows are still never touched, preserving REQ-017. A known,
+   deliberately-not-fixed limitation (a resolved signal's recommendation
+   doesn't auto-clear) is documented in `DECISIONS.md`, not hidden.
+
+**What we verified, live, in a browser:** the full Control Tower
+screenshot (red overdue item, 6 amber anomalies, Live Status counts
+matching the real equipment table, Utilization card matching an
+independent SQL aggregation, Forecast card showing both real forecasts
+and 3 insufficient-history entries simultaneously) — and a **live
+mark-actioned interaction**: clicked "Mark investigated" on a real
+anomaly, watched it disappear from the queue in the same page state (no
+reload), confirming REQ-013's "closes the loop visibly" actually works,
+not just compiles.
+
+**Cleanup performed:** the live mark-actioned test changed a real
+recommendation's status in the database. Restored it to `pending`
+afterward (`UPDATE recommendations SET status='pending', actioned_at=NULL`)
+so the full 19-item demo queue Phase 07 built stays intact — verified via
+a post-test count (19 pending) and the unchanged 17/22/192 seeded-data
+baseline. `npm test` — 26/26 clean after all manual DB pokes.
+
+**Next:** Phase 10 (integration, testing, polish) — the "does the whole
+system work as one thing" gate. Individual phases have all been verified
+in isolation; the full CHECK OUT → ... → CHECK IN → recommendation → ACT
+chain hasn't yet been walked as one deliberate script. Continuing the
+authorized Phase 03→11 run without stopping.
+
+---
+
 ## 2026-09-01 — Phase 08 implemented and verified: Asset Dashboard UI (first frontend phase)
 
 **Where we are:** Phase 08 `VERIFIED` — the first frontend phase.

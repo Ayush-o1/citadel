@@ -16,6 +16,20 @@ export async function insert({ sourceType, sourceId, equipmentId, signal, reason
   );
 }
 
+// Keeps a still-pending recommendation's wording current (e.g. an
+// overdue alert's "expected back <date>" text) without touching its
+// status — an actioned/dismissed recommendation is never passed here,
+// since the sync loop only calls this when findBySource found a
+// `pending` row (see recommendations.service.js).
+export async function updateContent(id, { signal, reason, action, expectedImpact }) {
+  await query(
+    `UPDATE recommendations
+     SET signal = $2, reason = $3, action = $4, expected_impact = $5
+     WHERE id = $1`,
+    [id, signal, reason, action, expectedImpact]
+  );
+}
+
 export async function findById(id) {
   const { rows } = await query('SELECT * FROM recommendations WHERE id = $1', [id]);
   return rows[0] ?? null;

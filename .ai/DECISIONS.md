@@ -20,6 +20,49 @@ Format:
 
 ---
 
+## 2026-09-01 — Phase 09: added GET /api/utilization; pending recommendations now refresh their wording on each sync
+
+**Context 1:** REQ-012 (Control Tower utilization view, "runtime vs. idle,
+framed against the 65-75% healthy band") had no backend support — Phase
+05's idle-ratio logic only ever computed per-checkout for anomaly
+detection, not an aggregate view suitable for a fleet-wide summary card.
+
+**Decision 1:** Added `server/src/modules/utilization/` — one endpoint,
+`GET /api/utilization`, aggregating `engine_hours`/`idle_hours` from
+`usage_logs` by equipment type, classifying each into
+`healthy`/`underutilized`/`overutilized`/`insufficient_data` against the
+same 65-75% band `RESEARCH.md` R-002 already established. Reuses the
+existing threshold, doesn't invent a new one.
+
+**Context 2:** The first live browser walkthrough of the Control Tower
+surfaced a real UX bug: the overdue alert's `signal` and `reason` fields
+were identical text (`buildAlertCandidates` set both to `a.message`),
+reading as an obviously duplicated sentence — exactly what `DESIGN.md`'s
+"should read like a sentence, not a raw data dump" warns against. Fixed
+the mapping to give `signal` a short label (`"EQX3001: overdue"`,
+matching the anomaly candidates' existing pattern) and keep `reason` as
+the detailed message.
+
+That fix exposed a second, real issue: once a recommendation row exists
+for a source, the insert-once sync never touched it again — even while
+still `pending`. An alert's message text includes a live date
+("expected back <date>"), which for an ongoing overdue condition is
+frozen at whatever it said the moment the recommendation was first
+created. Fixed `recommendations.service.js`'s sync loop to also refresh
+`signal`/`reason`/`action`/`expected_impact` on every sync **for rows
+still in `pending` status** — an `actioned`/`dismissed` row is still
+never touched, preserving REQ-017's "closes the loop" guarantee.
+
+**Known limitation, not fixed:** if a candidate stops being generated
+(e.g. a forecast's trend flips from "up" to "flat"), its existing
+`pending` recommendation is neither updated nor auto-resolved — it just
+sits there until a human acts on it. Building full lifecycle sync
+(auto-resolving a recommendation whose underlying signal cleared) was
+judged not worth the added complexity for an 11-phase hackathon build;
+noted here so it isn't rediscovered as a surprise later.
+
+---
+
 ## 2026-09-01 — Phase 08: added minimal GET /api/sites and /api/operators
 
 **Context:** The Asset Dashboard's check-out form (task 08.4) needs to let

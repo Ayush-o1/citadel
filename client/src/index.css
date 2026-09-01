@@ -277,3 +277,176 @@ code {
   color: var(--color-muted);
   border: 1px solid var(--color-border);
 }
+
+/* Control Tower — Attention -> Explanation -> Action (DESIGN.md).
+   Action Queue is the headline; Live Status/Utilization/Forecast are
+   supporting context in a narrower sidebar, not competing for attention. */
+.control-tower-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .control-tower-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.action-queue-panel h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.action-queue {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.action-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+}
+
+.action-item-danger {
+  border-left-color: var(--color-danger);
+}
+
+.action-item-warning {
+  border-left-color: #e6a82f;
+}
+
+.action-item-info {
+  border-left-color: var(--color-accent);
+}
+
+.action-item-body {
+  min-width: 0;
+}
+
+.action-item-signal {
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.action-item-reason {
+  color: var(--color-muted);
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+}
+
+.action-item-impact {
+  color: var(--color-muted);
+  margin: 0;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.action-item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.action-item-dismiss {
+  background: transparent;
+  color: var(--color-muted);
+  border: 1px solid var(--color-border);
+  font-size: 0.85rem;
+  padding: 0.35rem 0.8rem;
+}
+
+.control-tower-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.summary-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+}
+
+.summary-card h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+}
+
+.summary-caption {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+}
+
+.summary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summary-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.utilization-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+}
+
+.utilization-band {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.utilization-band-healthy {
+  color: #4caf6d;
+}
+
+.utilization-band-underutilized {
+  color: var(--color-muted);
+}
+
+.utilization-band-overutilized {
+  color: #e6a82f;
+}
+
+.utilization-band-insufficient_data {
+  color: var(--color-muted);
+}
+
+.forecast-row {
+  margin-bottom: 0.75rem;
+}
+
+.forecast-row:last-child {
+  margin-bottom: 0;
+}
+
+.forecast-title {
+  font-weight: 600;
+  margin: 0 0 0.15rem;
+  font-size: 0.9rem;
+}
