@@ -40,7 +40,10 @@ export default function Discover() {
       </div>
 
       {visible.length === 0 ? (
-        <EmptyState message="No available equipment matches that filter right now." />
+        <EmptyState
+          message="No available equipment matches that filter right now."
+          action={typeFilter !== 'all' ? { label: 'Clear filter', onClick: () => setTypeFilter('all') } : undefined}
+        />
       ) : (
         <div className="equipment-grid">
           {visible.map((item) => (
@@ -49,9 +52,8 @@ export default function Discover() {
               <div className="equipment-card-body">
                 <p className="equipment-card-type">{item.type}</p>
                 <p className="equipment-card-code">{item.code}</p>
-                <p className="equipment-card-site">
-                  {item.home_site ? `Home site ${item.home_site.code}` : 'Site unassigned'}
-                </p>
+                {item.home_site && <p className="equipment-card-site">Located at {item.home_site.code}</p>}
+                <span className="equipment-card-cta">View details →</span>
               </div>
             </Link>
           ))}

@@ -20,6 +20,64 @@ Format:
 
 ---
 
+## 2026-09-01 — Frontend UX audit: fixed real gaps rather than a full visual rewrite
+
+**Context:** A request for a complete frontend redesign came in ("this
+could affect my job prospects... polished, professional, production-
+quality"). A full audit found the existing design system
+(`styles/tokens.css`, `FRONTEND-UX-PLAN.md`) already restrained and
+deliberate — a dark theme, one intentional amber accent, a 4-tone status
+vocabulary, system fonts, exactly one CSS gradient in the entire
+stylesheet, no glassmorphism. Screenshotting every major page (desktop
+1440px + mobile 390px, via a scripted headless-Chrome/puppeteer-core
+session against the real running app) confirmed this — the codebase does
+not have an "AI-generated look" problem. What it has are real, narrow UX
+gaps.
+
+**Decision:** Fixed five specific, evidence-based issues instead of
+restyling working pages:
+1. `EmptyState.jsx` had no way to give the user a next action — a dead
+   end (`MyRentals`'s empty state was plain text with no link to
+   Discover). Added an optional `action` prop (Link or button), wired
+   into My Rentals ("Browse equipment") and Discover's filtered-empty
+   state ("Clear filter").
+2. Customer-facing equipment cards and the detail page showed "Site
+   unassigned" — internal dealer/fleet terminology, confusing as a
+   customer-facing message (reads like an error, not information a
+   renter needs). Now omitted entirely when there's no home site, shown
+   as "Located at X" when there is one.
+3. Discover's equipment cards had no visible affordance that they were
+   clickable — added a "View details →" CTA matching the brand accent.
+4. Admin Fleet Overview's "Allocation by site" list buried a genuinely
+   actionable fact (16 of 21 equipment have no assigned home site) as an
+   undifferentiated row. Flagged it in the warning color with explanatory
+   text, using data the page already had — no new backend query.
+5. Dealer Asset Dashboard's table had "Type" positioned after "Return
+   date," separated from the other identity column ("Asset") by three
+   state columns. Reordered so Asset and Type sit together.
+
+**Alternatives considered:** A full page-by-page visual rewrite as
+literally requested — rejected for the same reason the backend rebuild
+request was scoped down earlier today: real risk to an already-working,
+demo-ready system with presentations imminent, for changes that
+screenshots showed weren't actually needed. Six full iteration passes
+across all three roles — rejected as disproportionate once the audit
+found the foundation was already sound; the value was in fixing specific
+gaps, not re-touching pages with no real problem.
+
+**Tradeoff:** Not every page got a fresh look — pages the audit found
+already effective (Control Tower, Admin Capacity, Equipment Detail) were
+left alone deliberately, per "don't rewrite working code just because you
+prefer another style."
+
+**Verified:** Client build clean (58 modules). Re-screenshotted all
+changed pages after the fix and confirmed each visually (CTA present,
+noise removed, flag visible, columns reordered). Live console-error check
+across all four changed routes via puppeteer: zero errors introduced (one
+pre-existing, unrelated `favicon.ico` 404).
+
+---
+
 ## 2026-09-01 — Scoped a full backend/product rebuild request down to two targeted fixes; name-based ownership check on self-return
 
 **Context:** A request came in for a full rebuild — real Google OAuth,

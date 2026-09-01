@@ -57,9 +57,7 @@ export default function EquipmentDetail() {
         <div className="equipment-detail-body">
           <p className="entry-eyebrow">{equipment.type}</p>
           <h1>{equipment.code}</h1>
-          <p className="page-subtitle">
-            {equipment.home_site ? `Home site ${equipment.home_site.code}` : 'Home site not assigned'}
-          </p>
+          {equipment.home_site && <p className="page-subtitle">Located at {equipment.home_site.code}</p>}
 
           {unavailable ? (
             <p className="form-error">This machine is currently {equipment.status.replace('_', ' ')} — check back later.</p>

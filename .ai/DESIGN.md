@@ -2,9 +2,19 @@
 
 Frontend design for the Smart Rental Tracking System, treated as a product
 decision, not an afterthought — filled in once the real problem and user
-were known (`problem-statement/ANALYSIS.md`). Two screens for MVP; each
-choice below has a reason so it survives a "why did you design it this
-way?" question.
+were known (`problem-statement/ANALYSIS.md`).
+
+**Superseded by the three-role rebuild (2026-09-01):** everything below
+describes the original single-persona (Dealer-only) MVP — still accurate
+for the Dealer experience specifically (`Layout.jsx` is now
+`components/layout/AppShell.jsx`, `/assets` is now `/dealer/assets`), but
+the "two screens" framing and user model are out of date. See
+`FRONTEND-REBUILD-PLAN.md` (architecture/roles), `FRONTEND-ROLE-MATRIX.md`
+(feature ownership), and `FRONTEND-UX-PLAN.md` (current visual direction)
+for the Customer/Dealer/Admin design as it actually exists now. Kept here
+rather than rewritten so the original reasoning isn't lost — most of it
+(status vocabulary, no-sidebar decision, avoiding decorative styling)
+still holds and was reused, not replaced.
 
 ## User and job-to-be-done
 

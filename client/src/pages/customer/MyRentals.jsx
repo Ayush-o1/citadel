@@ -19,7 +19,12 @@ export default function MyRentals() {
   if (loading) return <LoadingState label="Loading your rentals…" />;
   if (error) return <ErrorState message={error} onRetry={refetch} />;
   if (!checkouts || checkouts.length === 0) {
-    return <EmptyState message="No rentals yet — browse equipment to get started." />;
+    return (
+      <EmptyState
+        message="No rentals yet."
+        action={{ label: 'Browse equipment', to: '/customer' }}
+      />
+    );
   }
 
   async function handleReturn(checkout) {

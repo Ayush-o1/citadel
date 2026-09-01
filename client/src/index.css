@@ -121,6 +121,29 @@ button:disabled {
   color: var(--color-danger);
 }
 
+.state-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.empty-state-action {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-4);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color var(--motion-fast);
+}
+
+.empty-state-action:hover {
+  border-color: var(--color-brand);
+}
+
 code {
   background: var(--color-surface);
   padding: 0.1rem 0.4rem;
@@ -432,6 +455,10 @@ code {
   justify-content: space-between;
 }
 
+.summary-list-flag {
+  color: var(--color-warning);
+}
+
 .utilization-row {
   display: flex;
   justify-content: space-between;
@@ -709,7 +736,15 @@ code {
 .equipment-card-site {
   color: var(--color-muted);
   font-size: var(--font-size-sm);
-  margin: 0;
+  margin: 0 0 var(--space-2);
+}
+
+.equipment-card-cta {
+  display: inline-block;
+  margin-top: var(--space-2);
+  color: var(--color-brand);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
 }
 
 .back-link {

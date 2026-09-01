@@ -147,15 +147,23 @@ export default function AssetDashboard() {
         <table className="asset-table">
           <thead>
             <tr>
-              {Object.entries(SORT_LABELS).map(([key, label]) => (
-                <th key={key}>
-                  <button type="button" className="sort-button" onClick={() => toggleSort(key)}>
-                    {label}
-                    {sortKey === key ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
-                  </button>
-                </th>
-              ))}
+              <th>
+                <button type="button" className="sort-button" onClick={() => toggleSort('code')}>
+                  {SORT_LABELS.code}
+                  {sortKey === 'code' ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
+                </button>
+              </th>
               <th>Type</th>
+              {Object.entries(SORT_LABELS)
+                .filter(([key]) => key !== 'code')
+                .map(([key, label]) => (
+                  <th key={key}>
+                    <button type="button" className="sort-button" onClick={() => toggleSort(key)}>
+                      {label}
+                      {sortKey === key ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
+                    </button>
+                  </th>
+                ))}
               <th>Action</th>
             </tr>
           </thead>
@@ -163,6 +171,7 @@ export default function AssetDashboard() {
             {sorted.map((item) => (
               <tr key={item.id}>
                 <td>{item.code}</td>
+                <td>{item.type}</td>
                 <td>
                   <StatusBadge status={item.status} />
                 </td>
@@ -172,7 +181,6 @@ export default function AssetDashboard() {
                     ? new Date(item.active_checkout.expected_return_at).toLocaleString()
                     : '—'}
                 </td>
-                <td>{item.type}</td>
                 <td className="action-cell">
                   {item.active_checkout ? (
                     <>

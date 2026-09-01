@@ -74,12 +74,18 @@ export default function FleetOverview() {
         <div className="summary-card">
           <h3>Allocation by site</h3>
           <ul className="summary-list">
-            {bySite.map((row) => (
-              <li key={row.site.code}>
-                <span>{row.site.code}</span>
-                <span>{row.count}</span>
-              </li>
-            ))}
+            {bySite.map((row) => {
+              const isUnassigned = row.site.code === 'Unassigned';
+              return (
+                <li key={row.site.code} className={isUnassigned ? 'summary-list-flag' : undefined}>
+                  <span>
+                    {row.site.code}
+                    {isUnassigned && ' — no home site set'}
+                  </span>
+                  <span>{row.count}</span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
