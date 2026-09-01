@@ -75,5 +75,6 @@ Do:
 | `DEMO-SCRIPT.md` | The literal, rehearsed five-step demo script (SPOT→EXPLAIN→ACT→PREDICT→PROVE) — follow it, don't improvise the flow live |
 | `PANEL-DEFENSE.md` | Real, sourced answers to the problem statement's "Important Expectation" question list, plus per-person defense pointers |
 | `MANUAL-QA.md` | Human-run manual test checklist, organized by workflow — mark PASS/FAIL as you go |
+| `CATERPILLAR-DAY01-FINAL.md` | Final, verified copy-paste answers for Caterpillar's Day-01 progress form (fields 10-16) |
 | `problem-statement/ANALYSIS-TEMPLATE.md` | Template for analyzing the real problem statement |
 | `problem-statement/ANALYSIS.md` | The filled analysis of the actual Smart Rental Tracking System problem statement |

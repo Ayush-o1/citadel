@@ -1,5 +1,45 @@
 # Project state
 
+## Second launch pass — this session's own independent re-verification (2026-09-01)
+
+Pulled 9 new commits from `origin/main` (the rebuild below, pushed by
+`Souharda6996`) via fast-forward — no conflicts, nothing overwritten.
+Independently re-verified from scratch rather than trusting the prior
+session's report: found the real local Postgres (port 5432, the one
+`server/.env` actually points at and the one used for a persistent
+launch) still had the old pre-rebuild seed data, and that a Docker-based
+verification attempt in this sandboxed session had only applied
+migrations `008`/`009` to a throwaway container Postgres that then got
+torn down between tool calls — not the real database. Cleared the real
+local DB's rows (FK-safe deletes, schema untouched), re-ran all 9
+migrations against it, reseeded (21/26/257, matches RB-6 exactly), and
+got a first `npm test` result of **20/28 passing** — the missing
+migrations were the actual cause (`column "customer_name" does not
+exist`), not a new regression. Re-ran migrate, then **28/28 passing**,
+confirmed twice. `ISSUES.md` `BUG-001` marked `RESOLVED` with this root
+cause recorded. `RISK-001` updated to `IN_PROGRESS`: Docker Postgres
+itself is now genuinely verified (starts healthy, takes migrations
+cleanly); the full 3-container stack remains unverified because this
+agent sandbox tears down Docker containers between tool calls — a
+limitation of this session's environment, not of `docker-compose.yml`.
+
+Backend + frontend launched fresh (`node src/server.js`, `npm run dev`),
+confirmed live: health check connected, frontend/backend/proxy all 200,
+`EQX1002`/`EQX1007` confirmed via live API to still produce the exact
+official `zero_runtime`/`missing_assignment`/`excessive_idle` triad, and
+the capacity endpoint/recommendation for `EQX3006` confirmed live and
+correctly worded ("Simulated:", action `investigate`, never a command).
+`.ai/MANUAL-QA.md` (already rewritten by the previous session for the
+three-role app) checked against this live state and found accurate — no
+changes needed. New `.ai/CATERPILLAR-DAY01-FINAL.md`: verified copy-paste
+answers for the Day-01 form, written only from facts confirmed this
+session, not assumed from either prior session's claims.
+
+Deployment: still not live (`DEPLOYMENT.md` is authoritative) — unchanged
+this session, no tokens were provided to proceed with account setup.
+
+---
+
 ## Final integration + launch pass (2026-09-01)
 
 Re-verified the merged `main` from a clean slate (not assumed from prior
