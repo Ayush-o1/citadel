@@ -20,6 +20,61 @@ Format:
 
 ---
 
+## 2026-09-01 — Phase 02: RISK-003 calibration result — 40% idle threshold confirmed
+
+**Context:** `ISSUES.md` `RISK-003` flagged that the idle-ratio anomaly
+threshold (>40%, from `RESEARCH.md` R-002) was set from industry research
+and the official sample alone, not validated against real seeded volume.
+Phase 02 now provides that volume (17 historical checkout-rows across the
+official sample + synthetic trailing history).
+
+**Evidence:** computed idle_ratio for all 17 historical checkout-rows.
+Result: 10 exceed 0.40 (flagged), 7 sit clearly below it (0.0–0.2) — no
+row landed ambiguously close to the boundary. The threshold cleanly
+separates "healthy" from "needs attention" rather than flooding
+(everything flagged) or emptying (nothing flagged) the Action Queue.
+
+**Decision:** Keep the 0.40 threshold as-is; no change needed. The
+higher-than-"realistic" 59% flagged rate is a property of the *seed
+data's deliberate design* (three of seven official rows are already
+high-idle, and Phase 02's synthetic "poor-utilization"/"moderate"
+profiles were intentionally chosen to produce more flaggable examples for
+demo purposes — see `phases/PHASE-02-synthetic-data.md`), not evidence
+the threshold itself is miscalibrated.
+
+**Impact:** `RISK-003` downgraded from `OPEN` to `RESOLVED` for the
+anomaly-threshold half; the forecasting-method half stays open until
+Phase 06 actually picks moving-average vs. exponential smoothing against
+this same data (Q-002 in `ISSUES.md`).
+
+## 2026-09-01 — Phase 02: official sample's Operating Days is authoritative, not re-derived from dates
+
+**Context:** Implementing the seed data generator, calendar-day math
+between each official row's Check-Out/Check-In dates was checked against
+its stated Operating Days. Six of seven rows match `(check-in − check-out)`
+exactly; `EQX1003` instead matches `(check-in − check-out + 1)` — a minor
+internal inconsistency in Caterpillar's own sample (real operational data
+is often like this).
+
+**Decision:** Treat each row's stated `Operating Days` as authoritative
+for how many daily `usage_logs` rows to generate (one per operating day,
+starting at `checked_out_at`), rather than re-deriving the count from the
+date span. Both the stated dates and the stated day count are preserved
+exactly as printed — neither was altered to reconcile the inconsistency,
+per the explicit instruction not to distort the official examples.
+
+**Alternatives considered:** Using inclusive date-range length for all
+seven rows — rejected, it would fix `EQX1003` but break the other six,
+which already match under exclusive counting.
+
+**Tradeoff:** For `EQX1003`, the generated usage_logs span lands exactly
+on `checked_in_at`; for the other six, it lands one calendar day before
+`checked_in_at` (the return day itself has no logged usage, which is
+operationally plausible — equipment being dropped off rather than used).
+No data was invented to paper over the difference.
+
+---
+
 ## 2026-09-01 — Phase 01: delete the `items` reference module; two schema deviations from the phase doc
 
 **Context:** Phase 01 task 01.7 required a decision on the `items`

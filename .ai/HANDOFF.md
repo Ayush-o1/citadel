@@ -7,6 +7,98 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Phase 02 implemented and verified: synthetic operational data
+
+**Where we are:** Phase 02 `VERIFIED`. Database now has real, believable
+data to compute against: 17 equipment, 22 checkouts, 192 usage_logs.
+Phase 03 (core APIs) is next — was not started this session
+(out of scope by instruction: "do NOT start another phase after Phase 02").
+
+**What we just did:** Rewrote `server/db/seed.js` (replacing Phase 01's
+placeholder stub) to generate three layers, fully deterministically (no
+`Math.random()` anywhere):
+1. The exact official 7-row Caterpillar sample as historical completed
+   checkouts, with daily `usage_logs` reconstructing each row's stated
+   per-day averages exactly.
+2. Trailing weekly history on 5 additional equipment, deliberately rich
+   for `Excavator`/`S003` and `Bulldozer`/`S002`, deliberately sparse for
+   `Grader`/`S001` (for Phase 06's insufficient-history fallback).
+3. 5 live active checkouts, each cleanly isolated to demonstrate exactly
+   one signal: overdue, upcoming-return, missing-assignment (on an active
+   checkout, not just historically), unusual-movement, and a healthy
+   baseline.
+
+**A real data-quality finding, documented not silently fixed:** six of
+the seven official rows' stated `Operating Days` matches their calendar
+date span exactly; `EQX1003` is off by one (matches inclusive counting
+instead of exclusive). Rather than "fixing" this, treated `Operating
+Days` as authoritative for the generated row count and left both the
+dates and the day count exactly as printed — see `DECISIONS.md`.
+
+**RISK-003 calibration (explicitly requested):** computed idle_ratio
+across all 17 seeded historical checkout-rows. The 0.40 threshold from
+`RESEARCH.md` R-002 cleanly separates 10 flagged rows from 7 clearly
+healthy ones with no boundary-ambiguous cases — confirmed sound, not
+changed. Full evidence in `DECISIONS.md`'s "RISK-003 calibration result"
+entry; `ISSUES.md`'s `RISK-003` row updated to `IN_PROGRESS` (threshold
+half resolved, forecasting-method half still open pending Phase 06).
+
+**What was verified:** exact reproduction of all 7 official rows (site
+code, operator code, dates, daily averages, log-day count) via direct
+psql query comparison against the handout; idempotency (second `npm run
+seed` no-ops); all 5 active-checkout demo cases individually confirmed
+correct and signal-isolated (no confounding idle-anomaly noise on the
+overdue/upcoming/missing/movement examples); trailing-history depth
+confirmed rich (5, 4) vs. sparse (2) exactly as designed; server tests
+(2/2) and client build both still pass.
+
+**What was not verified:** nothing scoped to this phase was skipped.
+Actual anomaly/alert/forecast computation logic doesn't exist yet
+(Phases 04-06) — this phase only had to prove the *data* supports it,
+which it does.
+
+**Current phase / task:** Phase 02 `VERIFIED`. Phase 03 (core APIs) is
+`PLANNED` and unblocked — next up, not started.
+
+**Known bugs:** none. **Known risks:** `RISK-001`, `RISK-002` unchanged;
+`RISK-003` now `IN_PROGRESS` (half resolved, see above).
+
+**Important decisions:** `DECISIONS.md`'s two 2026-09-01 Phase 02 entries
+(RISK-003 calibration result; Operating Days authoritative).
+
+**Files affected this session:** `server/db/seed.js` (full rewrite).
+`.ai/phases/PHASE-02-synthetic-data.md`, `STATE.md`, `ROADMAP.md`,
+`REQUIREMENTS.md`, `DECISIONS.md`, `ISSUES.md` updated to match. No
+migrations, no server/client application code touched (schema unchanged
+from Phase 01; Phase 03 untouched).
+
+**Blockers:** none.
+
+**Next action:** start Phase 03 (`phases/PHASE-03-core-apis.md`) — the
+`equipment`/`checkouts`/`usage-logs` API modules. Once it lands, Phases
+04-06 (alerts/anomalies/forecasting) can build directly against the
+seeded data this session produced.
+
+**Commands to run to pick this up:**
+```bash
+git log --oneline -10 && git status
+cd server && npm install && npm run migrate && npm test
+cd ../client && npm install && npm run build
+# confirm the seeded data is still there:
+PGPASSWORD='<see server/.env>' psql -U ayush -h localhost -p 5432 -d citadel -c "SELECT COUNT(*) FROM equipment;"
+```
+Then open `phases/PHASE-03-core-apis.md` and start on its tasks.
+
+**What not to touch without reason:** the seeded data's deliberate edge
+cases (`EQX3001`–`EQX3005`, the `Grader`/`S001` sparse pair) — later
+phases' tests and the eventual demo depend on these existing exactly as
+seeded. Don't re-run `npm run seed` after manually clearing tables and
+expect identical IDs (the generator is deterministic in *values*, not in
+the UUIDs Postgres assigns) — if you need to reset, re-run the full
+migration + seed together, don't partially reset. `server/.env`.
+
+---
+
 ## 2026-09-01 — Phase 01 implemented and verified: data model & migrations
 
 **Where we are:** Phase 01 `VERIFIED`. First real product code exists —
