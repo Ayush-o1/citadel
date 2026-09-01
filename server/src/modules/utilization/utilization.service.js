@@ -1,10 +1,9 @@
 import * as repository from './utilization.repository.js';
+import { HEALTHY_MIN, HEALTHY_MAX } from '../../utils/utilizationBand.js';
 
 // REQ-012 — the Control Tower's utilization view, framed against the
 // 65-75% healthy time-utilization band (RESEARCH.md R-002, the same
 // source Phase 05's 0.40 idle threshold comes from).
-const HEALTHY_MIN = 0.65;
-const HEALTHY_MAX = 0.75;
 
 function classify(utilizationRatio) {
   if (utilizationRatio === null) return 'insufficient_data';

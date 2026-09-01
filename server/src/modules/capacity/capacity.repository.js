@@ -28,9 +28,9 @@ export async function findActiveCheckoutDailyUsage() {
 // Per-checkout totals for every *historical, returned* rental that has at
 // least one usage log -- the raw material for the "typical workload"
 // baseline. Filtering to the healthy utilization band happens in the
-// service layer (reuses the same 65-75% band as utilization.service.js),
-// not here, so the threshold stays in one place conceptually even though
-// it's duplicated as a literal -- see capacity.service.js's comment.
+// service layer, using the shared threshold from
+// ../../utils/utilizationBand.js (same constants utilization.service.js
+// uses), not a duplicated literal.
 export async function findHistoricalCheckoutTotals() {
   const { rows } = await query(`
     SELECT

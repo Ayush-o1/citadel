@@ -1,4 +1,5 @@
 import * as repository from './capacity.repository.js';
+import { HEALTHY_MIN, HEALTHY_MAX } from '../../utils/utilizationBand.js';
 
 // Capacity-aware rental optimization (RB-6, .ai/FRONTEND-REBUILD-PLAN.md
 // section 4). Rule-based and explainable, same style as alerts/anomalies/
@@ -31,8 +32,6 @@ const DEFAULT_CAPACITY_HOURS_PER_DAY = 8; // fallback for any type not in the ma
 
 const MIN_LOGGED_DAYS = 3;
 const MIN_BASELINE_SAMPLES = 3;
-const HEALTHY_MIN = 0.65; // shared with utilization.service.js's healthy band
-const HEALTHY_MAX = 0.75;
 const COMPLETION_RANGE_SLACK = 0.2; // +/-20% around the point estimate
 const SIGNIFICANT_SLACK = 0.2; // remaining days must exceed the high estimate by this much to flag
 
