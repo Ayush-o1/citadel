@@ -61,9 +61,15 @@ body {
 .layout-main {
   flex: 1;
   width: 100%;
-  max-width: 720px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
+}
+
+.page-subtitle {
+  color: var(--color-muted);
+  margin-top: -0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 button,
@@ -130,4 +136,144 @@ code {
   background: var(--color-surface);
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
+}
+
+/* Status vocabulary (DESIGN.md): color answers "does this need attention,"
+   nothing else. Neutral/info = normal, amber = attention, red = urgent. */
+.status-badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge-neutral {
+  background: rgba(154, 161, 172, 0.18);
+  color: var(--color-muted);
+}
+
+.status-badge-info {
+  background: rgba(79, 140, 255, 0.16);
+  color: var(--color-accent);
+}
+
+.status-badge-warning {
+  background: rgba(230, 168, 47, 0.18);
+  color: #e6a82f;
+}
+
+.status-badge-danger {
+  background: rgba(255, 92, 92, 0.16);
+  color: var(--color-danger);
+}
+
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.asset-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.asset-table th,
+.asset-table td {
+  padding: 0.65rem 0.9rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.asset-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.asset-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sort-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+
+.sort-button:hover {
+  color: var(--color-text);
+}
+
+.form-error {
+  color: var(--color-danger);
+  font-size: 0.9rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 10;
+}
+
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 360px;
+}
+
+.modal h2 {
+  margin-top: 0;
+  font-size: 1.05rem;
+}
+
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.checkout-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.checkout-form select {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.modal-actions button[type='button'] {
+  background: transparent;
+  color: var(--color-muted);
+  border: 1px solid var(--color-border);
 }

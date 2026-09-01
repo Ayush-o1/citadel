@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
 import Home from './pages/Home.jsx';
+import AssetDashboard from './pages/AssetDashboard.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 export default function App() {
@@ -8,6 +9,7 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<Home />} />
+        <Route path="/assets" element={<AssetDashboard />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

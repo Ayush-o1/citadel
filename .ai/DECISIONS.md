@@ -20,6 +20,34 @@ Format:
 
 ---
 
+## 2026-09-01 — Phase 08: added minimal GET /api/sites and /api/operators
+
+**Context:** The Asset Dashboard's check-out form (task 08.4) needs to let
+a human pick an operator and a site — but Phase 03 never built read
+endpoints for `sites`/`operators` (they were only ever seed-time
+reference data, read directly by other modules' repositories via SQL
+joins). A free-text UUID entry field would be unusable for a real demo.
+
+**Decision:** Added two intentionally minimal modules —
+`server/src/modules/sites/` and `operators/` — each just a `GET /`
+listing `id, code, name(, site_id)`, following the same
+routes→controller→service→repository shape as every other module for
+consistency, even though the service layer is a trivial passthrough here.
+
+**Alternatives considered:** A free-text code field with server-side
+lookup — rejected as worse UX for no real savings (still needs a list of
+valid codes to be usable, so the dropdown is simpler for both the human
+and the code). Folding both into one shared "reference-data" module —
+rejected to keep the one-module-per-entity convention `ARCHITECTURE.md`
+already establishes, so a future agent finds `sites/` and `operators/`
+exactly where every other module's naming pattern predicts.
+
+**Tradeoff:** none material — this is about as small an addition as
+exists; documented here mainly so REQUIREMENTS.md/ARCHITECTURE.md's
+module list isn't silently out of date.
+
+---
+
 ## 2026-09-01 — Phase 07: recommendations calls the other analytics modules' service functions (one deliberate exception to "no module imports another"); test files now run sequentially
 
 **Context:** `ARCHITECTURE.md` states modules shouldn't import each other

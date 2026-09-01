@@ -57,15 +57,23 @@ cross-file test-concurrency bug along the way (`server/package.json`'s
 forecast-id-stability bug in Phase 06 (delete-then-insert → upsert). See
 [`phases/PHASE-07-recommendations.md`](phases/PHASE-07-recommendations.md).
 
-**Phases 08-11:** `NOT_STARTED`. 08 (Asset Dashboard UI) unblocked since
-Phase 03. 09 (Control Tower UI) now unblocked — 07's API contract exists.
+**Phase 08 — Asset Dashboard UI.** Status: `VERIFIED`. Sortable equipment
+table, check-out modal (operator/site pickers), check-in action, all
+verified working live in a browser (Puppeteer against the real running
+dev server + backend), not just by reading the code. Added two small
+missing backend endpoints along the way (`GET /api/sites`,
+`GET /api/operators`) that the check-out form needed. See
+[`phases/PHASE-08-asset-dashboard-ui.md`](phases/PHASE-08-asset-dashboard-ui.md).
+
+**Phases 09-11:** `NOT_STARTED`. 09 (Control Tower UI) unblocked — 07's
+API contract exists.
 
 ## Next recommended action
 
-Continuing the authorized autonomous Phase 03→11 run: **Phase 08 (Asset
-Dashboard UI)** next — `phases/PHASE-08-asset-dashboard-ui.md`, the first
-frontend phase, independent of 09 so either order is fine, but 08 has
-been unblocked the longest.
+Continuing the authorized autonomous Phase 03→11 run: **Phase 09
+(Control Tower UI)** next — `phases/PHASE-09-control-tower-ui.md`, the
+screen the differentiation strategy hinges on and the one judges will
+remember most.
 
 ## Overall progress
 
@@ -87,7 +95,8 @@ been unblocked the longest.
 | Anomaly detection | `VERIFIED` | Phase 05 — 17/17 tests pass, threshold reconfirmed in production code |
 | Demand forecasting | `VERIFIED` | Phase 06 — 19/19 tests pass, both RISK-003 halves resolved |
 | Recommendations & Action Queue | `VERIFIED` | Phase 07 — 23/23 tests pass |
-| Product implementation | `IN_PROGRESS` | Phases 00-07 done (backend complete); Phases 08-11 not started (frontend + integration + demo remain) |
+| Asset Dashboard UI | `VERIFIED` | Phase 08 — 25/25 backend tests pass, live browser walkthrough verified |
+| Product implementation | `IN_PROGRESS` | Phases 00-08 done; Phases 09-11 not started (Control Tower UI + integration + demo remain) |
 
 ## Known bugs
 
@@ -113,6 +122,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-05-anomaly-detection` | 2026-09-01 | Phase 05 | `3f59f3d` | Yes — see Phase 05 doc's "Tests" section |
 | `checkpoint/phase-06-forecasting` | 2026-09-01 | Phase 06 | `16b1e5f` | Yes — see Phase 06 doc's "Tests" section |
 | `checkpoint/phase-07-recommendations` | 2026-09-01 | Phase 07 | `d6f1479` | Yes — see Phase 07 doc's "Tests" section |
+| `checkpoint/phase-08-asset-dashboard-ui` | 2026-09-01 | Phase 08 | *(recorded after commit)* | Yes — see Phase 08 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 

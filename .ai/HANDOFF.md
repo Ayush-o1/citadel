@@ -7,6 +7,51 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Phase 08 implemented and verified: Asset Dashboard UI (first frontend phase)
+
+**Where we are:** Phase 08 `VERIFIED` — the first frontend phase.
+`client/src/pages/AssetDashboard.jsx` built: a sortable equipment table
+(asset/status/site/return date), a check-out modal with operator/site
+pickers, an inline check-in action, and the existing loading/error/empty
+state components reused rather than reinvented.
+
+**A real gap found and closed:** the check-out form needs operator/site
+pickers, but no read endpoint for `sites`/`operators` existed — Phase 03
+never needed one. Added two small, consistent modules
+(`server/src/modules/sites/`, `operators/`) rather than working around it
+with unusable free-text UUID fields. Documented in `DECISIONS.md`.
+
+**What we verified — genuinely in a browser, not just by reading code:**
+started the real dev server (`vite`) against the real backend
+(`node src/server.js`), confirmed the `/api` proxy works, then used a
+scripted headless-Chrome (Puppeteer) session against the actual running
+app to: screenshot the full 17-row table (confirmed `EQX3001` renders red
+"Overdue", `EQX3002`-`EQX3005` render blue "Checked out" with real
+site/date data), click "Check out" on `EQX1001`, confirm the modal
+renders with real operator/site options, submit it, confirm the table
+refetches and shows "Checked out," click "Check in," and confirm it
+returns to "Available." This is the real check-out/check-in flow working
+end-to-end through the UI against the real API and database — not a
+mocked test double.
+
+**A real mess made and cleaned up:** the manual click-through checked out
+a real seeded asset (`EQX1001`) rather than a disposable fixture (no
+fixture concept exists for browser-driven testing), leaving one extra
+`returned` checkout row and a spurious `missing_assignment` anomaly (no
+operator/site was selected). Found it via a DB count that didn't match
+Phase 02's documented baseline (23 checkouts instead of 22), deleted the
+extra checkout row and its cascaded alert/anomaly/recommendation rows
+directly, then reran the full backend suite (25/25 pass) and reconfirmed
+the exact baseline (17/22/192) before moving on. Recorded so a future
+agent doing manual UI testing knows to either use a disposable equipment
+row or clean up afterward the same way.
+
+**Next:** Phase 09 (Control Tower UI) — the screen the differentiation
+strategy hinges on. Continuing the authorized Phase 03→11 run without
+stopping.
+
+---
+
 ## 2026-09-01 — Phase 07 implemented and verified: recommendations & Action Queue (backend complete)
 
 **Where we are:** Phase 07 `VERIFIED` — the last backend analytics phase.

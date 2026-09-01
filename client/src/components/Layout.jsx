@@ -9,6 +9,7 @@ export default function Layout() {
         </Link>
         <nav>
           <Link to="/">Home</Link>
+          <Link to="/assets">Asset Dashboard</Link>
         </nav>
       </header>
       <main className="layout-main">
