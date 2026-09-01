@@ -97,26 +97,25 @@ export async function completeGoogleSignIn(code) {
 
   let user;
   try {
-    user = await repository.findByGoogleId(profile.sub);
-    if (!user) {
-      user = await repository.createUser({
-        googleId: profile.sub,
-        email: profile.email,
-        name: profile.name || profile.email,
-        avatarUrl: profile.picture,
-      });
-    } else {
-      await repository.touchLogin(user.id);
-      if (user.name !== profile.name || user.avatar_url !== profile.picture) {
-        user = await repository.updateProfile(user.id, {
-          name: profile.name || user.name,
-          avatarUrl: profile.picture,
-        });
-      }
-    }
+    // Atomic upsert (see auth.repository.js) — no separate find-then-branch,
+    // so there is no window for two concurrent requests for the same new
+    // Google user to race each other into a unique-constraint failure.
+    user = await repository.upsertGoogleUser({
+      googleId: profile.sub,
+      email: profile.email,
+      name: profile.name || profile.email,
+      avatarUrl: profile.picture,
+    });
   } catch (err) {
-    console.error('Google sign-in [stage: database lookup/create] — real cause:', err);
-    throw new ApiError(502, 'Google sign-in failed while saving your account (a database error on the server)');
+    // Safe, non-secret diagnostic metadata node-postgres attaches to
+    // every query error — code/constraint/table/column, never the
+    // connection string or query parameter values. `err.detail` is
+    // deliberately excluded: Postgres embeds the actual offending value
+    // in it (e.g. "Key (email)=(real@address.com) already exists"),
+    // which would leak a real user's email into a URL/log.
+    console.error('Google sign-in [stage: database upsert] — real cause:', err);
+    const pgInfo = err.code ? ` [pg:${err.code}${err.constraint ? ` on ${err.constraint}` : ''}${err.table ? ` in ${err.table}` : ''}]` : '';
+    throw new ApiError(502, `Google sign-in failed while saving your account (a database error on the server)${pgInfo}`);
   }
   return user;
 }
