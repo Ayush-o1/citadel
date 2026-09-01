@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { ROLES, ROLE_LABELS, useRole } from '../../app/RoleContext.jsx';
+import Footer from './Footer.jsx';
 
 const NAV_BY_ROLE = {
   [ROLES.CUSTOMER]: [
@@ -37,7 +38,7 @@ export default function AppShell() {
       </a>
       <header className="layout-header">
         <Link to="/" className="brand">
-          Citadel
+          <span className="entry-wordmark brand-wordmark">CITADEL</span>
         </Link>
         <nav aria-label="Primary">
           {links.map((link) => (
@@ -60,6 +61,7 @@ export default function AppShell() {
       <main className="layout-main" id="main-content">
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 }

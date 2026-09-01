@@ -11,6 +11,7 @@ import LoadingState from '../../components/LoadingState.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import EmptyState from '../../components/EmptyState.jsx';
 import { summarizeTopSignal } from '../../utils/summarize.js';
+import PageHero from '../../components/layout/PageHero.jsx';
 
 const STATUS_ORDER = ['available', 'checked_out', 'overdue', 'maintenance'];
 const STATUS_TONE = { available: 'neutral', checked_out: 'info', overdue: 'danger', maintenance: 'warning' };
@@ -79,8 +80,12 @@ export default function AdminControlTower() {
 
   return (
     <section>
-      <h1>Fleet Control Tower</h1>
-      <p className="page-subtitle">What needs attention across the whole fleet, why, and what to decide next.</p>
+      <PageHero
+        eyebrow="Caterpillar Admin"
+        title="Fleet Control Tower"
+        subtitle="What needs attention across the whole fleet, why, and what to decide next."
+        photo="/equipment/crane.jpg"
+      />
 
       <div className="control-tower-grid">
         <div className="action-queue-panel">

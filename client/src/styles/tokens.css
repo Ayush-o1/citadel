@@ -34,8 +34,14 @@
 
   color-scheme: light;
 
-  /* Type scale (1.25 ratio, system font stack, no webfont dependency) */
-  --font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+  /* Type scale (1.25 ratio). Inter for body/UI text — a workhorse
+     interface font with excellent legibility at small sizes. Big
+     Shoulders Display for headlines/wordmark — a condensed industrial
+     display face (steel-signage character) reserved for large type only,
+     never body copy. Both fall back cleanly to the system stack if the
+     Google Fonts request fails. */
+  --font-family: 'Inter', -apple-system, 'Segoe UI', system-ui, sans-serif;
+  --font-family-display: 'Big Shoulders Display', 'Inter', -apple-system, system-ui, sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.85rem;
   --font-size-md: 1rem;
@@ -43,6 +49,8 @@
   --font-size-xl: 1.45rem;
   --font-size-2xl: 1.95rem;
   --font-size-3xl: 2.65rem;
+  --font-size-4xl: 3.75rem;
+  --font-size-5xl: 5rem;
 
   /* Spacing scale, 4px base */
   --space-1: 0.25rem;

@@ -6,6 +6,7 @@ import LoadingState from '../../components/LoadingState.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import EmptyState from '../../components/EmptyState.jsx';
 import EquipmentImage from '../../components/customer/EquipmentImage.jsx';
+import PageHero from '../../components/layout/PageHero.jsx';
 
 export default function Discover() {
   const { data: equipment, loading, error, refetch } = useApi(listEquipment);
@@ -23,8 +24,12 @@ export default function Discover() {
 
   return (
     <section>
-      <h1>Find equipment</h1>
-      <p className="page-subtitle">Available machines across the fleet, ready to rent today.</p>
+      <PageHero
+        eyebrow="Customer workspace"
+        title="Find your next machine"
+        subtitle="Available equipment across the fleet, ready to rent today."
+        photo="/equipment/excavator.jpg"
+      />
 
       <div className="discover-filters" role="group" aria-label="Filter by equipment type">
         {types.map((type) => (

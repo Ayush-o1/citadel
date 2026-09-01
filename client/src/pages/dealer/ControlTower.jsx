@@ -10,6 +10,7 @@ import LoadingState from '../../components/LoadingState.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import EmptyState from '../../components/EmptyState.jsx';
 import { summarizeTopSignal } from '../../utils/summarize.js';
+import PageHero from '../../components/layout/PageHero.jsx';
 
 const LIVE_STATUS_ORDER = ['available', 'checked_out', 'overdue', 'maintenance'];
 
@@ -52,8 +53,12 @@ export default function ControlTower() {
 
   return (
     <section>
-      <h1>Control Tower</h1>
-      <p className="page-subtitle">What needs attention, why, and what to do about it.</p>
+      <PageHero
+        eyebrow="Dealer workspace"
+        title="Control Tower"
+        subtitle="What needs attention, why, and what to do about it."
+        photo="/equipment/bulldozer.webp"
+      />
 
       <div className="control-tower-grid">
         <div className="action-queue-panel">
