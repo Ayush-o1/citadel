@@ -20,6 +20,38 @@ Format:
 
 ---
 
+## 2026-09-01 — Reversed "no auth/multi-user roles" decision; three role experiences + capacity-aware optimization
+
+**Context:** the 2026-08-30 decision (below, "Explicitly NOT building")
+and `PANEL-DEFENSE.md` §12 both recorded single-persona/no-roles as
+deliberate scope control for the original 11-phase build, which is now
+`VERIFIED` and complete. New direction explicitly requires three distinct
+role experiences (Customer/Dealer/Caterpillar Admin) and a new
+capacity-aware rental optimization analytics feature, and explicitly
+authorizes cross-layer changes to deliver them.
+
+**Decision:** Build role experiences as **client-simulated** role
+selection (no real auth backend — `localStorage` + React context), not a
+real login system — avoids the far larger scope of a real auth/session
+backend while still giving three genuinely different UIs. Add one minimal
+schema field (`checkouts.customer_name`, migration 008) so "my rentals" is
+real data, not fully mocked. Add a new `capacity` analytics module
+(migration 009 extends `recommendations.source_type`) using the same
+rule-based, honestly-degrading pattern as `alerts`/`anomalies`/
+`forecasts`. Full plan: `.ai/FRONTEND-REBUILD-PLAN.md`,
+`.ai/FRONTEND-ROLE-MATRIX.md`, `.ai/FRONTEND-UX-PLAN.md`.
+
+**Alternatives considered:** real JWT auth backend (rejected — scope
+disproportionate to a demo/hackathon context and not requested); fully
+mocked customer data with no schema change (rejected — "my rentals" would
+be provably fake, weaker for panel defense).
+
+**Tradeoff:** role "security" is cosmetic (route redirect only, not
+authorization) — must be stated plainly in the demo, same honesty
+standard as the rest of the project's documented limitations.
+
+---
+
 ## 2026-09-01 — Phase 09: added GET /api/utilization; pending recommendations now refresh their wording on each sync
 
 **Context 1:** REQ-012 (Control Tower utilization view, "runtime vs. idle,
