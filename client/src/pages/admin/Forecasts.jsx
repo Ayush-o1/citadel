@@ -30,7 +30,9 @@ export default function Forecasts() {
               <p className="summary-caption">Insufficient history — {f.note}</p>
             ) : (
               <>
-                <p className="forecast-number">{f.predicted_demand} checkouts/week</p>
+                <p className="forecast-number">
+                  {f.predicted_demand} {f.predicted_demand === 1 ? 'checkout' : 'checkouts'}/week
+                </p>
                 <p className="summary-caption">Trend: {f.trend}. {f.factors}</p>
               </>
             )}

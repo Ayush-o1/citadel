@@ -44,17 +44,43 @@ three role experiences plus a capacity-aware rental optimization feature.
   (`FRONTEND-REBUILD-PLAN.md` section 4) — new `capacity` backend module,
   migration extending `recommendations.source_type`, surfaced across all
   three roles. Not yet implemented.
-- **RB-7 (QA pass, doc sync):** `NOT_STARTED`. No live-browser manual QA
-  done yet on the new role UIs (verification so far: client build passes,
-  backend tests pass, and the Customer checkout/filter/check-in cycle was
-  verified live via `curl`, not through the actual browser UI). Don't
-  claim RB-2..RB-5 "browser-verified" until that's actually done.
+- **RB-7 (QA pass — live browser, not just build/API checks):** `VERIFIED`
+  for RB-2..RB-5. No `chromium-cli`/Playwright was preinstalled in this
+  environment, so it was installed fresh into the scratchpad
+  (`npm install playwright` + `npx playwright install chromium`) and used
+  to drive the actual app end-to-end against a real Postgres instance
+  (`docker compose up postgres`, migrated, seeded to the documented
+  17/22/192 baseline). Verified, with screenshots inspected (not just
+  "no exception thrown"):
+  - Entry landing renders all three role cards; "Switch role" correctly
+    returns to Entry from each role.
+  - Dealer: Control Tower (Action Queue/Live Status/Utilization/Forecast)
+    and Asset Dashboard both render real seeded data at `/dealer` and
+    `/dealer/assets`.
+  - Customer: Discover grid, type filter (tested "Crane"), equipment
+    detail, and a **full live round trip** — rent EQX1002 with a real
+    return date -> appears in My Rentals as "Checked out" -> Return
+    equipment -> flips to "Returned" — confirmed against real DB writes,
+    not mocked.
+  - Admin: Fleet Overview, Utilization, Anomalies (new dedicated view),
+    Forecasts, Recommendations all render real data at `/admin/*`.
+  - Mobile viewport (390x844): Entry and Customer Discover reflow to a
+    clean single column; Dealer's Asset Dashboard table correctly falls
+    back to horizontal scroll (existing Phase 10 pattern, by design).
+  - **Zero console/page errors** across every screen in both desktop and
+    mobile passes.
+  - One real bug found and fixed: `Forecasts.jsx` printed "1
+    checkouts/week" (bad pluralization) — corrected to singular/plural
+    based on the value.
+  - Docker container and volume torn down after verification — this
+    environment had no persistent local Postgres before this session and
+    none is left running now; a real teammate machine's local DB (if any)
+    was never touched.
 
-**Verification honesty note:** this session did not open the app in a
-browser. Build success and API-level `curl` verification are real but are
-not a substitute for the live-browser walkthroughs the original Phase
-08-11 work did — that's outstanding before calling any of RB-2..RB-5
-`VERIFIED` rather than `DONE`.
+**What's still not done:** RB-6 (capacity-aware optimization) is
+unimplemented — designed only. Doc sync beyond this file (e.g.
+`REQUIREMENTS.md`, `MANUAL-QA.md` additions for the three roles) is not
+done yet.
 
 ---
 
