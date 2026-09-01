@@ -7,6 +7,68 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Phase 06 implemented and verified: demand forecasting (RISK-003 fully resolved)
+
+**Where we are:** Phase 06 `VERIFIED` — the last of the three
+higher-judging-weight analytics phases, and the highest-risk one per
+`ANALYSIS.md` §24. `server/src/modules/forecasts/` built.
+
+**What we built:** `GET /api/forecasts` groups checkouts from the last 28
+days by `(equipment_type, site)` (excluding checkouts with no site — you
+can't forecast demand at an unknown location). A group with ≥3 checkouts
+gets a real forecast: `predicted_demand = count/4` (checkouts/week), a
+`method` string, and a `factors` string stating the sample count, rate,
+and trend (recent 14 days vs. previous 14). A group with 1-2 checkouts
+gets `insufficient_history: true` with the real count — never a
+fabricated number. Real forecasts are upserted into the `forecasts` table
+(one row per group, replaced each recompute, since the table has no
+status/lifecycle column the way alerts/anomalies do); insufficient-history
+entries are computed live and never persisted.
+
+**Real decision made and documented (task 06.1):** chose a plain
+trailing-window average over exponential smoothing — with only 2-5 data
+points per group, a tunable alpha adds no real benefit and is harder to
+defend under panel questioning. Full reasoning, alternatives, and
+tradeoff in `DECISIONS.md`'s "Phase 06: forecast method chosen" entry.
+
+**A real near-bug caught before shipping:** the first sufficiency design
+judged history by counting distinct 7-day buckets with activity. Walking
+the actual seeded dates by hand found this boundary-fragile at this
+sample size — a checkout landing hours on either side of an exact 7-day
+cutoff flips which bucket it counts toward, which nearly misclassified
+the deliberately-sparse `Grader`/`S001` pair as "sufficient" by accident.
+Switched to a raw checkout-count threshold over a fixed 28-day window
+instead, which has no such boundary sensitivity — verified by re-running
+against the real dates before writing the rigid test assertions.
+
+**A second real bug caught and fixed:** `forecast.period_start`/
+`period_end`, read back from Postgres's `DATE` columns via node-pg,
+round-tripped as JS `Date` objects at local midnight and serialized a day
+off in this environment's timezone. Fixed by returning the already-correct
+date-only strings computed before the insert instead of the round-tripped
+DB values.
+
+**What we verified:**
+- `npm test` — 19/19 pass (17 from Phases 03-05 + 2 new). Real numbers
+  match a by-hand SQL analysis of the actual seeded dates done *before*
+  implementing the rule: `Excavator`/`S003` (5 checkouts, up, ~1.25/week)
+  and `Bulldozer`/`S002` (4 checkouts, flat, ~1/week) get real forecasts;
+  `Grader`/`S001`, `Excavator`/`S004`, `Crane`/`S005` correctly fall back
+  to `insufficient_history`.
+- Post-test DB check: seeded counts unchanged (17/22/192); `forecasts`
+  table holds exactly 2 rows (one per qualifying group).
+- `npm run build` (client) — clean, unaffected.
+
+**RISK-003 is now fully resolved** (both the anomaly-threshold half from
+Phase 05 and this phase's forecasting-method half) — `ISSUES.md` and
+`STATE.md` updated to close it out, and `Q-002` closed alongside it.
+
+**Next:** Phase 07 (recommendations & action queue) — the module the
+differentiation strategy hinges on; needs 04+05+06, all now real.
+Continuing the authorized Phase 03→11 run without stopping for approval.
+
+---
+
 ## 2026-09-01 — Phase 05 implemented and verified: anomaly detection
 
 **Where we are:** Phase 05 `VERIFIED`. `server/src/modules/anomalies/`

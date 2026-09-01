@@ -40,7 +40,7 @@ Product: **Smart Rental Tracking System** (problem statement received
 | 03 | Core backend APIs | `VERIFIED` | Astik (`TEAM-EXECUTION-PLAN.md`) | [`phases/PHASE-03-core-apis.md`](phases/PHASE-03-core-apis.md) |
 | 04 | Alerts engine | `VERIFIED` | Eklavya (`TEAM-EXECUTION-PLAN.md`) | [`phases/PHASE-04-alerts.md`](phases/PHASE-04-alerts.md) |
 | 05 | Anomaly detection | `VERIFIED` | Eklavya (`TEAM-EXECUTION-PLAN.md`) | [`phases/PHASE-05-anomaly-detection.md`](phases/PHASE-05-anomaly-detection.md) |
-| 06 | Demand forecasting | `NOT_STARTED` | unassigned | [`phases/PHASE-06-forecasting.md`](phases/PHASE-06-forecasting.md) |
+| 06 | Demand forecasting | `VERIFIED` | Eklavya (`TEAM-EXECUTION-PLAN.md`) | [`phases/PHASE-06-forecasting.md`](phases/PHASE-06-forecasting.md) |
 | 07 | Recommendations & Action Queue | `NOT_STARTED` | unassigned | [`phases/PHASE-07-recommendations.md`](phases/PHASE-07-recommendations.md) |
 | 08 | Asset Dashboard UI | `NOT_STARTED` | unassigned | [`phases/PHASE-08-asset-dashboard-ui.md`](phases/PHASE-08-asset-dashboard-ui.md) |
 | 09 | Control Tower UI | `NOT_STARTED` | unassigned | [`phases/PHASE-09-control-tower-ui.md`](phases/PHASE-09-control-tower-ui.md) |

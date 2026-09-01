@@ -41,15 +41,25 @@ production code: `EQX1002`/`EQX1007` flagged exactly as Caterpillar's own
 worked example intends, `EQX1003`/`EQX1005` correctly clean. See
 [`phases/PHASE-05-anomaly-detection.md`](phases/PHASE-05-anomaly-detection.md).
 
-**Phases 06-11:** `NOT_STARTED`. 06 (forecasting) and 08 (Asset Dashboard
-UI) are unblocked now — see `ROADMAP.md`'s dependency graph. 07
-(recommendations) can start once 06 lands too.
+**Phase 06 — Demand forecasting.** Status: `VERIFIED`. `GET /api/forecasts`
+produces real forecasts for `Excavator`/`S003` and `Bulldozer`/`S002`
+(trailing-window average, ≥3 checkouts/28 days) and an honest
+`insufficient_history` fallback for `Grader`/`S001` (Phase 02's
+deliberately sparse pair) — exactly as designed (19/19 tests pass).
+`RISK-003` and `Q-002` are now both fully resolved. See
+[`phases/PHASE-06-forecasting.md`](phases/PHASE-06-forecasting.md).
+
+**Phases 07-11:** `NOT_STARTED`. 07 (recommendations) is now unblocked —
+04, 05, and 06 all exist. 08 (Asset Dashboard UI) has been unblocked
+since Phase 03.
 
 ## Next recommended action
 
-Continuing the authorized autonomous Phase 03→11 run: **Phase 06
-(demand forecasting)** next — `phases/PHASE-06-forecasting.md`, the
-highest-risk phase (must stay honest/explainable on small-sample data).
+Continuing the authorized autonomous Phase 03→11 run: **Phase 07
+(recommendations & action queue)** next —
+`phases/PHASE-07-recommendations.md`, the module the differentiation
+strategy hinges on, unifying alerts/anomalies/forecasts into one ranked
+feed.
 
 ## Overall progress
 
@@ -63,13 +73,14 @@ highest-risk phase (must stay honest/explainable on small-sample data).
 | Data model | `VERIFIED` | Phase 01 |
 | Synthetic data | `VERIFIED` | Phase 02 — 17 equipment, 22 checkouts, 192 usage_logs seeded and verified |
 | Anomaly threshold calibration | `RESOLVED` | 0.40 idle-ratio threshold validated against real seeded data — `DECISIONS.md` |
-| Forecasting method calibration | `NOT_STARTED` | Still pending Phase 06 task 06.1 — `Q-002` |
+| Forecasting method calibration | `RESOLVED` | Plain trailing-window average chosen over exponential smoothing, validated against real seeded data — `DECISIONS.md`, `Q-002` |
 | Requirements | `IMPLEMENTED` (partial) | REQ-001–005, REQ-018 `VERIFIED`; REQ-015 `IMPLEMENTED`; rest `NOT_STARTED` |
 | Phase plan | `VERIFIED` | 11 phases in `ROADMAP.md`; work division in `TEAM-EXECUTION-PLAN.md` |
 | Core backend APIs (equipment/checkouts/usage-logs) | `VERIFIED` | Phase 03 — 14/14 tests pass |
 | Alerts engine | `VERIFIED` | Phase 04 — 16/16 tests pass |
 | Anomaly detection | `VERIFIED` | Phase 05 — 17/17 tests pass, threshold reconfirmed in production code |
-| Product implementation | `IN_PROGRESS` | Phases 00-05 done; Phases 06-11 not started |
+| Demand forecasting | `VERIFIED` | Phase 06 — 19/19 tests pass, both RISK-003 halves resolved |
+| Product implementation | `IN_PROGRESS` | Phases 00-06 done; Phases 07-11 not started |
 
 ## Known bugs
 
@@ -79,10 +90,9 @@ None open. See `ISSUES.md`.
 
 - `RISK-001`: Docker Compose stack untested end-to-end.
 - `RISK-002`: 2 of 3 invited teammates haven't accepted GitHub access yet.
-- `RISK-003`: **Partially resolved.** Anomaly/idle threshold half
-  confirmed sound against real seeded data (`DECISIONS.md`). Forecasting-
-  method half (moving average vs. exponential smoothing) still open —
-  Phase 06 task 06.1.
+- `RISK-003`: **Resolved.** Both halves confirmed against real seeded
+  data — anomaly/idle threshold (Phase 05) and forecasting method
+  (Phase 06, plain average over exponential smoothing). See `DECISIONS.md`.
 
 ## Checkpoint log
 
@@ -94,6 +104,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-03-core-apis` | 2026-09-01 | Phase 03 | `92d71b5` | Yes — see Phase 03 doc's "Tests" section |
 | `checkpoint/phase-04-alerts` | 2026-09-01 | Phase 04 | `2052ec1` | Yes — see Phase 04 doc's "Tests" section |
 | `checkpoint/phase-05-anomaly-detection` | 2026-09-01 | Phase 05 | `3f59f3d` | Yes — see Phase 05 doc's "Tests" section |
+| `checkpoint/phase-06-forecasting` | 2026-09-01 | Phase 06 | *(recorded after commit)* | Yes — see Phase 06 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 

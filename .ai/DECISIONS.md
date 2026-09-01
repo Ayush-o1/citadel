@@ -20,6 +20,50 @@ Format:
 
 ---
 
+## 2026-09-01 — Phase 06: forecast method chosen — plain trailing-window average, not exponential smoothing; sufficiency judged by raw checkout count, not weekly buckets
+
+**Context:** Task 06.1 required deciding moving-average vs. exponential
+smoothing (`RESEARCH.md` R-001) against real seeded checkout data, and
+task 06.2 required a minimum-history threshold below which the API must
+return "insufficient history" (REQ-019) instead of a number.
+
+**Decision:** Group checkouts from the last 28 days by `(equipment_type,
+site_id)` (checkouts with no `site_id` are excluded — you can't forecast
+demand at an unknown site). A group needs **at least 3 checkouts** in
+that window to receive a forecast; predicted demand is a **plain average**
+(`count / 4 weeks`), not exponential smoothing, with a `factors` string
+stating the sample count, the resulting rate, and a trend ("up"/"down"/
+"flat" from comparing the most recent 14 days against the previous 14).
+Groups with 1-2 checkouts get an `insufficient_history: true` entry
+(with the real count and a plain-language note) instead of a fabricated
+number; groups with zero checkouts in the window aren't reported at all.
+
+Run against the real seeded data, this produced exactly the split Phase
+02 was designed to exercise: **Excavator/S003** (5 checkouts, trending up,
+~1.25/week) and **Bulldozer/S002** (4 checkouts, flat, ~1/week) get real
+forecasts; **Grader/S001** (2 checkouts — Phase 02's deliberately sparse
+pair), **Excavator/S004** (1 checkout), and **Crane/S005** (2 checkouts)
+correctly fall back to `insufficient_history`.
+
+**Alternatives considered:** (1) Exponential smoothing — rejected because
+with only 2-4 data points per group, an arbitrarily-chosen alpha adds a
+tunable parameter with no real predictive benefit over a plain average,
+and is harder to defend under "why alpha = 0.3 and not 0.2?" panel
+questioning than "we averaged the last N checkouts." (2) Judging
+sufficiency by counting distinct weekly buckets (e.g. "at least 2 weeks
+with activity") instead of raw count — rejected after finding it fragile
+at this sample size: a checkout landing a few hours on either side of an
+exact 7-day boundary flips which bucket it counts toward, which very
+nearly reclassified Grader/S001 as "sufficient" by accident. Raw checkout
+count in a fixed 28-day window has no such boundary sensitivity.
+
+**Tradeoff:** a plain average doesn't weight recent activity more heavily
+than older activity within the window — acceptable at this data volume,
+where 3-5 total checkouts don't support a statistically meaningful
+weighting scheme anyway.
+
+---
+
 ## 2026-09-01 — Phase 04: alerts (and, by the same pattern, anomalies) are synced into their tables on read, not left purely in-memory
 
 **Context:** Phase 04's task 04.1 offered two options — compute alerts
