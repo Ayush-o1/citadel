@@ -7,6 +7,63 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-01 — Phase 03 implemented and verified: core backend APIs
+
+**Where we are:** Phase 03 `VERIFIED`. `server/src/modules/equipment/`,
+`checkouts/`, `usage-logs/` built following the existing
+routes→controller→service→repository layering, mounted in
+`routes/index.js`. This is the first phase executed under the
+autonomous Phase 03→11 authorization (see the planning-checkpoint entry
+below for what preceded it).
+
+**What we built:**
+- `GET /api/equipment`, `GET /api/equipment/:id` — `status` is computed
+  at read time (available/checked_out/overdue/maintenance) from the
+  active checkout's `expected_return_at`, never stored redundantly.
+- `POST /api/checkouts`, `PATCH /api/checkouts/:id/check-in`, `GET
+  /api/checkouts[?status=]` — checkout/check-in each run inside a new
+  `withTransaction()` helper (added to `server/src/config/db.js`) so the
+  `checkouts` row and `equipment.status` update atomically.
+- `POST /api/usage-logs`, `GET /api/usage-logs/checkout/:checkoutId`.
+- `server/src/middleware/validateUuidParam.js` (new) — malformed `:id`
+  params now 400 cleanly instead of a Postgres `22P02` surfacing as a 500.
+
+**What we verified:**
+- `npm test` — 14/14 pass, including duplicate-checkout rejection (409),
+  double-check-in rejection (409), orphan usage-log rejection (409/404),
+  and the seeded `EQX3001` (overdue) / `EQX3003` (missing assignment on an
+  *active* checkout) both computing the right live status via the real API.
+- Manual verification against a running `node src/server.js`: health
+  check, equipment list, a live duplicate-checkout attempt against the
+  real seeded `EQX3001`, and a deliberately invalid usage-log payload —
+  all returned clean JSON errors, not stack traces or generic 500s.
+- **Confirmed the seeded data is untouched:** test fixtures are created
+  with a `TEST-EQX-` prefix and deleted in a `finally` block; post-test
+  query shows 0 leftover fixtures and the exact Phase 02 counts (17
+  equipment / 22 checkouts / 192 usage_logs) unchanged.
+- `npm run build` (client) — clean, unaffected (no frontend work this phase).
+
+**Real decision made and documented:** the duplicate-checkout guard has
+two layers — an app-level pre-check for a fast, friendly 409, and a
+catch on Postgres's `23505` (unique-violation) from the existing partial
+unique index `idx_checkouts_one_active_per_equipment`, mapped to the same
+409 — so the actual guarantee is DB-enforced, not just application logic.
+This is called out in `TEAM-EXECUTION-PLAN.md` as Astik's "decision to
+defend."
+
+**Not verified:** concurrent-request load testing (two simultaneous
+check-out requests racing) — the DB-level unique index should prevent a
+double-active-checkout under a real race, but this wasn't exercised with
+actual concurrent requests, only reasoned about from the constraint's
+existence. If this matters before the demo, a follow-up test firing two
+`POST /api/checkouts` concurrently at the same equipment would close the
+gap.
+
+**Next:** Phase 04 (alerts engine) — unblocked, next up per `STATE.md`.
+Continuing the authorized Phase 03→11 run without stopping for approval.
+
+---
+
 ## 2026-09-01 — Planning checkpoint: TEAM-EXECUTION-PLAN.md + architecture PDF, before Phase 03-11 autonomous execution
 
 **Where we are:** Phases 00-02 `VERIFIED` (unchanged this session). Before

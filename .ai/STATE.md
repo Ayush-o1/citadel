@@ -1,6 +1,8 @@
 # Project state
 
-**Last updated:** 2026-09-01, AI agent, Phase 02 implementation session.
+**Last updated:** 2026-09-01, AI agent, Phase 03 implementation session
+(autonomous Phase 03→11 run, authorized after the `TEAM-EXECUTION-PLAN.md`
+planning checkpoint).
 **Statuses used:** `NOT_STARTED` · `PLANNED` · `IN_PROGRESS` · `BLOCKED` · `READY_FOR_REVIEW` · `VERIFIED` · `COMPLETE`
 
 ## Current phase
@@ -8,23 +10,32 @@
 **Phase 00 — Foundation.** Status: `VERIFIED`.
 **Phase 01 — Data model & migrations.** Status: `VERIFIED`.
 **Phase 02 — Synthetic operational data.** Status: `VERIFIED`. Database
-now holds 17 equipment / 22 checkouts / 192 usage_logs across the exact
+holds 17 equipment / 22 checkouts / 192 usage_logs across the exact
 official 7-row Caterpillar sample plus a synthetic trailing-history and
 live-active-checkout layer. See
 [`phases/PHASE-02-synthetic-data.md`](phases/PHASE-02-synthetic-data.md).
 
-**Phase 03 — Core backend APIs.** Status: `PLANNED`, unblocked, not
-started this session (out of scope — this session was Phase 02 only).
+**Planning checkpoint (between Phase 02 and 03)** — `TEAM-EXECUTION-PLAN.md`
++ `CITADEL-ARCHITECTURE-TEAM-PLAN.pdf`: final architecture diagrams,
+4-person work division, phase/dependency map, presentation split, panel
+defense prep. No architecture or schema change.
 
-**Phases 04-11:** `NOT_STARTED`, waiting on Phase 03.
+**Phase 03 — Core backend APIs.** Status: `VERIFIED`. `equipment/`,
+`checkouts/`, `usage-logs/` modules built, tested (14/14 tests pass), and
+manually verified against the running server. Database counts confirmed
+unchanged after tests (17/22/192 — test fixtures are created and deleted
+per-test, never touching the seeded rows). See
+[`phases/PHASE-03-core-apis.md`](phases/PHASE-03-core-apis.md).
+
+**Phases 04-11:** `NOT_STARTED`. 04 (alerts), 05 (anomalies), 06
+(forecasting), and 08 (Asset Dashboard UI) are all unblocked now — see
+`ROADMAP.md`'s dependency graph.
 
 ## Next recommended action
 
-**Start Phase 03 (core backend APIs)** — `phases/PHASE-03-core-apis.md`.
-It only depended on Phase 01, so it could have run in parallel with
-Phase 02, but nobody picked it up this session. Once Phase 03 lands,
-Phases 04/05/06 (alerts/anomalies/forecasting) can start — they now have
-real seeded data to compute against, per Phase 02.
+Continuing the authorized autonomous Phase 03→11 run: **Phase 04
+(alerts engine)** next — `phases/PHASE-04-alerts.md`, the simplest
+analytics module, establishing the pattern Phases 05-06 follow.
 
 ## Overall progress
 
@@ -39,10 +50,10 @@ real seeded data to compute against, per Phase 02.
 | Synthetic data | `VERIFIED` | Phase 02 — 17 equipment, 22 checkouts, 192 usage_logs seeded and verified |
 | Anomaly threshold calibration | `RESOLVED` | 0.40 idle-ratio threshold validated against real seeded data — `DECISIONS.md` |
 | Forecasting method calibration | `NOT_STARTED` | Still pending Phase 06 task 06.1 — `Q-002` |
-| Requirements | `IMPLEMENTED` (partial) | REQ-001, REQ-005 `DESIGNED`; REQ-015 `IMPLEMENTED`; rest `NOT_STARTED` |
-| Phase plan | `VERIFIED` | 11 phases in `ROADMAP.md` |
-| Core backend APIs (equipment/checkouts/usage-logs) | `NOT_STARTED` | Phase 03 — next up |
-| Product implementation | `IN_PROGRESS` | Phases 00-02 done; Phases 03-11 not started |
+| Requirements | `IMPLEMENTED` (partial) | REQ-001–005, REQ-018 `VERIFIED`; REQ-015 `IMPLEMENTED`; rest `NOT_STARTED` |
+| Phase plan | `VERIFIED` | 11 phases in `ROADMAP.md`; work division in `TEAM-EXECUTION-PLAN.md` |
+| Core backend APIs (equipment/checkouts/usage-logs) | `VERIFIED` | Phase 03 — 14/14 tests pass |
+| Product implementation | `IN_PROGRESS` | Phases 00-03 done; Phases 04-11 not started |
 
 ## Known bugs
 
@@ -64,6 +75,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-00-foundation` | 2026-08-30 | Phase 00 | `2dfc243` | Yes |
 | `checkpoint/phase-01-data-model` | 2026-09-01 | Phase 01 | `56e1a9d` | Yes |
 | `checkpoint/phase-02-synthetic-data` | 2026-09-01 | Phase 02 | `a61aa90` | Yes — see Phase 02 doc's "Tests" section |
+| `checkpoint/phase-03-core-apis` | 2026-09-01 | Phase 03 | *(recorded after commit — see next commit)* | Yes — see Phase 03 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 
