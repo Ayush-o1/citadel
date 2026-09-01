@@ -1,0 +1,64 @@
+/* Design tokens — one shared system across Customer/Dealer/Admin.
+   Amber is the single intentional Caterpillar-adjacent accent: brand mark,
+   primary CTA, "needs attention" state. Everything else stays neutral. */
+:root {
+  /* Color — base surfaces */
+  --color-bg: #0f1115;
+  --color-bg-raised: #14161c;
+  --color-surface: #171a21;
+  --color-surface-hover: #1d2129;
+  --color-text: #e6e8eb;
+  --color-muted: #9aa1ac;
+  --color-border: #2a2e37;
+
+  /* Color — semantic (4-tone: neutral/info/warning/danger + success) */
+  --color-accent: #4f8cff;
+  --color-danger: #ff5c5c;
+  --color-warning: #e6a82f;
+  --color-success: #4caf6d;
+
+  /* Color — brand */
+  --color-brand: #e6a82f;
+  --color-brand-strong: #d69822;
+  --color-on-brand: #14161c;
+
+  color-scheme: dark;
+
+  /* Type scale (1.2 ratio, system font stack, no webfont dependency) */
+  --font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.85rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.2rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --font-size-3xl: 2.75rem;
+
+  /* Spacing scale, 4px base */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+  --motion-fast: 120ms ease;
+  --motion-base: 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+  }
+}

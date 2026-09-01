@@ -6,6 +6,7 @@ const TONE_BY_STATUS = {
   checked_out: 'info',
   overdue: 'danger',
   maintenance: 'warning',
+  returned: 'neutral',
   high: 'danger',
   medium: 'warning',
   low: 'neutral',
@@ -16,6 +17,7 @@ const LABEL_BY_STATUS = {
   checked_out: 'Checked out',
   overdue: 'Overdue',
   maintenance: 'Maintenance',
+  returned: 'Returned',
 };
 
 export default function StatusBadge({ status }) {

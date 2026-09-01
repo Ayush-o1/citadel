@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
-import { useApi } from '../hooks/useApi.js';
-import { listRecommendations, updateRecommendationStatus } from '../api/recommendations.js';
-import { listEquipment } from '../api/equipment.js';
-import { listForecasts } from '../api/forecasts.js';
-import { getUtilization } from '../api/utilization.js';
-import ActionQueueItem from '../components/ActionQueueItem.jsx';
-import StatusBadge from '../components/StatusBadge.jsx';
-import LoadingState from '../components/LoadingState.jsx';
-import ErrorState from '../components/ErrorState.jsx';
-import EmptyState from '../components/EmptyState.jsx';
-import { summarizeTopSignal } from '../utils/summarize.js';
+import { useApi } from '../../hooks/useApi.js';
+import { listRecommendations, updateRecommendationStatus } from '../../api/recommendations.js';
+import { listEquipment } from '../../api/equipment.js';
+import { listForecasts } from '../../api/forecasts.js';
+import { getUtilization } from '../../api/utilization.js';
+import ActionQueueItem from '../../components/ActionQueueItem.jsx';
+import StatusBadge from '../../components/StatusBadge.jsx';
+import LoadingState from '../../components/LoadingState.jsx';
+import ErrorState from '../../components/ErrorState.jsx';
+import EmptyState from '../../components/EmptyState.jsx';
+import { summarizeTopSignal } from '../../utils/summarize.js';
 
 const LIVE_STATUS_ORDER = ['available', 'checked_out', 'overdue', 'maintenance'];
 
