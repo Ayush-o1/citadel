@@ -3,7 +3,6 @@ import { RoleProvider, ROLES } from './app/RoleContext.jsx';
 import RoleGate from './app/RoleGate.jsx';
 import AppShell from './components/layout/AppShell.jsx';
 import Entry from './pages/Entry.jsx';
-import SwitchRole from './pages/SwitchRole.jsx';
 import AuthError from './pages/AuthError.jsx';
 import Discover from './pages/customer/Discover.jsx';
 import EquipmentDetail from './pages/customer/EquipmentDetail.jsx';
@@ -25,7 +24,6 @@ export default function App() {
         <Route path="/" element={<Entry />} />
         <Route path="/auth/complete" element={<Entry />} />
         <Route path="/auth/error" element={<AuthError />} />
-        <Route path="/switch-role" element={<SwitchRole />} />
 
         <Route element={<RoleGate allow={[ROLES.CUSTOMER]} />}>
           <Route element={<AppShell />}>

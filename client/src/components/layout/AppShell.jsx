@@ -50,9 +50,6 @@ export default function AppShell() {
         <div className="role-indicator">
           {user?.avatar_url && <img src={user.avatar_url} alt="" className="user-avatar" referrerPolicy="no-referrer" />}
           <span className="role-pill">{ROLE_LABELS[role]}</span>
-          <Link to="/switch-role" className="role-switch">
-            Switch role
-          </Link>
           <button type="button" className="role-switch" onClick={handleSignOut}>
             Sign out
           </button>
