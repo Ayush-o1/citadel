@@ -1,8 +1,13 @@
-import EquipmentSilhouette from './EquipmentSilhouette.jsx';
-
-// Real per-type line-art (see EquipmentSilhouette.jsx) with a text-mark
-// fallback for any type the illustration set doesn't cover — never a
+// Real per-type equipment photos (client/public/equipment/) with a
+// text-mark fallback for any type the photo set doesn't cover — never a
 // broken image, never a generic/random stock photo.
+const PHOTO_BY_TYPE = {
+  Excavator: '/equipment/excavator.jpg',
+  Bulldozer: '/equipment/bulldozer.webp',
+  Crane: '/equipment/crane.jpg',
+  Grader: '/equipment/grader.jpg',
+};
+
 const INITIAL_BY_TYPE = {
   Excavator: 'EX',
   Bulldozer: 'BD',
@@ -11,15 +16,17 @@ const INITIAL_BY_TYPE = {
 };
 
 export default function EquipmentImage({ type }) {
-  const hasIllustration = type in INITIAL_BY_TYPE;
+  const photo = PHOTO_BY_TYPE[type];
   const initials = INITIAL_BY_TYPE[type] || type?.slice(0, 2).toUpperCase() || '—';
 
   return (
-    <div className="equipment-image" aria-hidden="true">
-      {hasIllustration ? (
-        <EquipmentSilhouette type={type} className="equipment-silhouette" />
+    <div className="equipment-image">
+      {photo ? (
+        <img src={photo} alt={type} className="equipment-photo" loading="lazy" />
       ) : (
-        <span className="equipment-image-mark">{initials}</span>
+        <span className="equipment-image-mark" aria-hidden="true">
+          {initials}
+        </span>
       )}
     </div>
   );
