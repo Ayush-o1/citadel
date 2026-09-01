@@ -135,7 +135,7 @@ None open. See `ISSUES.md`.
 | `checkpoint/phase-06-forecasting` | 2026-09-01 | Phase 06 | `16b1e5f` | Yes — see Phase 06 doc's "Tests" section |
 | `checkpoint/phase-07-recommendations` | 2026-09-01 | Phase 07 | `d6f1479` | Yes — see Phase 07 doc's "Tests" section |
 | `checkpoint/phase-08-asset-dashboard-ui` | 2026-09-01 | Phase 08 | `2b298bb` | Yes — see Phase 08 doc's "Tests" section |
-| `checkpoint/phase-09-control-tower-ui` | 2026-09-01 | Phase 09 | *(recorded after commit)* | Yes — see Phase 09 doc's "Tests" section |
+| `checkpoint/phase-09-control-tower-ui` | 2026-09-01 | Phase 09 | `32ed4e3` | Yes — see Phase 09 doc's "Tests" section |
 
 ## What must not be changed without a documented reason
 
