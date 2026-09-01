@@ -1,24 +1,60 @@
 # Manual QA checklist
 
 For manual testing only — automated coverage already exists in
-`server/tests/` (26/26 passing as of this session; see `STATE.md`). This
-checklist is for a human clicking through the real app.
+`server/tests/` (28/28 passing as of the RB-6 session; see `STATE.md`).
+This checklist is for a human clicking through the real app.
 
-**Mark each test `[x] PASS` or `[ ] FAIL` yourself as you go** — nothing
-here is pre-checked. If something fails, note what you saw, then report
-it (see `AGENTS.md`'s workflow — reproduce, root-cause, fix, re-test,
-re-verify the full flow, update `STATE.md`/`ISSUES.md`, commit, push).
+**Everything below this notice describes the pre-rebuild, single-persona
+app** (routes `/` and `/assets`, no role concept). It's kept as-is for
+historical/regression reference — the underlying Dealer functionality it
+describes (checkout/check-in/usage logging/Action Queue) still exists,
+just moved to `/dealer` and `/dealer/assets`. **It has not been rewritten
+for the three-role rebuild (RB-1..RB-6, see `FRONTEND-REBUILD-PLAN.md`).**
+
+What RB-7 (this session) actually verified live in a browser via
+Playwright, for the current app — start at `/` (role entry), then:
+
+- **Customer** (`/customer`, `/customer/equipment/:id`,
+  `/customer/rentals`): role entry → discover (type filter tested) →
+  equipment detail (capacity-fit hint shown when a type baseline exists)
+  → rent → appears in My Rentals as "Checked out" → return → flips to
+  "Returned". Verified as a full live round trip against real DB writes,
+  not mocked. Mobile viewport (390px) reflow checked.
+- **Dealer** (`/dealer`, `/dealer/assets`): Control Tower (Action Queue
+  incl. the new capacity signal, Live Status, Utilization, Forecast) and
+  Asset Dashboard both render real data; existing checkout/check-in/
+  usage-log flows unchanged (moved, not rebuilt). Mobile table
+  horizontal-scroll fallback checked.
+- **Caterpillar Admin** (`/admin`, `/admin/utilization`,
+  `/admin/capacity`, `/admin/anomalies`, `/admin/forecasts`,
+  `/admin/recommendations`): all five (now six) views render real
+  fleet-wide data, including the new Capacity page's flagged-vs-
+  insufficient-history sections.
+- Zero console/page errors across every screen checked, both viewports.
+
+**Not yet done by any session:** a human (not just Playwright) has not
+clicked through the new role UIs; edge cases beyond the ones above
+(empty states for a customer with zero rentals under a name that's never
+rented, role-switch mid-form, etc.) are untested. Do that before treating
+the three-role rebuild as demo-ready.
+
+---
+
+## Original (pre-rebuild) checklist below — Dealer-only, historical
 
 ## Before you start
 
-- Frontend: **http://localhost:5173/** (Control Tower) and
-  **http://localhost:5173/assets** (Asset Dashboard)
+- Frontend (pre-rebuild routes): **http://localhost:5173/** (Control
+  Tower) and **http://localhost:5173/assets** (Asset Dashboard) — now
+  **http://localhost:5173/dealer** and **http://localhost:5173/dealer/assets**
 - Backend/API: **http://localhost:4000/api/...**
 - Both are already running — don't restart them mid-session unless a test
   says to.
-- Current seeded baseline (for reference, so you know what "normal"
-  looks like): **17 equipment, 22 checkouts, 192 usage_logs, 19 pending
-  recommendations**.
+- Original seeded baseline this checklist was written against: **17
+  equipment, 22 checkouts, 192 usage_logs, 19 pending recommendations**.
+  RB-6 added a Layer 3 (see `DECISIONS.md`) — current baseline is **21
+  equipment, 26 checkouts, 257 usage_logs**. Recompute expected counts
+  accordingly if re-running this checklist verbatim.
 - **Real actions leave real residue.** Checking out a real seeded asset
   (not a throwaway one) and never checking it back in changes the demo
   state permanently. If you want to undo an action:
