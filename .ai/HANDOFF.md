@@ -7,6 +7,59 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-02 (later) — Final local end-to-end verification pass
+
+**What this session was:** not a code review — an actual local run of the
+whole application (Postgres, Express, Vite, all real, all local) driven by
+Playwright/Chromium through every Customer/Dealer/Admin journey in the
+problem statement, cross-checked against direct `psql` inspection after
+every state-changing action. Full package, evidence, and a 10-section
+verdict report saved to `FINAL_HACKATHON_VERIFICATION/` (now committed —
+see its `README.md` for how to read it; start with `FINAL_VERDICT.md`).
+
+**One real bug found and fixed:** `server/tests/alerts.test.js` failed
+(31/32) because the seeded `EQX3002` "upcoming_return" demo case had drifted
+into "overdue" — `server/db/seed.js` computes `expected_return_at` relative
+to seed-run time, and enough real wall-clock time had passed since the DB
+was last seeded that the deadline had quietly lapsed. This is the exact
+same pattern as `ISSUES.md` `BUG-001`, now reconfirmed as a **live,
+recurring characteristic of the seeding approach**, not a one-off — it will
+happen again a few hours after any reseed. Fixed this instance by clearing
+and re-seeding the local DB (32/32 after). No code change; the underlying
+pattern is a known, accepted tradeoff (see `ISSUES.md` for the new note).
+
+**One new finding, not previously documented:** the mobile (390px) Dealer/
+Admin Action Queue renders every one of ~21 cards full-width with no
+pagination or collapsing — a genuine 9000+px-tall page. Not broken, just a
+real UX weakness if a judge scrolls it on a phone during a live demo.
+Documented, not fixed (a proper fix is a real feature, not a same-day
+patch) — see `FINAL_HACKATHON_VERIFICATION/REMAINING_ISSUES.md` #3.
+
+**Testing method for authenticated screens:** real Google OAuth cannot be
+scripted (Google blocks automated sign-in, no test credentials exist here).
+Flagged this to the user directly rather than guessing; per their choice, a
+temporary dev-only route (`POST /api/auth/_test-login`, gated on
+`NODE_ENV !== 'production'`) was added to mint a real session cookie (via
+the app's own `signSession()`) for pre-existing local test-user rows, so
+every screen *after* sign-in got real live testing. The route was fully
+removed before this session ended (`git diff` on the touched file was
+confirmed empty before committing) and the 4 verification-only user rows
+were deleted from the local `users` table. Real Google sign-in itself was
+last live-verified in production across real devices the night before (see
+the entry below) — not re-attempted this session since it can't be
+automated.
+
+**Net result:** everything from the problem statement is real and working,
+live-tested today, not just present in the code. Local DB was left in a
+clean demo-ready state (21 equipment / 257 usage_logs / 6 active checkouts /
+0 duplicate anomalies / original top-priority recommendation restored) —
+see `FINAL_HACKATHON_VERIFICATION/BUGS_FIXED.md` #3 for the exact cleanup
+performed. **Action still needed from the team:** reseed whichever database
+you actually present from, close to your slot — the drift above will have
+recurred again by then.
+
+---
+
 ## 2026-09-02 — Full competition-readiness audit against the real Caterpillar source material
 
 **What this session was:** an independent audit against the actual

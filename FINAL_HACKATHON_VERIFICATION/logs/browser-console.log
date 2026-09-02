@@ -1,0 +1,8 @@
+[landing-desktop] google-signin-button-visible: false
+[customer] HTTP 404: GET http://localhost:5173/api/equipment/00000000-0000-0000-0000-000000000000
+[customer] console.error: Failed to load resource: the server responded with a status of 404 (Not Found)
+[customer] HTTP 404: GET http://localhost:5173/api/equipment/00000000-0000-0000-0000-000000000000
+[customer] console.error: Failed to load resource: the server responded with a status of 404 (Not Found)
+[dealer] checkout equipment select options: — none —,OP101,OP106,OP114,OP203,OP301,OP401,OP402,OP403,OP404,OP405,OP501,OP502,OP503,OP504
+[dealer] duplicate checkout of already-checked-out EQX3001 -> HTTP 409 (expect 4xx)
+[newuser-role-selection] role persisted server-side: {"id":"e83f3481-b428-4229-9f2f-28a64d3d9313","email":"verify-newuser@citadel.test","name":"Verification New User","role":null}

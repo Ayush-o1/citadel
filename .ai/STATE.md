@@ -1,5 +1,46 @@
 # Project state
 
+## Final local verification pass — 32/32 tests, deployment live, product complete (2026-09-02, later)
+
+Since the entry below (2026-09-01), a lot changed that this file hadn't
+caught up to yet — see `HANDOFF.md`'s two 2026-09-02 entries for the full
+narrative; this is the corrected snapshot:
+
+- **Auth is now Firebase Authentication**, not the manual OAuth flow
+  described below — `client/src/firebase.js`, `server/src/config/firebaseAdmin.js`,
+  `auth.service.js`'s `completeFirebaseSignIn`. The `users` table/schema was
+  deliberately left unchanged (explicit constraint honored).
+- **Deployment is live**: `https://citadel-silk.vercel.app` (Vercel) +
+  `https://citadel-96hb.onrender.com` (Render, Dockerfile-deployed) + Neon
+  Postgres — see `ISSUES.md` `RISK-004`, now RESOLVED.
+- **A real race condition was found and fixed** (duplicate anomaly/alert/
+  recommendation rows under concurrent access) — migration `011`,
+  `ISSUES.md` `BUG-003`, RESOLVED, reconfirmed zero-duplicates again in this
+  session's local testing.
+- **Role switching was found removed by a teammate commit and restored** —
+  `ISSUES.md` `BUG-004`, RESOLVED.
+- **A full local end-to-end verification pass ran 2026-09-02** (not a code
+  review — a real running stack, Playwright-driven, every role, screenshots
+  + direct DB checks): **32/32 backend tests passing**, clean frontend
+  build, 14/15 official requirements PASS with fresh evidence (the 15th —
+  Google's own OAuth popup — can't be scripted, verified live in production
+  instead). Full report: `FINAL_HACKATHON_VERIFICATION/` (start with
+  `FINAL_VERDICT.md` — verdict: **READY WITH SMALL FIXES**).
+- **One real bug found and fixed this pass**: seeded demo data drifts with
+  real wall-clock time (`ISSUES.md` `BUG-001`, recurring — reseed before
+  presenting). **One new finding, not fixed**: mobile Action Queue is very
+  long with no pagination (`ISSUES.md` `BUG-005`, OPEN).
+- Server-side authorization remains narrow (`ISSUES.md` `RISK-005`,
+  ACCEPTED) — unchanged, reconfirmed still accurate.
+
+**Overall: product implementation is complete and verified working end to
+end, locally, today.** Not yet done: reseeding immediately before the
+actual demo slot (drift will have recurred by then — see `ISSUES.md`
+`BUG-001`), and a human click-through on the actual presenting
+device/browser.
+
+---
+
 ## Real Google auth landed + Admin Control Tower added (2026-09-01, late)
 
 Two things changed since the last entry below, both verified live against

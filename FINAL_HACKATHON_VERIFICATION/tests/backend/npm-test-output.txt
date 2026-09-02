@@ -1,0 +1,276 @@
+
+> citadel-server@0.1.0 test
+> node --test --test-concurrency=1
+
+TAP version 13
+# [0mGET /api/alerts [32m200[0m 23.903 ms - 1123[0m
+# Subtest: GET /api/alerts surfaces the seeded overdue, upcoming-return, and missing-info cases
+not ok 1 - GET /api/alerts surfaces the seeded overdue, upcoming-return, and missing-info cases
+  ---
+  duration_ms: 31.007416
+  type: 'test'
+  location: '/Users/ayush/Desktop/citadel/server/tests/alerts.test.js:7:1'
+  failureType: 'testCodeFailure'
+  error: 'EQX3002 (Phase 02: upcoming_return) should produce an upcoming_return alert'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/ayush/Desktop/citadel/server/tests/alerts.test.js:17:10)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [0mPOST /api/checkouts [32m201[0m 3.142 ms - 450[0m
+# [0mGET /api/alerts [32m200[0m 2.649 ms - 1941[0m
+# [0mPATCH /api/checkouts/e61739f5-5114-4a2b-9d10-9a6d75ed9559/check-in [32m200[0m 1.613 ms - 475[0m
+# [0mGET /api/alerts [32m200[0m 2.016 ms - 1123[0m
+# Subtest: a returned checkout produces no alert, and a stale alert resolves once the checkout is returned
+ok 2 - a returned checkout produces no alert, and a stale alert resolves once the checkout is returned
+  ---
+  duration_ms: 23.119375
+  type: 'test'
+  ...
+# [0mGET /api/anomalies [32m200[0m 22.709 ms - 5863[0m
+# Subtest: GET /api/anomalies flags the official worked examples exactly as Caterpillar's sample intends
+ok 3 - GET /api/anomalies flags the official worked examples exactly as Caterpillar's sample intends
+  ---
+  duration_ms: 29.245125
+  type: 'test'
+  ...
+# [0mGET /api/capacity [32m200[0m 23.797 ms - 2331[0m
+# Subtest: GET /api/capacity flags EQX3006 as underutilized against the Excavator baseline, with visible assumptions
+ok 4 - GET /api/capacity flags EQX3006 as underutilized against the Excavator baseline, with visible assumptions
+  ---
+  duration_ms: 30.912833
+  type: 'test'
+  ...
+# [0mGET /api/recommendations [32m200[0m 23.784 ms - 11538[0m
+# Subtest: GET /api/recommendations includes a capacity-sourced recommendation for EQX3006
+ok 5 - GET /api/recommendations includes a capacity-sourced recommendation for EQX3006
+  ---
+  duration_ms: 25.244208
+  type: 'test'
+  ...
+# [0mPOST /api/checkouts [32m201[0m 5.556 ms - 497[0m
+# [0mGET /api/equipment/3d794275-6f6f-41d0-96cd-ec8f158e0e3a [32m200[0m 1.962 ms - 531[0m
+# [0mPOST /api/checkouts [33m409[0m 1.336 ms - 72[0m
+# [0mPATCH /api/checkouts/c1f6f28e-665a-4469-8a74-84686bc6230f/check-in [32m200[0m 1.777 ms - 523[0m
+# [0mPATCH /api/checkouts/c1f6f28e-665a-4469-8a74-84686bc6230f/check-in [33m409[0m 1.102 ms - 68[0m
+# [0mGET /api/equipment/3d794275-6f6f-41d0-96cd-ec8f158e0e3a [32m200[0m 1.108 ms - 279[0m
+# Subtest: check-out, duplicate check-out rejected, check-in, double check-in rejected
+ok 6 - check-out, duplicate check-out rejected, check-in, double check-in rejected
+  ---
+  duration_ms: 49.079458
+  type: 'test'
+  ...
+# [0mPOST /api/checkouts [33m404[0m 0.632 ms - 59[0m
+# Subtest: check-out against a nonexistent equipment_id 404s
+ok 7 - check-out against a nonexistent equipment_id 404s
+  ---
+  duration_ms: 1.606208
+  type: 'test'
+  ...
+# [0mPOST /api/checkouts [33m400[0m 0.335 ms - 133[0m
+# Subtest: check-out with a malformed body 400s
+ok 8 - check-out with a malformed body 400s
+  ---
+  duration_ms: 1.298708
+  type: 'test'
+  ...
+# [0mPATCH /api/checkouts/00000000-0000-0000-0000-000000000000/check-in [33m404[0m 0.927 ms - 58[0m
+# Subtest: check-in against a nonexistent checkout 404s
+ok 9 - check-in against a nonexistent checkout 404s
+  ---
+  duration_ms: 2.754583
+  type: 'test'
+  ...
+# [0mGET /api/checkouts?status=active [32m200[0m 1.477 ms - 3272[0m
+# Subtest: GET /api/checkouts?status=active includes the seeded live checkouts
+ok 10 - GET /api/checkouts?status=active includes the seeded live checkouts
+  ---
+  duration_ms: 2.602291
+  type: 'test'
+  ...
+# [0mGET /api/checkouts?status=active [32m200[0m 0.776 ms - 3272[0m
+# Subtest: checkout responses include is_overdue/is_upcoming_return computed from the shared checkoutRules
+ok 11 - checkout responses include is_overdue/is_upcoming_return computed from the shared checkoutRules
+  ---
+  duration_ms: 1.460709
+  type: 'test'
+  ...
+# [0mPOST /api/checkouts [32m201[0m 1.816 ms - 440[0m
+# [0mPATCH /api/checkouts/5eed326e-5714-4def-88c2-4c9c1235c024/check-in [33m403[0m 0.940 ms - 74[0m
+# [0mGET /api/checkouts/5eed326e-5714-4def-88c2-4c9c1235c024 [32m200[0m 0.395 ms - 440[0m
+# [0mPATCH /api/checkouts/5eed326e-5714-4def-88c2-4c9c1235c024/check-in [32m200[0m 1.053 ms - 464[0m
+# Subtest: a customer can only self-return their own named rental, not another customer's
+ok 12 - a customer can only self-return their own named rental, not another customer's
+  ---
+  duration_ms: 9.294625
+  type: 'test'
+  ...
+# [0mPOST /api/checkouts [32m201[0m 2.017 ms - 471[0m
+# [0mPATCH /api/checkouts/00a80dbe-fada-4c4a-8955-b81fb721ae83/check-in [33m403[0m 0.960 ms - 74[0m
+# [0mPATCH /api/checkouts/00a80dbe-fada-4c4a-8955-b81fb721ae83/check-in [32m200[0m 1.044 ms - 495[0m
+# Subtest: a signed-in customer's rental is owned by their real user_id, and another signed-in customer cannot return it
+ok 13 - a signed-in customer's rental is owned by their real user_id, and another signed-in customer cannot return it
+  ---
+  duration_ms: 11.618
+  type: 'test'
+  ...
+# [0mPOST /api/checkouts [32m201[0m 1.429 ms - 440[0m
+# [0mPATCH /api/checkouts/60bb7ab9-cc9e-4c65-a9c0-da5dbcb17f16/check-in [32m200[0m 1.014 ms - 466[0m
+# Subtest: a dealer check-in (no customer_name in the request) still works on a customer-named rental
+ok 14 - a dealer check-in (no customer_name in the request) still works on a customer-named rental
+  ---
+  duration_ms: 6.080084
+  type: 'test'
+  ...
+# [0mGET /api/equipment [32m200[0m 23.832 ms - 5372[0m
+# Subtest: GET /api/equipment returns the seeded fleet with computed live status
+ok 15 - GET /api/equipment returns the seeded fleet with computed live status
+  ---
+  duration_ms: 30.895292
+  type: 'test'
+  ...
+# [0mGET /api/equipment [32m200[0m 2.895 ms - 5372[0m
+# [0mGET /api/equipment/7aada8a7-e78a-44ef-bc5f-89bcd4a6a0b2 [32m200[0m 1.720 ms - 202[0m
+# Subtest: GET /api/equipment/:id returns one equipment record
+ok 16 - GET /api/equipment/:id returns one equipment record
+  ---
+  duration_ms: 6.822
+  type: 'test'
+  ...
+# [0mGET /api/equipment/00000000-0000-0000-0000-000000000000 [33m404[0m 1.350 ms - 59[0m
+# Subtest: GET /api/equipment/:id 404s for a well-formed but nonexistent id
+ok 17 - GET /api/equipment/:id 404s for a well-formed but nonexistent id
+  ---
+  duration_ms: 2.330417
+  type: 'test'
+  ...
+# [0mGET /api/equipment/not-a-uuid [33m400[0m 0.256 ms - 66[0m
+# Subtest: GET /api/equipment/:id 400s for a malformed id
+ok 18 - GET /api/equipment/:id 400s for a malformed id
+  ---
+  duration_ms: 1.31775
+  type: 'test'
+  ...
+# [0mGET /api/forecasts [32m200[0m 23.671 ms - 1770[0m
+# Subtest: GET /api/forecasts produces a real forecast where history supports it, and an honest fallback where it does not
+ok 19 - GET /api/forecasts produces a real forecast where history supports it, and an honest fallback where it does not
+  ---
+  duration_ms: 30.728417
+  type: 'test'
+  ...
+# [0mGET /api/forecasts [32m200[0m 2.865 ms - 1770[0m
+# Subtest: a real forecast has a well-formed upcoming period
+ok 20 - a real forecast has a well-formed upcoming period
+  ---
+  duration_ms: 4.367291
+  type: 'test'
+  ...
+# [0mGET /api/health [32m200[0m 15.933 ms - 119[0m
+# Subtest: GET /api/health responds with 200 and status ok
+ok 21 - GET /api/health responds with 200 and status ok
+  ---
+  duration_ms: 22.608291
+  type: 'test'
+  ...
+# [0mGET /api/unknown-route [33m404[0m 0.205 ms - 79[0m
+# Subtest: GET /api/unknown-route responds with 404
+ok 22 - GET /api/unknown-route responds with 404
+  ---
+  duration_ms: 1.571458
+  type: 'test'
+  ...
+# [0mGET /api/recommendations [32m200[0m 30.911 ms - 11538[0m
+# Subtest: GET /api/recommendations unifies alerts/anomalies/forecasts into one ranked, worded feed
+ok 23 - GET /api/recommendations unifies alerts/anomalies/forecasts into one ranked, worded feed
+  ---
+  duration_ms: 37.725542
+  type: 'test'
+  ...
+# [0mGET /api/recommendations [32m200[0m 13.231 ms - 11538[0m
+# [0mGET /api/recommendations [32m200[0m 9.273 ms - 11538[0m
+# Subtest: GET /api/recommendations is idempotent — re-syncing does not duplicate rows
+ok 24 - GET /api/recommendations is idempotent — re-syncing does not duplicate rows
+  ---
+  duration_ms: 25.145375
+  type: 'test'
+  ...
+# [0mPOST /api/checkouts [32m201[0m 2.092 ms - 450[0m
+# [0mGET /api/recommendations [32m200[0m 10.611 ms - 12658[0m
+# [0mPATCH /api/recommendations/33cfff70-809d-4194-a609-5c09bbe80aec [32m200[0m 0.596 ms - 575[0m
+# [0mGET /api/recommendations [32m200[0m 8.554 ms - 12083[0m
+# [0mPATCH /api/recommendations/33cfff70-809d-4194-a609-5c09bbe80aec [33m409[0m 0.469 ms - 74[0m
+# Subtest: marking a recommendation actioned persists, excludes it from the active queue, and rejects a second action
+ok 25 - marking a recommendation actioned persists, excludes it from the active queue, and rejects a second action
+  ---
+  duration_ms: 32.042916
+  type: 'test'
+  ...
+# [0mGET /api/recommendations [32m200[0m 7.581 ms - 11538[0m
+# [0mPATCH /api/recommendations/b04f8b80-7a02-4f66-b7bc-c79da17ab811 [33m400[0m 0.410 ms - 193[0m
+# [0mPATCH /api/recommendations/00000000-0000-0000-0000-000000000000 [33m404[0m 0.209 ms - 64[0m
+# Subtest: PATCH with a malformed body 400s; PATCH against a nonexistent id 404s
+ok 26 - PATCH with a malformed body 400s; PATCH against a nonexistent id 404s
+  ---
+  duration_ms: 11.249542
+  type: 'test'
+  ...
+# [0mGET /api/sites [32m200[0m 18.569 ms - 553[0m
+# Subtest: GET /api/sites returns the seeded sites
+ok 27 - GET /api/sites returns the seeded sites
+  ---
+  duration_ms: 25.576875
+  type: 'test'
+  ...
+# [0mGET /api/operators [32m200[0m 1.106 ms - 1257[0m
+# Subtest: GET /api/operators returns the seeded operators
+ok 28 - GET /api/operators returns the seeded operators
+  ---
+  duration_ms: 2.433625
+  type: 'test'
+  ...
+# [0mPOST /api/checkouts [32m201[0m 5.597 ms - 429[0m
+# [0mPOST /api/usage-logs [32m201[0m 2.160 ms - 355[0m
+# [0mPOST /api/usage-logs [33m409[0m 1.992 ms - 97[0m
+# [0mPATCH /api/checkouts/357f1029-0e41-4d45-a191-47aba5078ca4/check-in [32m200[0m 13.340 ms - 453[0m
+# [0mPOST /api/usage-logs [33m409[0m 0.684 ms - 94[0m
+# Subtest: usage log requires an active checkout; rejected once the checkout is returned
+ok 29 - usage log requires an active checkout; rejected once the checkout is returned
+  ---
+  duration_ms: 57.975542
+  type: 'test'
+  ...
+# [0mPOST /api/usage-logs [33m404[0m 0.335 ms - 58[0m
+# Subtest: usage log against a nonexistent checkout 404s
+ok 30 - usage log against a nonexistent checkout 404s
+  ---
+  duration_ms: 1.249459
+  type: 'test'
+  ...
+# [0mPOST /api/usage-logs [33m400[0m 0.311 ms - 132[0m
+# Subtest: usage log with a malformed body 400s
+ok 31 - usage log with a malformed body 400s
+  ---
+  duration_ms: 1.234959
+  type: 'test'
+  ...
+# [0mGET /api/utilization [32m200[0m 18.035 ms - 538[0m
+# Subtest: GET /api/utilization frames each equipment type against the 65-75% healthy band
+ok 32 - GET /api/utilization frames each equipment type against the 65-75% healthy band
+  ---
+  duration_ms: 25.161541
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 31
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 112595.9495
