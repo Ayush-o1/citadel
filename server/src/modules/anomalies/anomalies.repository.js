@@ -40,10 +40,17 @@ export async function findOpenKeys() {
   return rows;
 }
 
+// ON CONFLICT DO NOTHING against idx_anomalies_one_open_per_checkout_type
+// (migration 011): the service layer's check-then-act sync already tries
+// to avoid inserting a duplicate, but that check has no atomicity
+// guarantee against a second concurrent sync doing the same thing at the
+// same time -- this is what actually prevents the duplicate at the
+// database level instead of just making it less likely.
 export async function insertAnomaly({ equipmentId, checkoutId, type, reason, severity }) {
   await query(
     `INSERT INTO anomalies (equipment_id, checkout_id, type, reason, severity)
-     VALUES ($1, $2, $3, $4, $5)`,
+     VALUES ($1, $2, $3, $4, $5)
+     ON CONFLICT (checkout_id, type) WHERE status = 'open' DO NOTHING`,
     [equipmentId, checkoutId, type, reason, severity]
   );
 }

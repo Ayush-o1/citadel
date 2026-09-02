@@ -17,11 +17,26 @@ rehearsal removes it from the queue for real. Reset before every run:
 UPDATE recommendations SET status = 'pending', actioned_at = NULL WHERE status != 'pending';
 ```
 
-Also confirm the baseline hasn't drifted: `equipment: 21, checkouts: 26,
-usage_logs: 257` (`psql`, or ask whoever ran the last rehearsal — this is
-the RB-6 baseline, not the original Phase 02 one). If it doesn't match,
-something touched the seeded data — stop and investigate before
-presenting, don't demo on a corrupted baseline.
+**2026-09-02 finding, real and confirmed live:** a full night of real
+multi-person testing (multiple teammates + judges/testers using the
+actual Google sign-in) left genuine drift on production — `EQX1001` and
+`EQX1002` were found checked out live with no operator/site (real
+checkouts from real testing, not corrupted data), which is why they may
+show extra `missing_assignment` cards beyond the original official
+example. Anomalies don't auto-resolve by design, so old ones from
+earlier test checkouts can also still be sitting in the queue. Before
+presenting: check in any active checkouts on assets you don't want
+showing as "currently checked out" (Dealer's Asset Dashboard, or query
+`GET /api/equipment` for any `status: "checked_out"` you don't
+recognize), and consider whether a full re-seed is warranted if the
+queue looks cluttered with stale test signals rather than the clean
+official example.
+
+Also confirm the baseline hasn't drifted structurally: `equipment: 21,
+checkouts: 26, usage_logs: 257` is the RB-6 *seeded* baseline — real
+testing since then will have added more checkouts/usage_logs on top of
+it, which is expected, not a bug. If `equipment` itself isn't 21,
+something is actually wrong — stop and investigate.
 
 Start both servers: `cd server && npm run dev` (or `npm start`), `cd
 client && npm run dev`. Open `http://localhost:5173/`.

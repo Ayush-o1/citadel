@@ -8,10 +8,16 @@ export async function findBySource(sourceType, sourceId) {
   return rows[0] ?? null;
 }
 
+// ON CONFLICT DO NOTHING against idx_recommendations_one_per_source
+// (migration 011) -- see anomalies.repository.js's insertAnomaly for why:
+// the service layer's findBySource-then-insert check alone can't prevent
+// two concurrent syncs from both inserting a recommendation for the same
+// (source_type, source_id) at once.
 export async function insert({ sourceType, sourceId, equipmentId, signal, reason, action, expectedImpact }) {
   await query(
     `INSERT INTO recommendations (source_type, source_id, equipment_id, signal, reason, action, expected_impact)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (source_type, source_id) DO NOTHING`,
     [sourceType, sourceId, equipmentId, signal, reason, action, expectedImpact]
   );
 }
