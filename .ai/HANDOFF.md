@@ -7,6 +7,75 @@ what surprised us, what's still shaky.
 
 ---
 
+## 2026-09-02 — Full competition-readiness audit against the real Caterpillar source material
+
+**What this session was:** an independent audit against the actual
+Caterpillar hackathon brief, not the repo's own docs. Read the real
+source material first — the printed handout photo already referenced in
+`PROBLEM-STATEMENT.md`, plus 11 previously-unreviewed presentation-slide
+photos from `~/Downloads` (the "Source B" deck itself, not a relayed
+transcription). Confirmed the existing `PROBLEM-STATEMENT.md` is
+accurate against the real slides on every checkable point (six
+capabilities, four-step asset journey, judging weights, demo-narrative
+framing all match word-for-word) — one real, useful finding: the
+official suggested demo's SPOT example is `EQX1007` ("12 idle hours per
+day"), not `EQX1002`, which `DEMO-SCRIPT.md` had been using. Fixed.
+
+**Two real, live bugs found and fixed, both confirmed on production, not
+guessed:**
+1. A genuine race condition in alerts/anomalies/recommendations
+   sync-on-read (check-then-act, no atomicity) — confirmed via duplicate
+   rows on live production sharing the exact same equipment_id AND
+   checkout_id, inserted ~50ms apart. Fixed with migration `011` (partial
+   unique indexes + `ON CONFLICT DO NOTHING`), verified with a 10-way
+   concurrent stress test against all three sync functions before and
+   after. See `ISSUES.md` `BUG-003`.
+2. Role switching was silently removed by a same-night teammate commit,
+   leaving Entry.jsx's own copy promising a capability that no longer
+   existed and breaking `DEMO-SCRIPT.md`'s rehearsed Admin bonus beat.
+   Restored (`client/src/pages/SwitchRole.jsx`), redesigned to match the
+   current visual language rather than reverted verbatim. See `ISSUES.md`
+   `BUG-004`.
+
+**Also found, live on production, and diagnosed as NOT a bug:** `EQX1001`
+and `EQX1002` showed as actively checked out with no operator/site
+assigned. Traced to real, legitimate checkouts created by real people
+testing the live app tonight (matches the same real customer/checkout
+activity visible in Render's own request logs) — not corrupted seed
+data. Documented in `DEMO-SCRIPT.md`'s pre-flight section: check these in
+before presenting, or re-seed if the queue looks cluttered with test
+signals rather than the clean official example.
+
+**Real, honest, NOT-fixed-tonight gap, formalized as `ISSUES.md`
+`RISK-005`:** server-side authorization covers exactly one route
+(`PATCH /api/auth/me/role`); every other endpoint, writes included,
+accepts unauthenticated requests. This was already honestly disclosed in
+`PANEL-DEFENSE.md` before tonight — confirmed still accurate by reading
+every route file directly. Deliberately not retrofitted this session:
+the automated test suite calls these routes without authenticating, so
+doing this properly means updating test fixtures too, which is real risk
+this close to presenting on a system just stabilized after two more
+visible live bugs. First priority after presenting.
+
+**Verified this session (not assumed):** backend 32/32 tests (before and
+after every change); client build clean throughout; migration 011
+applies cleanly to a fresh local database; the race-condition fix
+holds under 10-way concurrency for all three sync functions; production
+redeployed and reconfirmed zero duplicate `(checkout_id, type)` pairs
+live; `/switch-role` returns 200 live; the public entry page renders
+correctly at a real mobile viewport (390×844) against the live URL with
+zero console errors.
+
+**Not verified, and said so rather than guessed:** a live, human-driven
+click-through of the full Customer/Dealer/Admin/capacity flows on the
+actual production URL this session (extensive live API- and log-level
+verification was done instead, which is what's actually available
+without a browser session of my own on the deployed app). The
+`RISK-005` authorization gap's real-world exploitability wasn't
+penetration-tested, only confirmed to exist by reading the route code.
+
+---
+
 ## 2026-09-01 (late night) — Admin Control Tower + full doc sync after the real-auth landing
 
 **What this session was:** picked up mid-flight, uncommitted real Google
