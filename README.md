@@ -124,7 +124,7 @@ frontend/role architecture.
 
 ## Deployment
 
-Frontend → Vercel, backend → Render, database → Neon (managed
+Frontend → Vercel, backend → Render, Database → Neon (managed
 PostgreSQL), auto-deploying from `main` on push. Configuration is
 committed (`render.yaml`, `client/vercel.json`) but **no account has been
 connected yet** — there is no live public URL as of this writing. Full
